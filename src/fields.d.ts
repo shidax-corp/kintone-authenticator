@@ -1,9 +1,10 @@
 declare namespace kintone.types {
   interface Fields {
+    otpuri: kintone.fieldTypes.SingleLineText;
+    url: kintone.fieldTypes.SingleLineText;
     password: kintone.fieldTypes.SingleLineText;
     name: kintone.fieldTypes.SingleLineText;
-    id: kintone.fieldTypes.SingleLineText;
-    uri: kintone.fieldTypes.SingleLineText;
+    username: kintone.fieldTypes.SingleLineText;
   }
   interface SavedFields extends Fields {
     $id: kintone.fieldTypes.Id;

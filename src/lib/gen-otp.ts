@@ -29,6 +29,7 @@ export type HOTPRequest = {
 }
 
 export type HOTP = {
+  type: 'HOTP';
   otp: string;
   timestamp: Date;
 }
@@ -41,6 +42,7 @@ export const generateHOTP = async ({ secret, algorithm, digits }: HOTPRequest, c
   const digest = await hmac(secret, counter, algorithm);
   const otp = dynamicTruncate(digest) % Math.pow(10, digits);
   return {
+    type: 'HOTP',
     otp: otp.toString().padStart(digits, '0'),
     timestamp: new Date(),
   };
@@ -54,6 +56,7 @@ export type TOTPRequest = {
 }
 
 export type TOTP = {
+  type: 'TOTP';
   otp: string;
   timestamp: Date;
   availableFrom: Date;
@@ -71,6 +74,7 @@ export const generateTOTP = async ({ secret, algorithm = 'SHA-1', digits = 6, pe
   const { otp } = await generateHOTP({ secret, algorithm, digits }, counter);
 
   return {
+    type: 'TOTP',
     otp,
     timestamp: new Date(currentTime * 1000),
     availableFrom: new Date(counter * period * 1000),

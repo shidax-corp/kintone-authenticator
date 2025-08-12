@@ -23,6 +23,7 @@ declare namespace kintone {
     function getHeaderSpaceElement(): HTMLDivElement | null;
 
     namespace record {
+      function getFieldElement(fieldCode: string): HTMLDivElement | null;
       function getSpaceElement(spaceId: string): HTMLDivElement | null;
       function setFieldShown(fieldCode: string, isShown: boolean): void;
     }

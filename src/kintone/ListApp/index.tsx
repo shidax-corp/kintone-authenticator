@@ -1,11 +1,11 @@
 import React from 'react';
 
-export interface ListViewProps {
+export interface ListAppProps {
   appId: number;
   records: kintone.types.SavedFields[];
 }
 
-export default function ListView({ appId, records }: ListViewProps) {
+export default function ListApp({ appId, records }: ListAppProps) {
   return (
     <div>
       <ul>
