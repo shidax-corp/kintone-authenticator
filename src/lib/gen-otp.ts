@@ -3,21 +3,8 @@
  * https://qiita.com/kerupani129/items/4780fb1eea160c7a00bd
  */
 
-
+import { hmac } from './hmac';
 import type { HashAlgorithm } from './otpauth-uri';
-
-const hmac = async (key: Uint8Array, data: Uint8Array, algorithm: HashAlgorithm) => {
-  const cryptoKey = await crypto.subtle.importKey(
-    'raw',
-    key,
-    { name: 'HMAC', hash: { name: algorithm } },
-    false,
-    ['sign']
-  );
-
-  const digest = await crypto.subtle.sign('HMAC', cryptoKey, data);
-  return new Uint8Array(digest);
-}
 
 /** Truncates the last byte of the data to extract a 32-bit integer.
  *
