@@ -1,0 +1,33 @@
+{
+  "name": "kintone-authenticator",
+  "version": "1.0.0",
+  "description": "もしもGoogle Authenticatorのようなアプリがkintone上で動いたら？",
+  "homepage": "https://github.com/macrat/kintone-authenticator#readme",
+  "bugs": {
+    "url": "https://github.com/macrat/kintone-authenticator/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/macrat/kintone-authenticator.git"
+  },
+  "license": "MIT",
+  "author": "SHIDA Yuma <m@crat.jp>",
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "dev": "node build.mjs --serve",
+    "check": "tsc --noEmit",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "esbuild-plugin-copy": "^2.1.1",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
+  },
+  "devDependencies": {
+    "@types/react": "^19.1.10",
+    "@types/react-dom": "^19.1.7",
+    "esbuild": "^0.25.8",
+    "typescript": "^5.9.2"
+  }
+}
