@@ -5,6 +5,7 @@
 
 import type { HashAlgorithm } from './hmac';
 import { hmac } from './hmac';
+import type { OTPAuthRecord } from './otpauth-uri';
 
 /** Truncates the last byte of the data to extract a 32-bit integer.
  *
@@ -76,3 +77,5 @@ export const generateTOTP = async ({ secret, algorithm = 'SHA-1', digits = 6, pe
     availableUntil: new Date((counter * period + period) * 1000),
   };
 }
+
+export type OTP = HOTP | TOTP;
