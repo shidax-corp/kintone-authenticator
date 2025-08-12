@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
 import type { OTP } from '@lib/gen-otp';
+import { prettifyOTP } from '@lib/gen-otp';
 
 import CopyBlock from './CopyBlock';
 
@@ -39,7 +40,7 @@ export default function OTPField({ otp, barOffset }: OTPFieldProps) {
 
   return (
     <div style={{ position: 'relative', fontSize: '140%' }}>
-      <CopyBlock style={{ padding: '4px 8px 8px' }}>{!otp ? 'loading...' : otp.otp}</CopyBlock>
+      <CopyBlock style={{ padding: '4px 8px 8px' }}>{!otp ? 'loading...' : prettifyOTP(otp.otp)}</CopyBlock>
 
       {otp?.type === 'TOTP' && (
         <div style={{ position: 'absolute', left: barOffset?.x ?? 0, bottom: barOffset?.y ?? 0, right: barOffset?.x ?? 0, height: '4px', backgroundColor: '#0003' }}>

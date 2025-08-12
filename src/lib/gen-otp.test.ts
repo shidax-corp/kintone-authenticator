@@ -1,6 +1,6 @@
 import type { HashAlgorithm } from './hmac';
 import type { HOTPRequest } from './gen-otp';
-import { generateHOTP, generateTOTP } from './gen-otp';
+import { generateHOTP, generateTOTP, prettifyOTP } from './gen-otp';
 
 describe('gen-otp', () => {
   describe('generateHOTP', () => {
@@ -93,5 +93,22 @@ describe('gen-otp', () => {
     });
 
     // test values from RFC 6238 Appendix B. Test Vectors
+  });
+
+  describe('prettifyOTP', () => {
+    const tests: { otp: string; expected: string }[] = [
+      { otp: '12345', expected: '123 45' },
+      { otp: '123456', expected: '123 456' },
+      { otp: '1234567', expected: '1234 567' },
+      { otp: '12345678', expected: '1234 5678' },
+      { otp: '123456789', expected: '123 456 789' },
+      { otp: '1234567890', expected: '123 4567 890' },
+      { otp: '12345678901', expected: '1234 5678 901' },
+      { otp: '123456789012', expected: '1234 5678 9012' },
+    ];
+
+    it.each(tests)('prettifyOTP for $otp', ({ otp, expected }) => {
+      expect(prettifyOTP(otp)).toBe(expected);
+    });
   });
 });

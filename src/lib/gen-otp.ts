@@ -83,3 +83,24 @@ export const generateTOTP = async ({ secret, algorithm = 'SHA-1', digits = 6, pe
 }
 
 export type OTP = HOTP | TOTP;
+
+export const prettifyOTP = (otp: string): string => {
+  if (otp.length === 5) {
+    return otp.replace(/(\d{3})(\d{2})/, '$1 $2');
+  } if (otp.length === 6) {
+    return otp.replace(/(\d{3})(\d{3})/, '$1 $2');
+  } else if (otp.length === 7) {
+    return otp.replace(/(\d{4})(\d{3})/, '$1 $2');
+  } else if (otp.length === 8) {
+    return otp.replace(/(\d{4})(\d{4})/, '$1 $2');
+  } else if (otp.length === 9) {
+    return otp.replace(/(\d{3})(\d{3})(\d{3})/, '$1 $2 $3');
+  } else if (otp.length === 10) {
+    return otp.replace(/(\d{3})(\d{4})(\d{3})/, '$1 $2 $3');
+  } else if (otp.length === 11) {
+    return otp.replace(/(\d{4})(\d{4})(\d{3})/, '$1 $2 $3');
+  } else if (otp.length === 12) {
+    return otp.replace(/(\d{4})(\d{4})(\d{4})/, '$1 $2 $3');
+  }
+  return otp; // Return as is for other lengths
+}
