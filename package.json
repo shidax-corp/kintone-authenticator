@@ -17,7 +17,7 @@
     "build": "node build.mjs",
     "dev": "node build.mjs --serve",
     "check": "tsc --noEmit",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "dependencies": {
     "esbuild-plugin-copy": "^2.1.1",
@@ -25,9 +25,12 @@
     "react-dom": "^19.1.1"
   },
   "devDependencies": {
+    "@types/jest": "^30.0.0",
     "@types/react": "^19.1.10",
     "@types/react-dom": "^19.1.7",
     "esbuild": "^0.25.8",
+    "jest": "^30.0.5",
+    "ts-jest": "^29.4.1",
     "typescript": "^5.9.2"
   }
 }

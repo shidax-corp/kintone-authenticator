@@ -19,6 +19,11 @@ Type check:
 npm run check
 ```
 
+Run tests:
+```bash
+npm run test
+```
+
 ## Architecture
 
 This is a kintone authenticator application similar to Google Authenticator, with two main components:
@@ -45,6 +50,8 @@ This is a kintone authenticator application similar to Google Authenticator, wit
 ## Development Guidelines
 
 - Write comments in English. Clear and self-explanatory codes are preferred over excessive comments.
+- Write unit tests as much as possible.
+- Run `npm run check && npm run test` before committing.
 
 ## Git guidelines
 
