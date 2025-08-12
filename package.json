@@ -14,20 +14,26 @@
   "author": "SHIDA Yuma <m@crat.jp>",
   "type": "module",
   "scripts": {
-    "build": "node build.mjs",
-    "dev": "node build.mjs --serve",
+    "build": "node --env-file=.env build.mjs",
+    "dev": "node --env-file=.env build.mjs --serve",
+    "deploy:kintone": "dotenv -c development -- sh -c 'cd dist/kintone && kintone-customize-uploader --base-url=${KINTONE_BASE_URL} --username=${KINTONE_USERNAME} --password=${KINTONE_PASSWORD} dest/customize-manifest.json'",
+    "gen:dts": "dotenv -c development -- sh -c 'kintone-dts-gen --base-url ${KINTONE_BASE_URL} --app-id ${KINTONE_APP_ID} --username ${KINTONE_USERNAME} --password ${KINTONE_PASSWORD} --output src/fields.d.ts'",
     "check": "tsc --noEmit",
     "test": "jest"
   },
   "dependencies": {
+    "@kintone/rest-api-client": "^5.7.4",
     "esbuild-plugin-copy": "^2.1.1",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"
   },
   "devDependencies": {
+    "@kintone/customize-uploader": "^8.0.14",
+    "@kintone/dts-gen": "^8.1.2",
     "@types/jest": "^30.0.0",
     "@types/react": "^19.1.10",
     "@types/react-dom": "^19.1.7",
+    "dotenv-cli": "^10.0.0",
     "esbuild": "^0.25.8",
     "jest": "^30.0.5",
     "ts-jest": "^29.4.1",
