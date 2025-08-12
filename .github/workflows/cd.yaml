@@ -20,11 +20,11 @@ jobs:
         env:
           NODE_ENV: production
           KINTONE_BASE_URL: ${{ secrets.KINTONE_BASE_URL }}
-          KINTONE_APP_ID: ${{ secrets.KINTONE_APP_ID }}
-          KINTONE_VIEW_ID: ${{ secrets.KINTONE_VIEW_ID }}
+          KINTONE_APP_ID: ${{ vars.KINTONE_APP_ID }}
+          KINTONE_VIEW_ID: ${{ vars.KINTONE_VIEW_ID }}
       - run: npm run deploy:kintone
         env:
           KINTONE_BASE_URL: ${{ secrets.KINTONE_BASE_URL }}
-          KINTONE_APP_ID: ${{ secrets.KINTONE_APP_ID }}
+          KINTONE_APP_ID: ${{ vars.KINTONE_APP_ID }}
           KINTONE_USERNAME: ${{ secrets.KINTONE_USERNAME }}
           KINTONE_PASSWORD: ${{ secrets.KINTONE_PASSWORD }}
