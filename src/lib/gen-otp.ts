@@ -3,8 +3,8 @@
  * https://qiita.com/kerupani129/items/4780fb1eea160c7a00bd
  */
 
+import type { HashAlgorithm } from './hmac';
 import { hmac } from './hmac';
-import type { HashAlgorithm } from './otpauth-uri';
 
 /** Truncates the last byte of the data to extract a 32-bit integer.
  *
@@ -13,7 +13,7 @@ import type { HashAlgorithm } from './otpauth-uri';
 const dynamicTruncate = (data: Uint8Array): number => {
   const offset = data[data.length - 1] & 0x0F;
 
-  const code = ((data[offset + 0]) << 24) |
+  const code = ((data[offset + 0] & 0x7F) << 24) |
                ((data[offset + 1]) << 16) |
                ((data[offset + 2]) <<  8) |
                ((data[offset + 3]) <<  0);
@@ -37,25 +37,12 @@ export type HOTP = {
  * This is defined by [the RFC 4226](https://datatracker.ietf.org/doc/html/rfc4226).
  */
 export const generateHOTP = async ({ secret, algorithm, digits }: HOTPRequest, counter: number): Promise<HOTP> => {
-  const digest = await hmac(secret, int2bytes(counter, 8), algorithm);
+  const digest = await hmac(secret, counter, algorithm);
   const otp = dynamicTruncate(digest) % Math.pow(10, digits);
   return {
     otp: otp.toString().padStart(digits, '0'),
     timestamp: new Date(),
   };
-}
-
-/** Converts a number to a byte array in big-endian format.
- */
-const int2bytes = (num: number, width: number = 8) => {
-  const output = new Uint8Array(width);
-
-  for (let i = width - 1; i >= 0; i--) {
-    output[i] = num & 0xFF;
-    num >>= 8;
-  }
-
-  return output;
 }
 
 export type TOTPRequest = {

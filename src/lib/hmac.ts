@@ -1,6 +1,29 @@
-import type { HashAlgorithm } from './otpauth-uri';
+export type HashAlgorithm = 'SHA-1' | 'SHA-256' | 'SHA-512';
 
-export const hmac = async (key: Uint8Array, data: Uint8Array, algorithm: HashAlgorithm) => {
+const hashWidths: { [key in HashAlgorithm]: number } = {
+  'SHA-1': 8,
+  'SHA-256': 32,
+  'SHA-512': 64
+};
+
+/** Converts a number to a byte array in big-endian format.
+ */
+const int2bytes = (num: number, width: number = 8) => {
+  const output = new Uint8Array(width);
+
+  for (let i = width - 1; i >= 0; i--) {
+    output[i] = num & 0xFF;
+    num >>= 8;
+  }
+
+  return output;
+}
+
+export const hmac = async (key: Uint8Array, data: Uint8Array | number, algorithm: HashAlgorithm): Promise<Uint8Array> => {
+  if (typeof data === 'number') {
+    data = int2bytes(data, 8);
+  }
+
   const cryptoKey = await crypto.subtle.importKey(
     'raw',
     key.buffer as ArrayBuffer,

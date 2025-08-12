@@ -1,6 +1,5 @@
+import type { HashAlgorithm } from './hmac';
 import { b32encode, b32decode } from './base32';
-
-export type HashAlgorithm = 'SHA-1' | 'SHA-256' | 'SHA-512';
 
 type OTPAuthRecordBase = {
   issuer: string;

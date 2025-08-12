@@ -1,0 +1,29 @@
+import { hmac } from './hmac';
+
+const hex = (data: Uint8Array): string => {
+  return Buffer.from(data).toString('hex');
+};
+
+describe('hmac', () => {
+  const secret = new Uint8Array([0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x30]);  // '12345678901234567890' in ASCII
+  const algorithm = 'SHA-1';
+
+  const tests = [
+    { count: new Uint8Array([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]), expected: 'cc93cf18508d94934c64b65d8ba7667fb7cde4b0' },
+    { count: new Uint8Array([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01]), expected: '75a48a19d4cbe100644e8ac1397eea747a2d33ab' },
+    { count: new Uint8Array([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02]), expected: '0bacb7fa082fef30782211938bc1c5e70416ff44' },
+    { count: new Uint8Array([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03]), expected: '66c28227d03a2d5529262ff016a1e6ef76557ece' },
+    { count: new Uint8Array([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04]), expected: 'a904c900a64b35909874b33e61c5938a8e15ed1c' },
+    { count: new Uint8Array([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x05]), expected: 'a37e783d7b7233c083d4f62926c7a25f238d0316' },
+    { count: new Uint8Array([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x06]), expected: 'bc9cd28561042c83f219324d3c607256c03272ae' },
+    { count: new Uint8Array([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x07]), expected: 'a4fb960c0bc06e1eabb804e5b397cdc4b45596fa' },
+    { count: new Uint8Array([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x08]), expected: '1b3c89f65e6c9e883012052823443f048b4332db' },
+    { count: new Uint8Array([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x09]), expected: '1637409809a679dc698207310c8c7fc07290d9e5' },
+  ];
+
+  it.each(tests)('HMAC with count $count', async ({ count, expected }) => {
+    expect(hex(await hmac(secret, count, algorithm))).toEqual(expected);
+  });
+
+  // test values from RFC 4426 Appendix D - HOTP Algorithm: Test Values
+});
