@@ -38,7 +38,6 @@ describe('storage', () => {
         kintoneBaseUrl: 'https://example.cybozu.com',
         kintoneUsername: 'user',
         kintonePassword: 'pass',
-        passphrase: 'secret',
         autoFillEnabled: true,
       };
 
@@ -72,7 +71,6 @@ describe('storage', () => {
         kintoneBaseUrl: 'https://example.cybozu.com',
         kintoneUsername: 'user',
         kintonePassword: 'pass',
-        passphrase: 'secret',
         autoFillEnabled: true,
       };
 
@@ -89,7 +87,6 @@ describe('storage', () => {
         kintoneBaseUrl: 'https://example.cybozu.com',
         kintoneUsername: 'user',
         kintonePassword: 'pass',
-        passphrase: 'secret',
         autoFillEnabled: true,
       };
 
@@ -105,7 +102,6 @@ describe('storage', () => {
         kintoneBaseUrl: 'https://example.cybozu.com',
         kintoneUsername: 'user',
         kintonePassword: 'pass',
-        passphrase: 'secret',
         autoFillEnabled: true,
       };
 
@@ -121,7 +117,6 @@ describe('storage', () => {
         kintoneBaseUrl: 'https://example.cybozu.com',
         kintoneUsername: '',
         kintonePassword: 'pass',
-        passphrase: 'secret',
         autoFillEnabled: true,
       } as ExtensionSettings;
 
@@ -137,7 +132,7 @@ describe('storage', () => {
           name: 'Test Site',
           url: 'https://example.com',
           username: 'user',
-          password: 'encrypted_pass',
+          password: 'password123',
           otpAuthUri: 'encrypted_uri',
           updatedTime: new Date().toISOString(),
         },
@@ -187,7 +182,7 @@ describe('storage', () => {
           name: 'Test Site',
           url: 'https://example.com',
           username: 'user',
-          password: 'encrypted_pass',
+          password: 'password123',
           otpAuthUri: 'encrypted_uri',
           updatedTime: new Date().toISOString(),
         },

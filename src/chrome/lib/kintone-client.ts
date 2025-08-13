@@ -1,5 +1,4 @@
 import { KintoneRestAPIClient } from '@kintone/rest-api-client';
-import { encrypt, decrypt } from '../../lib/crypto';
 import { getCachedRecords, setCachedRecords } from './storage';
 import type { ExtensionSettings, KintoneRecord } from './types';
 
@@ -13,7 +12,6 @@ export class KintoneClientError extends Error {
 export class KintoneClient {
   private client: KintoneRestAPIClient;
   private appId: string;
-  private passphrase: string;
 
   constructor(settings: ExtensionSettings, appId: string) {
     this.client = new KintoneRestAPIClient({
@@ -24,58 +22,19 @@ export class KintoneClient {
       },
     });
     this.appId = appId;
-    this.passphrase = settings.passphrase;
   }
 
-  private async encryptSensitiveData(data: { password?: string; otpAuthUri?: string }) {
-    const result: { password?: string; otpAuthUri?: string } = {};
 
-    if (data.password) {
-      result.password = await encrypt(data.password, this.passphrase);
-    }
-
-    if (data.otpAuthUri) {
-      result.otpAuthUri = await encrypt(data.otpAuthUri, this.passphrase);
-    }
-
-    return result;
-  }
-
-  private async decryptSensitiveData(record: any): Promise<KintoneRecord> {
-    // First, extract the basic information that doesn't require decryption
-    const basicInfo = {
+  private extractRecordData(record: any): KintoneRecord {
+    return {
       recordId: record.$id.value,
       name: record.name?.value || '',
       url: record.url?.value || '',
       username: record.username?.value || '',
+      password: record.password?.value || '',
+      otpAuthUri: record.otpuri?.value || '',
       updatedTime: record.更新日時?.value || new Date().toISOString(),
     };
-
-    try {
-      // Try to decrypt sensitive data
-      const password = record.password?.value ?
-        await decrypt(record.password.value, this.passphrase) : '';
-
-      const otpAuthUri = record.otpuri?.value ?
-        await decrypt(record.otpuri.value, this.passphrase) : '';
-
-      return {
-        ...basicInfo,
-        password,
-        otpAuthUri,
-        decryptionFailed: false,
-      };
-    } catch (error) {
-      console.warn(`Decryption failed for record ${record.$id?.value}: ${error instanceof Error ? error.message : 'Unknown error'}`);
-
-      // Return partial record with basic information when decryption fails
-      return {
-        ...basicInfo,
-        password: '',
-        otpAuthUri: '',
-        decryptionFailed: true,
-      };
-    }
   }
 
   async getRecords(useCache = true): Promise<KintoneRecord[]> {
@@ -92,21 +51,12 @@ export class KintoneClient {
         fields: ['$id', 'name', 'url', 'username', 'password', 'otpuri', '更新日時'],
       });
 
-      // Process each record individually to handle decryption failures gracefully
-      const decryptedRecords: KintoneRecord[] = [];
-      
-      for (const record of response.records) {
-        const decryptedRecord = await this.decryptSensitiveData(record);
-        decryptedRecords.push(decryptedRecord);
-      }
+      const records: KintoneRecord[] = response.records.map(record => 
+        this.extractRecordData(record)
+      );
 
-      const failedRecords = decryptedRecords.filter(r => r.decryptionFailed);
-      if (failedRecords.length > 0) {
-        console.warn(`${failedRecords.length} record(s) failed to decrypt and will be shown in limited mode`);
-      }
-
-      await setCachedRecords(decryptedRecords);
-      return decryptedRecords;
+      await setCachedRecords(records);
+      return records;
     } catch (error) {
       console.error('Failed to get records:', error);
       
@@ -130,17 +80,12 @@ export class KintoneClient {
     otpAuthUri?: string;
   }): Promise<string> {
     try {
-      const encryptedData = await this.encryptSensitiveData({
-        password: data.password,
-        otpAuthUri: data.otpAuthUri,
-      });
-
       const record = {
         name: { value: data.name },
         url: { value: data.url },
         username: { value: data.username },
-        password: { value: encryptedData.password || '' },
-        otpuri: { value: encryptedData.otpAuthUri || '' },
+        password: { value: data.password },
+        otpuri: { value: data.otpAuthUri || '' },
       };
 
       const response = await this.client.record.addRecord({
@@ -149,7 +94,7 @@ export class KintoneClient {
       });
 
       // Clear cache to force refresh
-      const records = await this.getRecords(false);
+      await this.getRecords(false);
       return response.id;
     } catch (error) {
       throw new KintoneClientError(`Failed to create record: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -164,17 +109,12 @@ export class KintoneClient {
     otpAuthUri?: string;
   }): Promise<void> {
     try {
-      const encryptedData = await this.encryptSensitiveData({
-        password: data.password,
-        otpAuthUri: data.otpAuthUri,
-      });
-
       const record: any = {};
       if (data.name !== undefined) record.name = { value: data.name };
       if (data.url !== undefined) record.url = { value: data.url };
       if (data.username !== undefined) record.username = { value: data.username };
-      if (encryptedData.password !== undefined) record.password = { value: encryptedData.password };
-      if (encryptedData.otpAuthUri !== undefined) record.otpuri = { value: encryptedData.otpAuthUri };
+      if (data.password !== undefined) record.password = { value: data.password };
+      if (data.otpAuthUri !== undefined) record.otpuri = { value: data.otpAuthUri };
 
       await this.client.record.updateRecord({
         app: this.appId,

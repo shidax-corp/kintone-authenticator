@@ -27,8 +27,7 @@ export const isSettingsComplete = (settings: ExtensionSettings | null): settings
   return !!(
     settings.kintoneBaseUrl &&
     settings.kintoneUsername &&
-    settings.kintonePassword &&
-    settings.passphrase
+    settings.kintonePassword
   );
 };
 

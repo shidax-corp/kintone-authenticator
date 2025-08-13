@@ -12,7 +12,6 @@ export const OptionsForm: React.FC = () => {
     kintoneBaseUrl: '',
     kintoneUsername: '',
     kintonePassword: '',
-    passphrase: '',
     autoFillEnabled: true,
   });
 
@@ -294,22 +293,6 @@ export const OptionsForm: React.FC = () => {
           />
         </div>
 
-        <div className="form-group">
-          <label htmlFor="passphrase">
-            暗号化パスフレーズ <span className="required">*</span>
-          </label>
-          <input
-            id="passphrase"
-            type="password"
-            value={settings.passphrase}
-            onChange={(e) => handleInputChange('passphrase', e.target.value)}
-            placeholder="暗号化用のパスフレーズを入力"
-            required
-          />
-          <div className="help-text">
-            OTPAuth URIとパスワードの暗号化に使用されます
-          </div>
-        </div>
 
         <div className="form-group">
           <div className="checkbox-group">
