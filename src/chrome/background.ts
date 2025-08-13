@@ -227,18 +227,18 @@ chrome.runtime.onMessage.addListener((message: Message, sender, sendResponse) =>
 
         case 'COPY_TO_CLIPBOARD': {
           const { text } = (message as CopyToClipboardMessage).data;
-          await chrome.offscreen.createDocument({
-            url: chrome.runtime.getURL('offscreen.html'),
-            reasons: ['CLIPBOARD'],
-            justification: 'Copy text to clipboard'
-          });
           
-          await chrome.runtime.sendMessage({
-            type: 'COPY_TO_CLIPBOARD',
-            data: { text }
-          });
-          
-          sendResponse({ success: true });
+          try {
+            // Use the service worker clipboard API directly
+            await navigator.clipboard.writeText(text);
+            sendResponse({ success: true });
+          } catch (error) {
+            console.error('Failed to write to clipboard:', error);
+            sendResponse({ 
+              success: false, 
+              error: error instanceof Error ? error.message : 'Clipboard write failed' 
+            });
+          }
           break;
         }
 

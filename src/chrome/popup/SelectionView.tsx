@@ -194,22 +194,37 @@ export const SelectionView: React.FC<SelectionViewProps> = ({
     }
 
     // 通常のクリップボードコピー処理
+    const button = document.activeElement as HTMLElement;
+    if (!button) return;
+
+    const originalText = button.textContent;
+    
     try {
-      await chrome.runtime.sendMessage({
+      const response = await chrome.runtime.sendMessage({
         type: 'COPY_TO_CLIPBOARD',
         data: { text }
       });
 
-      // Show temporary notification
-      const button = document.activeElement as HTMLElement;
-      if (button) {
-        const originalText = button.textContent;
+      if (response.success) {
+        // Show success notification
         button.textContent = 'コピーしました!';
         setTimeout(() => {
           button.textContent = originalText;
         }, 1000);
+      } else {
+        // Show error notification
+        button.textContent = 'コピー失敗';
+        setTimeout(() => {
+          button.textContent = originalText;
+        }, 1000);
+        console.error('Failed to copy to clipboard:', response.error);
       }
     } catch (error) {
+      // Show error notification
+      button.textContent = 'コピー失敗';
+      setTimeout(() => {
+        button.textContent = originalText;
+      }, 1000);
       console.error('Failed to copy to clipboard:', error);
     }
   };
@@ -240,7 +255,7 @@ export const SelectionView: React.FC<SelectionViewProps> = ({
 
   return (
     <div className="selection-view">
-      <style jsx>{`
+      <style>{`
         .selection-view {
           width: 400px;
           max-height: 600px;
