@@ -51,7 +51,8 @@ This is a kintone authenticator application similar to Google Authenticator, wit
 ## Development Guidelines
 
 - Write comments in English. Clear and self-explanatory codes are preferred over excessive comments.
-- Write unit tests as much as possible.
+- Write unit tests when adding or modifying features.
+- Check tests covers user's requirements, and it passes all tests.
 - Run `npm run check && npm run test` before committing.
 - DO NOT use `as unknown` or `as any` in TypeScript. Use proper type definitions.
 
