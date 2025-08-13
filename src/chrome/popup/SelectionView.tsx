@@ -31,7 +31,9 @@ export const SelectionView: React.FC<SelectionViewProps> = ({
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [settings, setSettings] = useState<ExtensionSettings | null>(null);
-  const [otpData, setOtpData] = useState<{ [recordId: string]: { otp: string; remaining: number } }>({});
+  const [otpData, setOtpData] = useState<{
+    [recordId: string]: { otp: string; remaining: number };
+  }>({});
   const [fetchError, setFetchError] = useState<boolean>(false);
 
   useEffect(() => {
@@ -94,7 +96,7 @@ export const SelectionView: React.FC<SelectionViewProps> = ({
 
       const response = await chrome.runtime.sendMessage({
         type: 'GET_RECORDS',
-        data: { forceRefresh: true }
+        data: { forceRefresh: true },
       });
 
       if (response.success) {
@@ -153,14 +155,16 @@ export const SelectionView: React.FC<SelectionViewProps> = ({
   };
 
   const updateOTPs = async () => {
-    const newOtpData: { [recordId: string]: { otp: string; remaining: number } } = {};
+    const newOtpData: {
+      [recordId: string]: { otp: string; remaining: number };
+    } = {};
 
     for (const record of filteredRecords) {
       if (record.otpAuthUri) {
         try {
           const response = await chrome.runtime.sendMessage({
             type: 'GET_OTP',
-            data: { recordId: record.recordId }
+            data: { recordId: record.recordId },
           });
 
           if (response.success) {
@@ -170,11 +174,14 @@ export const SelectionView: React.FC<SelectionViewProps> = ({
 
             newOtpData[record.recordId] = {
               otp: response.data.otp,
-              remaining: Math.ceil(remaining / 1000)
+              remaining: Math.ceil(remaining / 1000),
             };
           }
         } catch (error) {
-          console.error(`Failed to generate OTP for record ${record.recordId}:`, error);
+          console.error(
+            `Failed to generate OTP for record ${record.recordId}:`,
+            error
+          );
         }
       }
     }
@@ -197,7 +204,7 @@ export const SelectionView: React.FC<SelectionViewProps> = ({
     try {
       await chrome.runtime.sendMessage({
         type: 'COPY_TO_CLIPBOARD',
-        data: { text }
+        data: { text },
       });
 
       // Show temporary notification
@@ -244,7 +251,8 @@ export const SelectionView: React.FC<SelectionViewProps> = ({
         .selection-view {
           width: 400px;
           max-height: 600px;
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+          font-family:
+            -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
           display: flex;
           flex-direction: column;
         }
@@ -375,7 +383,6 @@ export const SelectionView: React.FC<SelectionViewProps> = ({
           background: #f9f9f9;
         }
 
-
         .otp-button {
           display: flex;
           flex-direction: column;
@@ -462,8 +469,12 @@ export const SelectionView: React.FC<SelectionViewProps> = ({
         }
 
         @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
+          0% {
+            transform: rotate(0deg);
+          }
+          100% {
+            transform: rotate(360deg);
+          }
         }
 
         .setup-required {
@@ -538,60 +549,62 @@ export const SelectionView: React.FC<SelectionViewProps> = ({
           </div>
         ) : filteredRecords.length === 0 ? (
           <div className="empty-state">
-            {searchQuery ? '検索条件に一致するレコードがありません' : 'レコードがありません'}
+            {searchQuery
+              ? '検索条件に一致するレコードがありません'
+              : 'レコードがありません'}
           </div>
         ) : (
-            filteredRecords.map(record => (
-              <div key={record.recordId} className="record-item">
-                <div className="record-name">{record.name}</div>
-                <div className="record-url">{record.url}</div>
-                <div className="record-actions with-otp">
-                  <button
-                    className="action-button"
-                    disabled={isEmpty(record.username)}
-                    onClick={() => copyToClipboard(record.username, 'username', record.recordId)}
-                  >
-                    ユーザー名
-                  </button>
-                  <button
-                    className="action-button"
-                    disabled={isEmpty(record.password)}
-                    onClick={() => copyToClipboard(record.password, 'password', record.recordId)}
-                  >
-                    パスワード
-                  </button>
-                  <button
-                    className="action-button otp-button"
-                    disabled={isEmpty(record.otpAuthUri)}
-                    onClick={() => {
-                      if (!isEmpty(record.otpAuthUri)) {
-                        if (otpData[record.recordId]) {
-                          copyToClipboard(otpData[record.recordId].otp, 'otp', record.recordId);
-                        } else {
-                          // For HOTP or when OTP data is not yet generated, request OTP generation
-                          copyToClipboard('', 'otp', record.recordId);
-                        }
+          filteredRecords.map(record => (
+            <div key={record.recordId} className="record-item">
+              <div className="record-name">{record.name}</div>
+              <div className="record-url">{record.url}</div>
+              <div className="record-actions with-otp">
+                <button
+                  className="action-button"
+                  disabled={isEmpty(record.username)}
+                  onClick={() => copyToClipboard(record.username, 'username', record.recordId)}
+                >
+                  ユーザー名
+                </button>
+                <button
+                  className="action-button"
+                  disabled={isEmpty(record.password)}
+                  onClick={() => copyToClipboard(record.password, 'password', record.recordId)}
+                >
+                  パスワード
+                </button>
+                <button
+                  className="action-button otp-button"
+                  disabled={isEmpty(record.otpAuthUri)}
+                  onClick={() => {
+                    if (!isEmpty(record.otpAuthUri)) {
+                      if (otpData[record.recordId]) {
+                        copyToClipboard(otpData[record.recordId].otp, 'otp', record.recordId);
+                      } else {
+                        // For HOTP or when OTP data is not yet generated, request OTP generation
+                        copyToClipboard('', 'otp', record.recordId);
                       }
-                    }}
-                  >
-                    {!isEmpty(record.otpAuthUri) && otpData[record.recordId] ? (
-                      <>
-                        <div className="otp-value">
-                          {prettifyOTP(otpData[record.recordId].otp)}
-                        </div>
-                        <div className="otp-timer">
-                          {otpData[record.recordId].remaining}s
-                        </div>
-                      </>
-                    ) : !isEmpty(record.otpAuthUri) ? (
-                      <div className="otp-placeholder">ワンタイムパスワード</div>
-                    ) : (
-                      <div className="otp-placeholder">ワンタイムパスワード</div>
-                    )}
-                  </button>
-                </div>
+                    }
+                  }}
+                >
+                  {!isEmpty(record.otpAuthUri) && otpData[record.recordId] ? (
+                    <>
+                      <div className="otp-value">
+                        {prettifyOTP(otpData[record.recordId].otp)}
+                      </div>
+                      <div className="otp-timer">
+                        {otpData[record.recordId].remaining}s
+                      </div>
+                    </>
+                  ) : !isEmpty(record.otpAuthUri) ? (
+                    <div className="otp-placeholder">ワンタイムパスワード</div>
+                  ) : (
+                    <div className="otp-placeholder">ワンタイムパスワード</div>
+                  )}
+                </button>
               </div>
-            ))
+            </div>
+          ))
         )}
       </div>
 

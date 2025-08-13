@@ -7,7 +7,7 @@ import {
   getBestMatch,
   normalizeURL,
   isInputField,
-  getFieldType
+  getFieldType,
 } from './url-matcher';
 import type { KintoneRecord } from './types';
 
@@ -20,7 +20,7 @@ describe('url-matcher', () => {
       username: 'user1',
       password: 'pass1',
       otpAuthUri: 'uri1',
-      updatedTime: '2023-01-01T00:00:00Z'
+      updatedTime: '2023-01-01T00:00:00Z',
     },
     {
       recordId: '2',
@@ -29,7 +29,7 @@ describe('url-matcher', () => {
       username: 'user2',
       password: 'pass2',
       otpAuthUri: 'uri2',
-      updatedTime: '2023-01-02T00:00:00Z'
+      updatedTime: '2023-01-02T00:00:00Z',
     },
     {
       recordId: '3',
@@ -38,14 +38,15 @@ describe('url-matcher', () => {
       username: 'user3',
       password: 'pass3',
       otpAuthUri: 'uri3',
-      updatedTime: '2023-01-03T00:00:00Z'
-    }
+      updatedTime: '2023-01-03T00:00:00Z',
+    },
   ];
 
   describe('escapeRegex', () => {
     it('should escape special regex characters', () => {
-      expect(escapeRegex('.*+?^${}()|[]\\'))
-        .toBe('\\.\\*\\+\\?\\^\\$\\{\\}\\(\\)\\|\\[\\]\\\\');
+      expect(escapeRegex('.*+?^${}()|[]\\')).toBe(
+        '\\.\\*\\+\\?\\^\\$\\{\\}\\(\\)\\|\\[\\]\\\\'
+      );
     });
 
     it('should not escape normal characters', () => {
@@ -75,13 +76,21 @@ describe('url-matcher', () => {
 
   describe('matchURL', () => {
     it('should match URLs with wildcards', () => {
-      expect(matchURL('https://example.com/login', 'https://example.com/*')).toBe(true);
-      expect(matchURL('https://example.com/login', 'https://other.com/*')).toBe(false);
+      expect(
+        matchURL('https://example.com/login', 'https://example.com/*')
+      ).toBe(true);
+      expect(matchURL('https://example.com/login', 'https://other.com/*')).toBe(
+        false
+      );
     });
 
     it('should match exact URLs', () => {
-      expect(matchURL('https://example.com/login', 'https://example.com/login')).toBe(true);
-      expect(matchURL('https://example.com/signup', 'https://example.com/login')).toBe(false);
+      expect(
+        matchURL('https://example.com/login', 'https://example.com/login')
+      ).toBe(true);
+      expect(
+        matchURL('https://example.com/signup', 'https://example.com/login')
+      ).toBe(false);
     });
 
     it('should handle invalid patterns gracefully', () => {
@@ -91,9 +100,12 @@ describe('url-matcher', () => {
 
   describe('getMatchingRecords', () => {
     it('should return records that match the URL', () => {
-      const matches = getMatchingRecords(mockRecords, 'https://example.com/login');
+      const matches = getMatchingRecords(
+        mockRecords,
+        'https://example.com/login'
+      );
       expect(matches).toHaveLength(2);
-      expect(matches.map(r => r.recordId)).toEqual(['1', '2']);
+      expect(matches.map((r) => r.recordId)).toEqual(['1', '2']);
     });
 
     it('should return empty array for no matches', () => {
@@ -104,7 +116,10 @@ describe('url-matcher', () => {
 
   describe('sortRecordsByPriority', () => {
     it('should prioritize longer URLs', () => {
-      const sorted = sortRecordsByPriority(mockRecords, 'https://example.com/login');
+      const sorted = sortRecordsByPriority(
+        mockRecords,
+        'https://example.com/login'
+      );
       expect(sorted[0].recordId).toBe('1'); // Specific URL comes first
       expect(sorted[1].recordId).toBe('2'); // Wildcard URL comes second
     });
@@ -114,24 +129,27 @@ describe('url-matcher', () => {
         {
           recordId: '1',
           name: 'Test 1',
-          url: 'https://example.com/app*',  
+          url: 'https://example.com/app*',
           username: 'user1',
           password: 'pass1',
           otpAuthUri: 'uri1',
-          updatedTime: '2023-01-01T00:00:00Z'
+          updatedTime: '2023-01-01T00:00:00Z',
         },
         {
           recordId: '2',
           name: 'Test 2',
-          url: 'https://example.com/web*',  
+          url: 'https://example.com/web*',
           username: 'user2',
           password: 'pass2',
           otpAuthUri: 'uri2',
-          updatedTime: '2023-01-02T00:00:00Z'
-        }
+          updatedTime: '2023-01-02T00:00:00Z',
+        },
       ];
 
-      const sorted = sortRecordsByPriority(sameLength, 'https://example.com/app1');
+      const sorted = sortRecordsByPriority(
+        sameLength,
+        'https://example.com/app1'
+      );
       expect(sorted).toHaveLength(1);
       expect(sorted[0].recordId).toBe('1');
     });
@@ -141,24 +159,27 @@ describe('url-matcher', () => {
         {
           recordId: '1',
           name: 'Test 1',
-          url: 'https://site.com/*',  // 同じ長さで両方ともマッチ
+          url: 'https://site.com/*', // 同じ長さで両方ともマッチ
           username: 'user1',
           password: 'pass1',
           otpAuthUri: 'uri1',
-          updatedTime: '2023-01-01T00:00:00Z'
+          updatedTime: '2023-01-01T00:00:00Z',
         },
         {
           recordId: '2',
           name: 'Test 2',
-          url: 'https://site.com/*',  // 同じ長さで両方ともマッチ
+          url: 'https://site.com/*', // 同じ長さで両方ともマッチ
           username: 'user2',
           password: 'pass2',
           otpAuthUri: 'uri2',
-          updatedTime: '2023-01-02T00:00:00Z'
-        }
+          updatedTime: '2023-01-02T00:00:00Z',
+        },
       ];
 
-      const sorted = sortRecordsByPriority(sameLength, 'https://site.com/login');
+      const sorted = sortRecordsByPriority(
+        sameLength,
+        'https://site.com/login'
+      );
       expect(sorted).toHaveLength(2);
       // 新しいレコード（recordId: '2'）が最初に来るべき
       expect(sorted[0].recordId).toBe('2');
@@ -180,13 +201,13 @@ describe('url-matcher', () => {
 
   describe('normalizeURL', () => {
     it('should normalize valid URLs', () => {
-      expect(normalizeURL('https://example.com/path?query=1#hash'))
-        .toBe('https://example.com/path');
+      expect(normalizeURL('https://example.com/path?query=1#hash')).toBe(
+        'https://example.com/path'
+      );
     });
 
     it('should handle URLs without paths', () => {
-      expect(normalizeURL('https://example.com'))
-        .toBe('https://example.com/');
+      expect(normalizeURL('https://example.com')).toBe('https://example.com/');
     });
 
     it('should return original string for invalid URLs', () => {
@@ -217,15 +238,15 @@ describe('url-matcher', () => {
 
     it('should identify contentEditable elements', () => {
       const div = document.createElement('div');
-      
+
       // JSDOMではisContentEditableがサポートされていないため、モック
       Object.defineProperty(div, 'isContentEditable', {
-        get: function() {
+        get: function () {
           return this.contentEditable === 'true';
         },
-        configurable: true
+        configurable: true,
       });
-      
+
       div.contentEditable = 'true';
       expect(div.isContentEditable).toBe(true);
       expect(isInputField(div)).toBe(true);

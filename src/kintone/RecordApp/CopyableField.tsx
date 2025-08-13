@@ -7,8 +7,13 @@ export interface CopyableFieldProps {
   children: string;
 }
 
-export default function CopyableField({ width = '100%', children }: CopyableFieldProps) {
+export default function CopyableField({
+  width = '100%',
+  children,
+}: CopyableFieldProps) {
   return (
-    <div style={{ boxSizing: 'border-box', width, padding: '4px 8px' }}><CopyBlock>{children}</CopyBlock></div>
+    <div style={{ boxSizing: 'border-box', width, padding: '4px 8px' }}>
+      <CopyBlock>{children}</CopyBlock>
+    </div>
   );
 }

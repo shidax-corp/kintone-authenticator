@@ -9,11 +9,37 @@ const serve = process.argv.includes('--serve');
 
 const options = {
   entryPoints: {
-    'kintone/kintone-authenticator': path.resolve(import.meta.dirname, 'src', 'kintone', 'index.tsx'),
-    'chrome/index': path.resolve(import.meta.dirname, 'src', 'chrome', 'index.tsx'),
-    'chrome/background': path.resolve(import.meta.dirname, 'src', 'chrome', 'background.ts'),
-    'chrome/content': path.resolve(import.meta.dirname, 'src', 'chrome', 'content.ts'),
-    'chrome/options/index': path.resolve(import.meta.dirname, 'src', 'chrome', 'options', 'index.tsx'),
+    'kintone/kintone-authenticator': path.resolve(
+      import.meta.dirname,
+      'src',
+      'kintone',
+      'index.tsx'
+    ),
+    'chrome/index': path.resolve(
+      import.meta.dirname,
+      'src',
+      'chrome',
+      'index.tsx'
+    ),
+    'chrome/background': path.resolve(
+      import.meta.dirname,
+      'src',
+      'chrome',
+      'background.ts'
+    ),
+    'chrome/content': path.resolve(
+      import.meta.dirname,
+      'src',
+      'chrome',
+      'content.ts'
+    ),
+    'chrome/options/index': path.resolve(
+      import.meta.dirname,
+      'src',
+      'chrome',
+      'options',
+      'index.tsx'
+    ),
   },
   bundle: true,
   outdir: path.resolve(import.meta.dirname, 'dist'),
@@ -23,7 +49,9 @@ const options = {
   target: ['chrome130'],
   treeShaking: true,
   define: {
-    'process.env.KINTONE_BASE_URL': JSON.stringify(process.env.KINTONE_BASE_URL),
+    'process.env.KINTONE_BASE_URL': JSON.stringify(
+      process.env.KINTONE_BASE_URL
+    ),
     'process.env.KINTONE_APP_ID': JSON.stringify(process.env.KINTONE_APP_ID),
     'process.env.KINTONE_VIEW_ID': JSON.stringify(process.env.KINTONE_VIEW_ID),
   },
@@ -46,30 +74,45 @@ const options = {
 };
 
 if (serve) {
-  esbuild.context(options)
-    .then((ctx) => ctx.serve({
-      servedir: path.resolve(import.meta.dirname, 'dist'),
-      onRequest: ({ method, path, remoteAddress, status }) => {
-        console.log(JSON.stringify({
-          method,
-          path,
-          remoteAddress,
-          status,
-        }));
-      },
-    }))
+  esbuild
+    .context(options)
+    .then((ctx) =>
+      ctx.serve({
+        servedir: path.resolve(import.meta.dirname, 'dist'),
+        onRequest: ({ method, path, remoteAddress, status }) => {
+          console.log(
+            JSON.stringify({
+              method,
+              path,
+              remoteAddress,
+              status,
+            })
+          );
+        },
+      })
+    )
     .then(({ hosts, port }) => {
-      console.log(JSON.stringify({ message: 'Server started', listen: hosts.map(host => `${host}:${port}`) }));
+      console.log(
+        JSON.stringify({
+          message: 'Server started',
+          listen: hosts.map((host) => `${host}:${port}`),
+        })
+      );
     })
     .catch((error) => {
       console.log(JSON.stringify({ message: 'Server failed to start', error }));
       process.exit(1);
     });
 } else {
-  esbuild.build(options).then((result) => {
-    console.log(JSON.stringify({ message: 'Build completed successfully', ...result }));
-  }).catch((error) => {
-    console.log(JSON.stringify({ message: 'Build failed', error }));
-    process.exit(1);
-  });
+  esbuild
+    .build(options)
+    .then((result) => {
+      console.log(
+        JSON.stringify({ message: 'Build completed successfully', ...result })
+      );
+    })
+    .catch((error) => {
+      console.log(JSON.stringify({ message: 'Build failed', error }));
+      process.exit(1);
+    });
 }

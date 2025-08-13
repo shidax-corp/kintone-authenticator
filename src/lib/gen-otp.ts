@@ -12,33 +12,37 @@ import type { OTPAuthRecord } from './otpauth-uri';
  * This is defined by [the RFC 4226](https://datatracker.ietf.org/doc/html/rfc4226#section-5.3).
  */
 const dynamicTruncate = (data: Uint8Array): number => {
-  const offset = data[data.length - 1] & 0x0F;
+  const offset = data[data.length - 1] & 0x0f;
 
-  const code = ((data[offset + 0] & 0x7F) << 24) |
-               ((data[offset + 1]) << 16) |
-               ((data[offset + 2]) <<  8) |
-               ((data[offset + 3]) <<  0);
+  const code =
+    ((data[offset + 0] & 0x7f) << 24) |
+    (data[offset + 1] << 16) |
+    (data[offset + 2] << 8) |
+    (data[offset + 3] << 0);
 
-  return code & 0x7FFF_FFFF; // Ensure it's a positive integer
-}
+  return code & 0x7fff_ffff; // Ensure it's a positive integer
+};
 
 export type HOTPRequest = {
   secret: Uint8Array;
   algorithm: HashAlgorithm;
   digits: number;
-}
+};
 
 export type HOTP = {
   type: 'HOTP';
   otp: string;
   timestamp: Date;
-}
+};
 
 /** Generates a one-time password (HOTP) based on the given seed and counter.
  *
  * This is defined by [the RFC 4226](https://datatracker.ietf.org/doc/html/rfc4226).
  */
-export const generateHOTP = async ({ secret, algorithm, digits }: HOTPRequest, counter: number): Promise<HOTP> => {
+export const generateHOTP = async (
+  { secret, algorithm, digits }: HOTPRequest,
+  counter: number
+): Promise<HOTP> => {
   const digest = await hmac(secret, counter, algorithm);
   const otp = dynamicTruncate(digest) % Math.pow(10, digits);
   return {
@@ -46,14 +50,14 @@ export const generateHOTP = async ({ secret, algorithm, digits }: HOTPRequest, c
     otp: otp.toString().padStart(digits, '0'),
     timestamp: new Date(),
   };
-}
+};
 
 export type TOTPRequest = {
   secret: Uint8Array;
   algorithm: HashAlgorithm;
   digits: number;
   period?: number;
-}
+};
 
 export type TOTP = {
   type: 'TOTP';
@@ -61,11 +65,14 @@ export type TOTP = {
   timestamp: Date;
   availableFrom: Date;
   availableUntil: Date;
-}
+};
 
 /** Generates a time-based one-time password (TOTP) based on the given secret.
  */
-export const generateTOTP = async ({ secret, algorithm = 'SHA-1', digits = 6, period = 30 }: TOTPRequest, currentTime: number | null = null): Promise<TOTP> => {
+export const generateTOTP = async (
+  { secret, algorithm = 'SHA-1', digits = 6, period = 30 }: TOTPRequest,
+  currentTime: number | null = null
+): Promise<TOTP> => {
   if (currentTime === null) {
     currentTime = Math.floor(Date.now() / 1000);
   }
@@ -80,14 +87,15 @@ export const generateTOTP = async ({ secret, algorithm = 'SHA-1', digits = 6, pe
     availableFrom: new Date(counter * period * 1000),
     availableUntil: new Date((counter * period + period) * 1000),
   };
-}
+};
 
 export type OTP = HOTP | TOTP;
 
 export const prettifyOTP = (otp: string): string => {
   if (otp.length === 5) {
     return otp.replace(/(\d{3})(\d{2})/, '$1 $2');
-  } if (otp.length === 6) {
+  }
+  if (otp.length === 6) {
     return otp.replace(/(\d{3})(\d{3})/, '$1 $2');
   } else if (otp.length === 7) {
     return otp.replace(/(\d{4})(\d{3})/, '$1 $2');
@@ -103,4 +111,4 @@ export const prettifyOTP = (otp: string): string => {
     return otp.replace(/(\d{4})(\d{4})(\d{4})/, '$1 $2 $3');
   }
   return otp; // Return as is for other lengths
-}
+};

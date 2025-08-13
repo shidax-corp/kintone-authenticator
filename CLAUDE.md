@@ -5,21 +5,25 @@ This file provides guidance to Claude Code and GitHub Copilot when working with 
 ## Commands
 
 Build the project:
+
 ```bash
 npm run build
 ```
 
 Run development server:
+
 ```bash
 npm run dev
 ```
 
 Type check:
+
 ```bash
 npm run check
 ```
 
 Run tests:
+
 ```bash
 npm run test
 ```

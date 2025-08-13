@@ -12,7 +12,7 @@ const performAutoFill = async () => {
 
   try {
     const response = await chrome.runtime.sendMessage({
-      type: 'GET_SETTINGS'
+      type: 'GET_SETTINGS',
     });
 
     if (!response.success || !response.data.autoFillEnabled) {
@@ -24,7 +24,7 @@ const performAutoFill = async () => {
 
     const recordsResponse = await chrome.runtime.sendMessage({
       type: 'GET_RECORDS',
-      data: { url: currentUrl }
+      data: { url: currentUrl },
     });
 
     if (!recordsResponse.success || recordsResponse.data.length === 0) {
@@ -34,7 +34,9 @@ const performAutoFill = async () => {
     const record = recordsResponse.data[0];
     autoFillExecuted = true;
 
-    const usernameFields = document.querySelectorAll('input[type="text"], input[type="email"], input[name*="user"], input[name*="login"], input[id*="user"], input[id*="login"]');
+    const usernameFields = document.querySelectorAll(
+      'input[type="text"], input[type="email"], input[name*="user"], input[name*="login"], input[id*="user"], input[id*="login"]'
+    );
     const passwordFields = document.querySelectorAll('input[type="password"]');
 
     usernameFields.forEach((field) => {
@@ -53,14 +55,16 @@ const performAutoFill = async () => {
       inputField.dispatchEvent(new Event('input', { bubbles: true }));
       inputField.dispatchEvent(new Event('change', { bubbles: true }));
     });
-
   } catch (error) {
     console.error('Auto-fill failed:', error);
   }
 };
 
 const fillInputField = (element: HTMLElement, value: string) => {
-  if (element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement) {
+  if (
+    element instanceof HTMLInputElement ||
+    element instanceof HTMLTextAreaElement
+  ) {
     element.value = value;
     element.dispatchEvent(new Event('input', { bubbles: true }));
     element.dispatchEvent(new Event('change', { bubbles: true }));
@@ -167,7 +171,7 @@ const showFillOptionsModal = async (
 
 document.addEventListener('contextmenu', (e) => {
   const target = e.target as HTMLElement;
-  
+
   if (isInputField(target)) {
     currentInputElement = target;
   }
@@ -200,7 +204,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     case 'OPEN_REGISTER_FORM':
       chrome.runtime.sendMessage({
         type: 'OPEN_POPUP',
-        data: { action: 'register', otpAuthUri: message.data.otpAuthUri }
+        data: { action: 'register', otpAuthUri: message.data.otpAuthUri },
       });
       break;
   }
