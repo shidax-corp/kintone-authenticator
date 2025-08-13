@@ -13,14 +13,13 @@ export interface FormAppProps {
   mode: 'create' | 'edit';
 }
 
-
 export default function FormApp({ record, mode }: FormAppProps) {
   const [formData, setFormData] = useState<FormData>({
     name: '',
     url: '',
     username: '',
     password: '',
-    otpuri: ''
+    otpuri: '',
   });
 
   const [errors, setErrors] = useState<FormErrors>({});
@@ -32,18 +31,17 @@ export default function FormApp({ record, mode }: FormAppProps) {
         url: record.url.value || '',
         username: record.username.value || '',
         password: record.password.value || '',
-        otpuri: record.otpuri.value || ''
+        otpuri: record.otpuri.value || '',
       });
     }
   }, [mode, record]);
 
-
   const handleFieldChange = async (field: keyof FormData, value: string) => {
     const newFormData = {
       ...formData,
-      [field]: value
+      [field]: value,
     };
-    
+
     setFormData(newFormData);
 
     try {
@@ -51,10 +49,10 @@ export default function FormApp({ record, mode }: FormAppProps) {
       const currentRecord = kintone.app.record.get();
       const updatedRecord = {
         ...currentRecord.record,
-        [field]: { 
+        [field]: {
           type: 'SINGLE_LINE_TEXT',
-          value: value 
-        }
+          value: value,
+        },
       };
       await kintone.app.record.set({ record: updatedRecord });
     } catch (error) {
@@ -62,9 +60,9 @@ export default function FormApp({ record, mode }: FormAppProps) {
     }
 
     if (errors[field]) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
-        [field]: undefined
+        [field]: undefined,
       }));
     }
   };
@@ -143,7 +141,8 @@ export default function FormApp({ record, mode }: FormAppProps) {
             <div className="otp-preview">
               <div className="otp-preview-icon">✓</div>
               <div className="otp-preview-text">
-                有効なOTPAuth URIです。二段階認証のワンタイムパスワードが生成できます。
+                有効なOTPAuth
+                URIです。二段階認証のワンタイムパスワードが生成できます。
               </div>
             </div>
           )}

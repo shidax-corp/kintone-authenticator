@@ -85,9 +85,9 @@ export default function RecordApp({ record }: RecordAppProps) {
       // kintoneレコードを更新（平文で保存）
       const updatedRecord = {
         ...record,
-        otpuri: { 
+        otpuri: {
           type: 'SINGLE_LINE_TEXT',
-          value: newOtpUri 
+          value: newOtpUri,
         },
       };
 

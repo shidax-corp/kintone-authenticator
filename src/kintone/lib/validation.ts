@@ -18,14 +18,14 @@ export interface FormErrors {
 
 export const validateUrl = (url: string): boolean => {
   if (!url.trim()) return false;
-  
+
   let testUrl = url.trim();
-  
+
   // プロトコルがない場合はhttps://を追加
   if (!testUrl.match(/^https?:\/\//)) {
     testUrl = 'https://' + testUrl;
   }
-  
+
   try {
     // ワイルドカードを有効なホスト名に置き換えてバリデーション
     const urlWithoutWildcard = testUrl.replace(/\*/g, 'wildcard');
@@ -55,13 +55,15 @@ export const validateFormData = (formData: FormData): FormErrors => {
   return errors;
 };
 
-export const validateKintoneRecord = (record: kintone.types.Fields | kintone.types.SavedFields): FormErrors => {
+export const validateKintoneRecord = (
+  record: kintone.types.Fields | kintone.types.SavedFields
+): FormErrors => {
   const formData: FormData = {
     name: record.name.value || '',
     url: record.url.value || '',
     username: record.username.value || '',
     password: record.password.value || '',
-    otpuri: record.otpuri.value || ''
+    otpuri: record.otpuri.value || '',
   };
 
   return validateFormData(formData);

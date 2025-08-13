@@ -19,7 +19,7 @@ export default function PasswordField({
   required = false,
   error,
   helpText,
-  disabled = false
+  disabled = false,
 }: PasswordFieldProps) {
   const [isVisible, setIsVisible] = useState(false);
 

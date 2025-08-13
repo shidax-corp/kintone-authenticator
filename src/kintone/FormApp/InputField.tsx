@@ -21,7 +21,7 @@ export default function InputField({
   type = 'text',
   error,
   helpText,
-  disabled = false
+  disabled = false,
 }: InputFieldProps) {
   return (
     <>

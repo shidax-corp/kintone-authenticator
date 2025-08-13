@@ -21,7 +21,7 @@ export default function TextAreaField({
   error,
   helpText,
   disabled = false,
-  rows = 3
+  rows = 3,
 }: TextAreaFieldProps) {
   return (
     <>
