@@ -378,4 +378,222 @@ describe('SelectionView - URL and Name Matching', () => {
       });
     });
   });
+
+  describe('Button Disabled State for Empty Fields', () => {
+    const mockRecordsWithEmptyFields: KintoneRecord[] = [
+      {
+        recordId: '1',
+        name: 'Complete Record',
+        url: 'https://example.com',
+        username: 'user1',
+        password: 'pass1',
+        otpAuthUri: 'otpauth://totp/test1',
+        updatedTime: '2023-01-01T00:00:00Z'
+      },
+      {
+        recordId: '2',
+        name: 'Empty Username',
+        url: 'https://example2.com',
+        username: '',
+        password: 'pass2',
+        otpAuthUri: 'otpauth://totp/test2',
+        updatedTime: '2023-01-02T00:00:00Z'
+      },
+      {
+        recordId: '3',
+        name: 'Empty Password',
+        url: 'https://example3.com',
+        username: 'user3',
+        password: '',
+        otpAuthUri: 'otpauth://totp/test3',
+        updatedTime: '2023-01-03T00:00:00Z'
+      },
+      {
+        recordId: '4',
+        name: 'Empty OTP',
+        url: 'https://example4.com',
+        username: 'user4',
+        password: 'pass4',
+        otpAuthUri: '',
+        updatedTime: '2023-01-04T00:00:00Z'
+      },
+      {
+        recordId: '5',
+        name: 'All Empty',
+        url: 'https://example5.com',
+        username: '',
+        password: '',
+        otpAuthUri: '',
+        updatedTime: '2023-01-05T00:00:00Z'
+      },
+      {
+        recordId: '6',
+        name: 'HOTP Record',
+        url: 'https://example6.com',
+        username: 'user6',
+        password: 'pass6',
+        otpAuthUri: 'otpauth://hotp/test6?secret=ABCDEFGHIJKLMNOP&counter=1',
+        updatedTime: '2023-01-06T00:00:00Z'
+      }
+    ];
+
+    beforeEach(() => {
+      jest.clearAllMocks();
+      
+      // Mock successful responses
+      mockChrome.runtime.sendMessage.mockImplementation((message) => {
+        if (message.type === 'GET_SETTINGS') {
+          return Promise.resolve({ success: true, data: mockSettings });
+        }
+        if (message.type === 'GET_RECORDS') {
+          return Promise.resolve({ success: true, data: mockRecordsWithEmptyFields });
+        }
+        if (message.type === 'GET_OTP') {
+          return Promise.resolve({ 
+            success: true, 
+            data: { otp: '123456', remainingTime: 25 }
+          });
+        }
+        return Promise.resolve({ success: true });
+      });
+    });
+
+    it('should display all three buttons for each record', async () => {
+      render(<SelectionView 
+        onRegister={jest.fn()}
+        initialRecords={mockRecordsWithEmptyFields}
+        allRecords={mockRecordsWithEmptyFields}
+      />);
+      
+      await waitFor(() => {
+        expect(screen.getByText('Complete Record')).toBeInTheDocument();
+      });
+
+      // Check username and password buttons
+      const usernameButtons = screen.getAllByText('ユーザー名');
+      const passwordButtons = screen.getAllByText('パスワード');
+      
+      // Check OTP buttons by class
+      const allButtons = screen.getAllByRole('button');
+      const otpButtons = allButtons.filter(button => 
+        button.className.includes('otp-button')
+      );
+      
+      // Should have 6 of each type of button (one per record)
+      expect(usernameButtons).toHaveLength(6);
+      expect(passwordButtons).toHaveLength(6);
+      expect(otpButtons).toHaveLength(6);
+    });
+
+    it('should disable username button when username is empty', async () => {
+      render(<SelectionView 
+        onRegister={jest.fn()}
+        initialRecords={mockRecordsWithEmptyFields}
+        allRecords={mockRecordsWithEmptyFields}
+      />);
+      
+      await waitFor(() => {
+        expect(screen.getByText('Empty Username')).toBeInTheDocument();
+      });
+
+      const usernameButtons = screen.getAllByText('ユーザー名');
+      
+      // First record (Complete Record) should have enabled username button
+      expect(usernameButtons[0]).not.toBeDisabled();
+      
+      // Second record (Empty Username) should have disabled username button
+      expect(usernameButtons[1]).toBeDisabled();
+    });
+
+    it('should disable password button when password is empty', async () => {
+      render(<SelectionView 
+        onRegister={jest.fn()}
+        initialRecords={mockRecordsWithEmptyFields}
+        allRecords={mockRecordsWithEmptyFields}
+      />);
+      
+      await waitFor(() => {
+        expect(screen.getByText('Empty Password')).toBeInTheDocument();
+      });
+
+      const passwordButtons = screen.getAllByText('パスワード');
+      
+      // First record (Complete Record) should have enabled password button
+      expect(passwordButtons[0]).not.toBeDisabled();
+      
+      // Third record (Empty Password) should have disabled password button
+      expect(passwordButtons[2]).toBeDisabled();
+    });
+
+    it('should disable OTP button when otpAuthUri is empty', async () => {
+      render(<SelectionView 
+        onRegister={jest.fn()}
+        initialRecords={mockRecordsWithEmptyFields}
+        allRecords={mockRecordsWithEmptyFields}
+      />);
+      
+      await waitFor(() => {
+        expect(screen.getByText('Empty OTP')).toBeInTheDocument();
+      });
+
+      // Get all buttons and filter for OTP buttons specifically
+      const allButtons = screen.getAllByRole('button');
+      const otpButtons = allButtons.filter(button => 
+        button.className.includes('otp-button')
+      );
+      
+      // Fourth record (Empty OTP) should have disabled OTP button
+      expect(otpButtons[3]).toBeDisabled();
+      
+      // Fifth record (All Empty) should have disabled OTP button
+      expect(otpButtons[4]).toBeDisabled();
+    });
+
+    it('should disable all buttons when all fields are empty', async () => {
+      render(<SelectionView 
+        onRegister={jest.fn()}
+        initialRecords={mockRecordsWithEmptyFields}
+        allRecords={mockRecordsWithEmptyFields}
+      />);
+      
+      await waitFor(() => {
+        expect(screen.getByText('All Empty')).toBeInTheDocument();
+      });
+
+      const usernameButtons = screen.getAllByText('ユーザー名');
+      const passwordButtons = screen.getAllByText('パスワード');
+      
+      // Get all buttons and filter for OTP buttons specifically
+      const allButtons = screen.getAllByRole('button');
+      const otpButtons = allButtons.filter(button => 
+        button.className.includes('otp-button')
+      );
+      
+      // Fifth record (All Empty) should have all buttons disabled
+      expect(usernameButtons[4]).toBeDisabled();
+      expect(passwordButtons[4]).toBeDisabled();
+      expect(otpButtons[4]).toBeDisabled();
+    });
+
+    it('should not disable HOTP button when otpAuthUri contains HOTP', async () => {
+      render(<SelectionView 
+        onRegister={jest.fn()}
+        initialRecords={mockRecordsWithEmptyFields}
+        allRecords={mockRecordsWithEmptyFields}
+      />);
+      
+      await waitFor(() => {
+        expect(screen.getByText('HOTP Record')).toBeInTheDocument();
+      });
+
+      // Get all buttons and filter for OTP buttons specifically
+      const allButtons = screen.getAllByRole('button');
+      const otpButtons = allButtons.filter(button => 
+        button.className.includes('otp-button')
+      );
+      
+      // Sixth record (HOTP Record) should have enabled OTP button even without otpData
+      expect(otpButtons[5]).not.toBeDisabled();
+    });
+  });
 });

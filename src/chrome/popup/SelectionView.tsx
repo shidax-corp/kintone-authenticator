@@ -182,6 +182,10 @@ export const SelectionView: React.FC<SelectionViewProps> = ({
     setOtpData(newOtpData);
   };
 
+  const isEmpty = (value: string): boolean => {
+    return !value || value.trim() === '';
+  };
+
   const copyToClipboard = async (text: string, type: string, recordId?: string) => {
     // contentスクリプトモードの場合はフィールド選択コールバックを実行
     if (isModal && onFieldSelect) {
@@ -381,6 +385,11 @@ export const SelectionView: React.FC<SelectionViewProps> = ({
           border-color: #2196f3;
         }
 
+        .otp-button:disabled {
+          background: #f9f9f9;
+          border-color: #ddd;
+        }
+
         .otp-value {
           font-family: 'Monaco', 'Menlo', monospace;
           font-size: 16px;
@@ -392,6 +401,11 @@ export const SelectionView: React.FC<SelectionViewProps> = ({
         .otp-timer {
           font-size: 10px;
           color: #666;
+        }
+
+        .otp-placeholder {
+          font-size: 12px;
+          color: #999;
         }
 
         .footer {
@@ -531,32 +545,50 @@ export const SelectionView: React.FC<SelectionViewProps> = ({
               <div key={record.recordId} className="record-item">
                 <div className="record-name">{record.name}</div>
                 <div className="record-url">{record.url}</div>
-                <div className={`record-actions ${record.otpAuthUri ? 'with-otp' : ''}`}>
+                <div className="record-actions with-otp">
                   <button
                     className="action-button"
+                    disabled={isEmpty(record.username)}
                     onClick={() => copyToClipboard(record.username, 'username', record.recordId)}
                   >
                     ユーザー名
                   </button>
                   <button
                     className="action-button"
+                    disabled={isEmpty(record.password)}
                     onClick={() => copyToClipboard(record.password, 'password', record.recordId)}
                   >
                     パスワード
                   </button>
-                  {record.otpAuthUri && otpData[record.recordId] && (
-                    <button
-                      className="action-button otp-button"
-                      onClick={() => copyToClipboard(otpData[record.recordId].otp, 'otp', record.recordId)}
-                    >
-                      <div className="otp-value">
-                        {prettifyOTP(otpData[record.recordId].otp)}
-                      </div>
-                      <div className="otp-timer">
-                        {otpData[record.recordId].remaining}s
-                      </div>
-                    </button>
-                  )}
+                  <button
+                    className="action-button otp-button"
+                    disabled={isEmpty(record.otpAuthUri)}
+                    onClick={() => {
+                      if (!isEmpty(record.otpAuthUri)) {
+                        if (otpData[record.recordId]) {
+                          copyToClipboard(otpData[record.recordId].otp, 'otp', record.recordId);
+                        } else {
+                          // For HOTP or when OTP data is not yet generated, request OTP generation
+                          copyToClipboard('', 'otp', record.recordId);
+                        }
+                      }
+                    }}
+                  >
+                    {!isEmpty(record.otpAuthUri) && otpData[record.recordId] ? (
+                      <>
+                        <div className="otp-value">
+                          {prettifyOTP(otpData[record.recordId].otp)}
+                        </div>
+                        <div className="otp-timer">
+                          {otpData[record.recordId].remaining}s
+                        </div>
+                      </>
+                    ) : !isEmpty(record.otpAuthUri) ? (
+                      <div className="otp-placeholder">ワンタイムパスワード</div>
+                    ) : (
+                      <div className="otp-placeholder">ワンタイムパスワード</div>
+                    )}
+                  </button>
                 </div>
               </div>
             ))
