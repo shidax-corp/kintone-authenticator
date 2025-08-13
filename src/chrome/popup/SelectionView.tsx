@@ -10,20 +10,24 @@ interface SelectionViewProps {
   onRegister: () => void;
   isModal?: boolean;
   onClose?: () => void;
-  onFieldSelect?: (type: 'username' | 'password' | 'otp', value: string, recordId?: string) => void;
+  onFieldSelect?: (
+    type: 'username' | 'password' | 'otp',
+    value: string,
+    recordId?: string
+  ) => void;
   initialRecords?: KintoneRecord[];
   allRecords?: KintoneRecord[];
   initialSearchQuery?: string;
 }
 
-export const SelectionView: React.FC<SelectionViewProps> = ({ 
-  onRegister, 
-  isModal = false, 
-  onClose, 
+export const SelectionView: React.FC<SelectionViewProps> = ({
+  onRegister,
+  isModal = false,
+  onClose,
   onFieldSelect,
   initialRecords,
   allRecords,
-  initialSearchQuery = ''
+  initialSearchQuery = '',
 }) => {
   const [records, setRecords] = useState<KintoneRecord[]>([]);
   const [filteredRecords, setFilteredRecords] = useState<KintoneRecord[]>([]);
@@ -55,18 +59,20 @@ export const SelectionView: React.FC<SelectionViewProps> = ({
 
       // 初期レコードが渡されている場合はそれを使用
       if (initialRecords || allRecords) {
-        const settingsResponse = await chrome.runtime.sendMessage({ type: 'GET_SETTINGS' });
+        const settingsResponse = await chrome.runtime.sendMessage({
+          type: 'GET_SETTINGS',
+        });
         if (settingsResponse.success) {
           setSettings(settingsResponse.data);
         }
-        
+
         // allRecordsが利用可能な場合はそれをrecordsに設定、そうでなければinitialRecordsを使用
         setRecords(allRecords || initialRecords || []);
       } else {
         // 従来通りの処理
         const [settingsResponse, recordsResponse] = await Promise.all([
           chrome.runtime.sendMessage({ type: 'GET_SETTINGS' }),
-          chrome.runtime.sendMessage({ type: 'GET_RECORDS' })
+          chrome.runtime.sendMessage({ type: 'GET_RECORDS' }),
         ]);
 
         if (settingsResponse.success) {
@@ -117,23 +123,26 @@ export const SelectionView: React.FC<SelectionViewProps> = ({
   const filterRecords = () => {
     // 検索に使用するレコードを決定（allRecordsが利用可能ならそれを使用、そうでなければrecords）
     const searchableRecords = allRecords || records;
-    
+
     if (!searchQuery.trim()) {
       setFilteredRecords(searchableRecords);
       return;
     }
 
-    const queries = searchQuery.toLowerCase().split(' ').filter(q => q.length > 0);
-    const filtered = searchableRecords.filter(record => {
-      return queries.every(query => {
+    const queries = searchQuery
+      .toLowerCase()
+      .split(' ')
+      .filter((q) => q.length > 0);
+    const filtered = searchableRecords.filter((record) => {
+      return queries.every((query) => {
         const lowerQuery = query.toLowerCase();
-        
+
         // URL matching
         let urlMatch = false;
         if (record.url.includes('*')) {
           // Wildcard matching if record URL has asterisk
           urlMatch = matchURL(query, record.url);
-          
+
           // If query doesn't look like a full URL, also try text matching
           if (!urlMatch && !query.includes('://')) {
             urlMatch = record.url.toLowerCase().includes(lowerQuery);
@@ -142,10 +151,10 @@ export const SelectionView: React.FC<SelectionViewProps> = ({
           // Text matching for non-wildcard URLs
           urlMatch = record.url.toLowerCase().includes(lowerQuery);
         }
-        
-        // Name matching (always text-based)  
+
+        // Name matching (always text-based)
         const nameMatch = record.name.toLowerCase().includes(lowerQuery);
-        
+
         // Either URL or name should match
         return urlMatch || nameMatch;
       });
@@ -193,7 +202,11 @@ export const SelectionView: React.FC<SelectionViewProps> = ({
     return !value || value.trim() === '';
   };
 
-  const copyToClipboard = async (text: string, type: string, recordId?: string) => {
+  const copyToClipboard = async (
+    text: string,
+    type: string,
+    recordId?: string
+  ) => {
     // contentスクリプトモードの場合はフィールド選択コールバックを実行
     if (isModal && onFieldSelect) {
       onFieldSelect(type as 'username' | 'password' | 'otp', text, recordId);
@@ -541,11 +554,19 @@ export const SelectionView: React.FC<SelectionViewProps> = ({
       <div className="records-container">
         {fetchError ? (
           <div className="error-state">
-            データの取得に失敗しました。<br />
-            <a href="" onClick={(ev) => {
-              ev.preventDefault();
-              chrome.runtime.openOptionsPage();
-            }} style={{ color: 'inherit' }}>設定</a>を確認してください
+            データの取得に失敗しました。
+            <br />
+            <a
+              href=""
+              onClick={(ev) => {
+                ev.preventDefault();
+                chrome.runtime.openOptionsPage();
+              }}
+              style={{ color: 'inherit' }}
+            >
+              設定
+            </a>
+            を確認してください
           </div>
         ) : filteredRecords.length === 0 ? (
           <div className="empty-state">
@@ -554,7 +575,7 @@ export const SelectionView: React.FC<SelectionViewProps> = ({
               : 'レコードがありません'}
           </div>
         ) : (
-          filteredRecords.map(record => (
+          filteredRecords.map((record) => (
             <div key={record.recordId} className="record-item">
               <div className="record-name">{record.name}</div>
               <div className="record-url">{record.url}</div>
@@ -562,14 +583,26 @@ export const SelectionView: React.FC<SelectionViewProps> = ({
                 <button
                   className="action-button"
                   disabled={isEmpty(record.username)}
-                  onClick={() => copyToClipboard(record.username, 'username', record.recordId)}
+                  onClick={() =>
+                    copyToClipboard(
+                      record.username,
+                      'username',
+                      record.recordId
+                    )
+                  }
                 >
                   ユーザー名
                 </button>
                 <button
                   className="action-button"
                   disabled={isEmpty(record.password)}
-                  onClick={() => copyToClipboard(record.password, 'password', record.recordId)}
+                  onClick={() =>
+                    copyToClipboard(
+                      record.password,
+                      'password',
+                      record.recordId
+                    )
+                  }
                 >
                   パスワード
                 </button>
@@ -579,7 +612,11 @@ export const SelectionView: React.FC<SelectionViewProps> = ({
                   onClick={() => {
                     if (!isEmpty(record.otpAuthUri)) {
                       if (otpData[record.recordId]) {
-                        copyToClipboard(otpData[record.recordId].otp, 'otp', record.recordId);
+                        copyToClipboard(
+                          otpData[record.recordId].otp,
+                          'otp',
+                          record.recordId
+                        );
                       } else {
                         // For HOTP or when OTP data is not yet generated, request OTP generation
                         copyToClipboard('', 'otp', record.recordId);

@@ -39,7 +39,6 @@ const createContextMenus = async () => {
       contexts: ['editable'],
     });
 
-
     contextMenusCreated = true;
   } catch (error) {
     console.error('Failed to create context menus:', error);
@@ -63,7 +62,7 @@ chrome.runtime.onInstalled.addListener(async (details) => {
       chrome.runtime.openOptionsPage();
     }
   }
-  
+
   await createContextMenus();
 });
 
@@ -110,7 +109,6 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
       case 'fill_from_kintone':
         await handleFillFromKintone(tab.id, tab.url || '', client);
         break;
-
     }
   } catch (error) {
     chrome.tabs.sendMessage(tab.id, {
@@ -156,12 +154,12 @@ const handleFillFromKintone = async (
 
     chrome.tabs.sendMessage(tabId, {
       type: 'SHOW_FILL_OPTIONS',
-      data: { 
-        records: matchingRecords, 
+      data: {
+        records: matchingRecords,
         allRecords: records,
         currentUrl: url,
-        isGeneral: false 
-      }
+        isGeneral: false,
+      },
     });
   } catch (error) {
     chrome.tabs.sendMessage(tabId, {
@@ -250,9 +248,12 @@ chrome.runtime.onMessage.addListener(
           }
 
           case 'GET_RECORDS': {
-            const { url, forceRefresh } = (message as GetRecordsMessage).data || {};
+            const { url, forceRefresh } =
+              (message as GetRecordsMessage).data || {};
             const records = await client.getRecords(!forceRefresh);
-            const filteredRecords = url ? getMatchingRecords(records, url) : records;
+            const filteredRecords = url
+              ? getMatchingRecords(records, url)
+              : records;
             sendResponse({ success: true, data: filteredRecords });
             break;
           }

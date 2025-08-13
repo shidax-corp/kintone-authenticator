@@ -86,11 +86,11 @@ export const closeModal = (): void => {
     // removeイベントを発火させるためにdispatchEvent
     const removeEvent = new Event('remove');
     currentModalRoot.dispatchEvent(removeEvent);
-    
+
     currentModalRoot.parentNode.removeChild(currentModalRoot);
     currentModalRoot = null;
   }
-  
+
   if (currentReactRoot) {
     currentReactRoot.unmount();
     currentReactRoot = null;

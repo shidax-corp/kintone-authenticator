@@ -109,23 +109,27 @@ const showToast = (message: string, type: 'success' | 'error' = 'success') => {
 };
 
 const showFillOptionsModal = async (
-  records: any[], 
-  allRecords: any[], 
-  currentUrl: string, 
-  isGeneral: boolean, 
+  records: any[],
+  allRecords: any[],
+  currentUrl: string,
+  isGeneral: boolean,
   title?: string
 ) => {
   try {
     // レコードデータをStoreに保存するか、直接propsとして渡す
-    const handleFieldSelect = async (type: 'username' | 'password' | 'otp', value: string, recordId?: string) => {
+    const handleFieldSelect = async (
+      type: 'username' | 'password' | 'otp',
+      value: string,
+      recordId?: string
+    ) => {
       if (type === 'otp' && recordId) {
         // OTPの場合は動的に生成
         try {
           const response = await chrome.runtime.sendMessage({
             type: 'GET_OTP',
-            data: { recordId }
+            data: { recordId },
           });
-          
+
           if (response.success && currentInputElement) {
             fillInputField(currentInputElement, response.data.otp);
             showToast('OTPを入力しました');
@@ -136,7 +140,9 @@ const showFillOptionsModal = async (
         }
       } else if (currentInputElement) {
         fillInputField(currentInputElement, value);
-        showToast(`${type === 'username' ? 'ユーザー名' : 'パスワード'}を入力しました`);
+        showToast(
+          `${type === 'username' ? 'ユーザー名' : 'パスワード'}を入力しました`
+        );
         closeModal();
       }
     };
@@ -158,7 +164,7 @@ const showFillOptionsModal = async (
       onFieldSelect: handleFieldSelect,
       initialRecords: records, // マッチしたレコードデータを渡す
       allRecords: allRecords, // すべてのレコードデータを渡す
-      initialSearchQuery: initialSearchQuery // 初期検索クエリを渡す
+      initialSearchQuery: initialSearchQuery, // 初期検索クエリを渡す
     });
 
     renderModalComponent(selectionViewElement);
@@ -167,7 +173,6 @@ const showFillOptionsModal = async (
     showToast('モーダルの表示に失敗しました', 'error');
   }
 };
-
 
 document.addEventListener('contextmenu', (e) => {
   const target = e.target as HTMLElement;
@@ -185,10 +190,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
     case 'SHOW_FILL_OPTIONS':
       showFillOptionsModal(
-        message.data.records, 
-        message.data.allRecords, 
-        message.data.currentUrl, 
-        message.data.isGeneral, 
+        message.data.records,
+        message.data.allRecords,
+        message.data.currentUrl,
+        message.data.isGeneral,
         message.data.title
       );
       break;
@@ -199,7 +204,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         showToast('OTPを入力しました');
       }
       break;
-
 
     case 'OPEN_REGISTER_FORM':
       chrome.runtime.sendMessage({
