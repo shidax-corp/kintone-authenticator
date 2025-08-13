@@ -25,10 +25,15 @@ export default function RecordApp({ record }: RecordAppProps) {
     kintone.app.record.setFieldShown('otpuri', false);
   }, []);
 
-  const otpInfo = decodeOTPAuthURI(record.otpuri.value);
+  const otpuri = record.otpuri.value;
+  const otpInfo = otpuri ? decodeOTPAuthURI(otpuri) : null;
 
   const [otp, setOtp] = useState<OTP | null>(null);
   const updateOTP = () => {
+    if (!otpInfo) {
+      setOtp(null);
+      return;
+    }
     (otpInfo.type === 'totp' ? (
       generateTOTP(otpInfo)
     ) : (
@@ -61,15 +66,21 @@ export default function RecordApp({ record }: RecordAppProps) {
       <KintoneLikeField label="URL" width={width}>
         <CopyableField>{record.url.value}</CopyableField>
       </KintoneLikeField>
-      <KintoneLikeField label="ユーザー名" width={width}>
-        <CopyableField>{record.username.value}</CopyableField>
-      </KintoneLikeField>
-      <KintoneLikeField label="パスワード" width={width}>
-        <SecretField value={record.password.value} />
-      </KintoneLikeField>
-      <KintoneLikeField label="ワンタイムパスワード" width={width}>
-        <OTPField otp={otp} />
-      </KintoneLikeField>
+      {record.username.value && record.password.value && (
+        <>
+          <KintoneLikeField label="ユーザー名" width={width}>
+            <CopyableField>{record.username.value}</CopyableField>
+          </KintoneLikeField>
+          <KintoneLikeField label="パスワード" width={width}>
+            <SecretField value={record.password.value} />
+          </KintoneLikeField>
+        </>
+      )}
+      {otpuri && (
+        <KintoneLikeField label="ワンタイムパスワード" width={width}>
+          <OTPField otp={otp} />
+        </KintoneLikeField>
+      )}
     </>
   );
 }
