@@ -11,6 +11,9 @@ const options = {
   entryPoints: {
     'kintone/kintone-authenticator': path.resolve(import.meta.dirname, 'src', 'kintone', 'index.tsx'),
     'chrome/index': path.resolve(import.meta.dirname, 'src', 'chrome', 'index.tsx'),
+    'chrome/background': path.resolve(import.meta.dirname, 'src', 'chrome', 'background.ts'),
+    'chrome/content': path.resolve(import.meta.dirname, 'src', 'chrome', 'content.ts'),
+    'chrome/options/index': path.resolve(import.meta.dirname, 'src', 'chrome', 'options', 'index.tsx'),
   },
   bundle: true,
   outdir: path.resolve(import.meta.dirname, 'dist'),
