@@ -52,6 +52,21 @@ export const OptionsForm: React.FC = () => {
     setTestResult(null);
 
     try {
+      // 保存前に接続テストを実行
+      const connectionResponse = await chrome.runtime.sendMessage({
+        type: 'TEST_CONNECTION',
+        data: settings
+      });
+
+      if (!connectionResponse.success) {
+        setTestResult({
+          success: false,
+          message: 'kintoneへの接続に失敗しました。設定を確認してください。'
+        });
+        return;
+      }
+
+      // 接続テストが成功した場合のみ設定を保存
       await saveSettings(settings);
       setTestResult({
         success: true,

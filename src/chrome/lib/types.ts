@@ -35,7 +35,8 @@ export type MessageType =
   | 'GET_OTP'
   | 'COPY_TO_CLIPBOARD'
   | 'GET_SETTINGS'
-  | 'SAVE_SETTINGS';
+  | 'SAVE_SETTINGS'
+  | 'TEST_CONNECTION';
 
 export interface Message {
   type: MessageType;
@@ -87,4 +88,9 @@ export interface CopyToClipboardMessage extends Message {
   data: {
     text: string;
   };
+}
+
+export interface TestConnectionMessage extends Message {
+  type: 'TEST_CONNECTION';
+  data: ExtensionSettings;
 }

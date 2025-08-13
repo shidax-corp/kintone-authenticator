@@ -304,6 +304,14 @@ chrome.runtime.onMessage.addListener((message: Message, sender, sendResponse) =>
           break;
         }
 
+        case 'TEST_CONNECTION': {
+          const testSettings = message.data;
+          const testClient = new KintoneClient(testSettings, KINTONE_APP_ID);
+          const isConnected = await testClient.testConnection();
+          sendResponse({ success: isConnected });
+          break;
+        }
+
         default:
           sendResponse({ error: 'Unknown message type' });
       }

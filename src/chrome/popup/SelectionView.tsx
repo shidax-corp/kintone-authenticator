@@ -17,6 +17,7 @@ export const SelectionView: React.FC<SelectionViewProps> = ({ onRegister }) => {
   const [refreshing, setRefreshing] = useState(false);
   const [settings, setSettings] = useState<ExtensionSettings | null>(null);
   const [otpData, setOtpData] = useState<{ [recordId: string]: { otp: string; remaining: number } }>({});
+  const [fetchError, setFetchError] = useState<boolean>(false);
 
   useEffect(() => {
     loadInitialData();
@@ -33,6 +34,8 @@ export const SelectionView: React.FC<SelectionViewProps> = ({ onRegister }) => {
 
   const loadInitialData = async () => {
     try {
+      setFetchError(false);
+
       const [settingsResponse, recordsResponse] = await Promise.all([
         chrome.runtime.sendMessage({ type: 'GET_SETTINGS' }),
         chrome.runtime.sendMessage({ type: 'GET_RECORDS' })
@@ -44,9 +47,14 @@ export const SelectionView: React.FC<SelectionViewProps> = ({ onRegister }) => {
 
       if (recordsResponse.success) {
         setRecords(recordsResponse.data);
+      } else {
+        setFetchError(true);
+        setRecords([]);
       }
     } catch (error) {
       console.error('Failed to load data:', error);
+      setFetchError(true);
+      setRecords([]);
     } finally {
       setLoading(false);
     }
@@ -55,6 +63,8 @@ export const SelectionView: React.FC<SelectionViewProps> = ({ onRegister }) => {
   const refreshRecords = async () => {
     setRefreshing(true);
     try {
+      setFetchError(false);
+
       const response = await chrome.runtime.sendMessage({
         type: 'GET_RECORDS',
         data: { forceRefresh: true }
@@ -62,9 +72,14 @@ export const SelectionView: React.FC<SelectionViewProps> = ({ onRegister }) => {
 
       if (response.success) {
         setRecords(response.data);
+      } else {
+        setFetchError(true);
+        setRecords([]);
       }
     } catch (error) {
       console.error('Failed to refresh records:', error);
+      setFetchError(true);
+      setRecords([]);
     } finally {
       setRefreshing(false);
     }
@@ -122,7 +137,7 @@ export const SelectionView: React.FC<SelectionViewProps> = ({ onRegister }) => {
         type: 'COPY_TO_CLIPBOARD',
         data: { text }
       });
-      
+
       // Show temporary notification
       const button = document.activeElement as HTMLElement;
       if (button) {
@@ -151,7 +166,7 @@ export const SelectionView: React.FC<SelectionViewProps> = ({ onRegister }) => {
       <div className="setup-required">
         <h2>設定が必要です</h2>
         <p>kintone Authenticatorを使用するには、まず設定を完了してください。</p>
-        <button 
+        <button
           className="button button-primary"
           onClick={() => chrome.runtime.openOptionsPage()}
         >
@@ -352,6 +367,16 @@ export const SelectionView: React.FC<SelectionViewProps> = ({ onRegister }) => {
           color: #666;
         }
 
+        .error-state {
+          padding: 48px 24px;
+          text-align: center;
+          color: #e74c3c;
+          background: #fdf2f2;
+          border: 1px solid #f5c6cb;
+          border-radius: 4px;
+          margin: 16px;
+        }
+
         .loading {
           padding: 48px 24px;
           text-align: center;
@@ -428,7 +453,15 @@ export const SelectionView: React.FC<SelectionViewProps> = ({ onRegister }) => {
       </div>
 
       <div className="records-container">
-        {filteredRecords.length === 0 ? (
+        {fetchError ? (
+          <div className="error-state">
+            データの取得に失敗しました。<br />
+            <a href="" onClick={(ev) => {
+              ev.preventDefault();
+              chrome.runtime.openOptionsPage();
+            }} style={{ color: 'inherit' }}>設定</a>を確認してください
+          </div>
+        ) : filteredRecords.length === 0 ? (
           <div className="empty-state">
             {searchQuery ? '検索条件に一致するレコードがありません' : 'レコードがありません'}
           </div>
