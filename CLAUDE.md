@@ -61,3 +61,5 @@ This is a kintone authenticator application similar to Google Authenticator, wit
 - For commit message, use the semantic commit messages in English. For example: `feat(kintone): add QR code scanning feature` or `fix(chrome): resolve auto-fill issue #123`.
 - Separate commits for different features or fixes.
 - For issues and PR, use a concise title and a detailed description.
+- Use the label named `AI Created` for issues and PRs created by AI assistants. And set another proper labels if necessary.
+- Write `(Written by Claude Code)` or `(Written by GitHub Copilot)` in the bottom of the Issue or PR description to indicate AI assistance.
