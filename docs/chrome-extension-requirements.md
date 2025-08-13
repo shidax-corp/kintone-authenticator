@@ -89,6 +89,7 @@
 - 設定画面で登録した値は、ChromeのストレージAPIを使用して安全に保存する。
 
 - OTPAuth URIとパスワードは、設定画面で入力したパスフレーズを使用して暗号化してkintoneに保存する。
+  - 暗号化の仕様は[encryption.md](encryption.md)を参照。
 
 
 ## パフォーマンス
