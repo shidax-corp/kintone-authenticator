@@ -85,10 +85,13 @@ export default function RecordApp({ record }: RecordAppProps) {
       // kintoneレコードを更新（平文で保存）
       const updatedRecord = {
         ...record,
-        otpuri: { value: newOtpUri },
+        otpuri: {
+          type: 'SINGLE_LINE_TEXT',
+          value: newOtpUri,
+        },
       };
 
-      await kintone.app.record.set(updatedRecord);
+      await kintone.app.record.set({ record: updatedRecord });
 
       // 新しいOTPを生成
       const newOtp = await generateHOTP(updatedOtpInfo, updatedOtpInfo.counter);
