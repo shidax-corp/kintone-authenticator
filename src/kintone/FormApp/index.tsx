@@ -107,9 +107,8 @@ export default function FormApp({ record, mode }: FormAppProps) {
             onChange={(value) => handleFieldChange('url', value)}
             placeholder="例: https://accounts.google.com/*"
             type="url"
-            required
             error={errors.url}
-            helpText="ワイルドカード（*）を使用できます"
+            helpText="ワイルドカード（*）を使用できます（任意入力）"
           />
 
           <InputField

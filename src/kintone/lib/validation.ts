@@ -34,9 +34,7 @@ export const validateFormData = (formData: FormData): FormErrors => {
     errors.name = 'サイト名は必須です';
   }
 
-  if (!formData.url.trim()) {
-    errors.url = 'URLは必須です';
-  } else if (!validateUrl(formData.url)) {
+  if (formData.url.trim() && !validateUrl(formData.url)) {
     errors.url = '有効なURLを入力してください';
   }
 
