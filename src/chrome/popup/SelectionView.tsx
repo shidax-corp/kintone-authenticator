@@ -3,6 +3,7 @@ import { generateTOTP } from '../../lib/gen-otp';
 import { decodeOTPAuthURI } from '../../lib/otpauth-uri';
 import { prettifyOTP } from '../../lib/gen-otp';
 import { getSettings, isSettingsComplete } from '../lib/storage';
+import { matchURL } from '../lib/url-matcher';
 import type { KintoneRecord, ExtensionSettings } from '../lib/types';
 
 interface SelectionViewProps {
@@ -122,8 +123,30 @@ export const SelectionView: React.FC<SelectionViewProps> = ({
 
     const queries = searchQuery.toLowerCase().split(' ').filter(q => q.length > 0);
     const filtered = searchableRecords.filter(record => {
-      const searchableText = `${record.name} ${record.url}`.toLowerCase();
-      return queries.every(query => searchableText.includes(query));
+      return queries.every(query => {
+        const lowerQuery = query.toLowerCase();
+        
+        // URL matching
+        let urlMatch = false;
+        if (record.url.includes('*')) {
+          // Wildcard matching if record URL has asterisk
+          urlMatch = matchURL(query, record.url);
+          
+          // If query doesn't look like a full URL, also try text matching
+          if (!urlMatch && !query.includes('://')) {
+            urlMatch = record.url.toLowerCase().includes(lowerQuery);
+          }
+        } else {
+          // Text matching for non-wildcard URLs
+          urlMatch = record.url.toLowerCase().includes(lowerQuery);
+        }
+        
+        // Name matching (always text-based)  
+        const nameMatch = record.name.toLowerCase().includes(lowerQuery);
+        
+        // Either URL or name should match
+        return urlMatch || nameMatch;
+      });
     });
 
     setFilteredRecords(filtered);
