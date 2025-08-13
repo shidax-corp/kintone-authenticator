@@ -12,8 +12,12 @@ describe('base32', () => {
     });
 
     it('long input', () => {
-      const data = new TextEncoder().encode('The quick brown fox jumps over the lazy dog');
-      expect(b32encode(data)).toBe('KRUGKIDROVUWG2ZAMJZG653OEBTG66BANJ2W24DTEBXXMZLSEB2GQZJANRQXU6JAMRXWO===');
+      const data = new TextEncoder().encode(
+        'The quick brown fox jumps over the lazy dog'
+      );
+      expect(b32encode(data)).toBe(
+        'KRUGKIDROVUWG2ZAMJZG653OEBTG66BANJ2W24DTEBXXMZLSEB2GQZJANRQXU6JAMRXWO==='
+      );
     });
   });
 
@@ -28,8 +32,14 @@ describe('base32', () => {
     });
 
     it('long input', () => {
-      const expected = new TextEncoder().encode('The quick brown fox jumps over the lazy dog\0');
-      expect(b32decode('KRUGKIDROVUWG2ZAMJZG653OEBTG66BANJ2W24DTEBXXMZLSEB2GQZJANRQXU6JAMRXWO===')).toEqual(expected);
+      const expected = new TextEncoder().encode(
+        'The quick brown fox jumps over the lazy dog\0'
+      );
+      expect(
+        b32decode(
+          'KRUGKIDROVUWG2ZAMJZG653OEBTG66BANJ2W24DTEBXXMZLSEB2GQZJANRQXU6JAMRXWO==='
+        )
+      ).toEqual(expected);
     });
 
     it('invalid characters', () => {

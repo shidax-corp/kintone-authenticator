@@ -8,17 +8,17 @@ interface RegisterFormProps {
   onSuccess: () => void;
 }
 
-export const RegisterForm: React.FC<RegisterFormProps> = ({ 
-  otpAuthUri, 
-  onBack, 
-  onSuccess 
+export const RegisterForm: React.FC<RegisterFormProps> = ({
+  otpAuthUri,
+  onBack,
+  onSuccess,
 }) => {
   const [formData, setFormData] = useState({
     name: '',
     url: '',
     username: '',
     password: '',
-    otpAuthUri: otpAuthUri || ''
+    otpAuthUri: otpAuthUri || '',
   });
 
   const [loading, setLoading] = useState(false);
@@ -29,10 +29,10 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       const currentTab = tabs[0];
       if (currentTab && currentTab.url && currentTab.title) {
-        setFormData(prev => ({
+        setFormData((prev) => ({
           ...prev,
           name: prev.name || currentTab.title || '',
-          url: prev.url || currentTab.url || ''
+          url: prev.url || currentTab.url || '',
         }));
       }
     });
@@ -41,10 +41,10 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
     if (otpAuthUri && isOTPAuthURI(otpAuthUri)) {
       try {
         const parsed = decodeOTPAuthURI(otpAuthUri);
-        setFormData(prev => ({
+        setFormData((prev) => ({
           ...prev,
           name: prev.name || parsed.issuer || parsed.accountName || '',
-          username: prev.username || parsed.accountName || ''
+          username: prev.username || parsed.accountName || '',
         }));
       } catch (error) {
         console.error('Failed to parse OTPAuth URI:', error);
@@ -54,9 +54,9 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
   }, [otpAuthUri]);
 
   const handleInputChange = (field: keyof typeof formData, value: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
     setError(null);
   };
@@ -93,8 +93,8 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
           url: formData.url.trim(),
           username: formData.username.trim(),
           password: formData.password.trim(),
-          otpAuthUri: formData.otpAuthUri.trim() || undefined
-        }
+          otpAuthUri: formData.otpAuthUri.trim() || undefined,
+        },
       });
 
       if (response.success) {
@@ -103,16 +103,19 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
         setError(response.error || '登録に失敗しました');
       }
     } catch (error) {
-      setError(error instanceof Error ? error.message : '登録中にエラーが発生しました');
+      setError(
+        error instanceof Error ? error.message : '登録中にエラーが発生しました'
+      );
     } finally {
       setLoading(false);
     }
   };
 
-  const isFormValid = formData.name.trim() && 
-                     formData.url.trim() && 
-                     formData.username.trim() && 
-                     formData.password.trim();
+  const isFormValid =
+    formData.name.trim() &&
+    formData.url.trim() &&
+    formData.username.trim() &&
+    formData.password.trim();
 
   return (
     <div className="register-form">
@@ -120,7 +123,8 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
         .register-form {
           width: 400px;
           max-height: 600px;
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+          font-family:
+            -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
           display: flex;
           flex-direction: column;
         }
@@ -286,11 +290,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
       </div>
 
       <form onSubmit={handleSubmit} className="form-container">
-        {error && (
-          <div className="error">
-            {error}
-          </div>
-        )}
+        {error && <div className="error">{error}</div>}
 
         <div className="form-group">
           <label htmlFor="name">
@@ -318,9 +318,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
             placeholder="例: https://accounts.google.com/*"
             required
           />
-          <div className="help-text">
-            ワイルドカード（*）を使用できます
-          </div>
+          <div className="help-text">ワイルドカード（*）を使用できます</div>
         </div>
 
         <div className="form-group">
@@ -352,9 +350,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
         </div>
 
         <div className="form-group">
-          <label htmlFor="otpAuthUri">
-            OTPAuth URI（任意）
-          </label>
+          <label htmlFor="otpAuthUri">OTPAuth URI（任意）</label>
           <textarea
             id="otpAuthUri"
             value={formData.otpAuthUri}

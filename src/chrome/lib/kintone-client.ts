@@ -24,7 +24,6 @@ export class KintoneClient {
     this.appId = appId;
   }
 
-
   private extractRecordData(record: any): KintoneRecord {
     return {
       recordId: record.$id.value,
@@ -48,10 +47,18 @@ export class KintoneClient {
 
       const response = await this.client.record.getRecords({
         app: this.appId,
-        fields: ['$id', 'name', 'url', 'username', 'password', 'otpuri', '更新日時'],
+        fields: [
+          '$id',
+          'name',
+          'url',
+          'username',
+          'password',
+          'otpuri',
+          '更新日時',
+        ],
       });
 
-      const records: KintoneRecord[] = response.records.map(record => 
+      const records: KintoneRecord[] = response.records.map((record) =>
         this.extractRecordData(record)
       );
 
@@ -59,16 +66,16 @@ export class KintoneClient {
       return records;
     } catch (error) {
       console.error('Failed to get records:', error);
-      
       if (useCache) {
         const cached = await getCachedRecords();
         if (cached) {
-          console.warn('Using cached records due to API error');
           return cached;
         }
       }
 
-      throw new KintoneClientError(`Failed to get records: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new KintoneClientError(
+        `Failed to get records: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
 
@@ -97,24 +104,32 @@ export class KintoneClient {
       await this.getRecords(false);
       return response.id;
     } catch (error) {
-      throw new KintoneClientError(`Failed to create record: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new KintoneClientError(
+        `Failed to create record: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
 
-  async updateRecord(recordId: string, data: {
-    name?: string;
-    url?: string;
-    username?: string;
-    password?: string;
-    otpAuthUri?: string;
-  }): Promise<void> {
+  async updateRecord(
+    recordId: string,
+    data: {
+      name?: string;
+      url?: string;
+      username?: string;
+      password?: string;
+      otpAuthUri?: string;
+    }
+  ): Promise<void> {
     try {
       const record: any = {};
       if (data.name !== undefined) record.name = { value: data.name };
       if (data.url !== undefined) record.url = { value: data.url };
-      if (data.username !== undefined) record.username = { value: data.username };
-      if (data.password !== undefined) record.password = { value: data.password };
-      if (data.otpAuthUri !== undefined) record.otpuri = { value: data.otpAuthUri };
+      if (data.username !== undefined)
+        record.username = { value: data.username };
+      if (data.password !== undefined)
+        record.password = { value: data.password };
+      if (data.otpAuthUri !== undefined)
+        record.otpuri = { value: data.otpAuthUri };
 
       await this.client.record.updateRecord({
         app: this.appId,
@@ -125,7 +140,9 @@ export class KintoneClient {
       // Clear cache to force refresh
       await this.getRecords(false);
     } catch (error) {
-      throw new KintoneClientError(`Failed to update record: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new KintoneClientError(
+        `Failed to update record: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
 
@@ -139,7 +156,9 @@ export class KintoneClient {
       // Clear cache to force refresh
       await this.getRecords(false);
     } catch (error) {
-      throw new KintoneClientError(`Failed to delete record: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new KintoneClientError(
+        `Failed to delete record: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
 

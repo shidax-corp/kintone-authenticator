@@ -11,7 +11,9 @@ export default function ListApp({ appId, records }: ListAppProps) {
       <ul>
         {records.map((record) => (
           <li key={record.$id.value}>
-            <a href={`/k/${appId}/show#record=${record.$id.value}`}>{record.name.value} ({record.$id.value})</a>
+            <a href={`/k/${appId}/show#record=${record.$id.value}`}>
+              {record.name.value} ({record.$id.value})
+            </a>
           </li>
         ))}
       </ul>

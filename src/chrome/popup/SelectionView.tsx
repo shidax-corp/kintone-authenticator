@@ -3,20 +3,42 @@ import { generateTOTP } from '../../lib/gen-otp';
 import { decodeOTPAuthURI } from '../../lib/otpauth-uri';
 import { prettifyOTP } from '../../lib/gen-otp';
 import { getSettings, isSettingsComplete } from '../lib/storage';
+import { matchURL } from '../lib/url-matcher';
 import type { KintoneRecord, ExtensionSettings } from '../lib/types';
 
 interface SelectionViewProps {
   onRegister: () => void;
+  isModal?: boolean;
+  onClose?: () => void;
+  onFieldSelect?: (
+    type: 'username' | 'password' | 'otp',
+    value: string,
+    recordId?: string
+  ) => void;
+  initialRecords?: KintoneRecord[];
+  allRecords?: KintoneRecord[];
+  initialSearchQuery?: string;
 }
 
-export const SelectionView: React.FC<SelectionViewProps> = ({ onRegister }) => {
+export const SelectionView: React.FC<SelectionViewProps> = ({
+  onRegister,
+  isModal = false,
+  onClose,
+  onFieldSelect,
+  initialRecords,
+  allRecords,
+  initialSearchQuery = '',
+}) => {
   const [records, setRecords] = useState<KintoneRecord[]>([]);
   const [filteredRecords, setFilteredRecords] = useState<KintoneRecord[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState(initialSearchQuery);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [settings, setSettings] = useState<ExtensionSettings | null>(null);
-  const [otpData, setOtpData] = useState<{ [recordId: string]: { otp: string; remaining: number } }>({});
+  const [otpData, setOtpData] = useState<{
+    [recordId: string]: { otp: string; remaining: number };
+  }>({});
+  const [fetchError, setFetchError] = useState<boolean>(false);
 
   useEffect(() => {
     loadInitialData();
@@ -33,20 +55,41 @@ export const SelectionView: React.FC<SelectionViewProps> = ({ onRegister }) => {
 
   const loadInitialData = async () => {
     try {
-      const [settingsResponse, recordsResponse] = await Promise.all([
-        chrome.runtime.sendMessage({ type: 'GET_SETTINGS' }),
-        chrome.runtime.sendMessage({ type: 'GET_RECORDS' })
-      ]);
+      setFetchError(false);
 
-      if (settingsResponse.success) {
-        setSettings(settingsResponse.data);
-      }
+      // 初期レコードが渡されている場合はそれを使用
+      if (initialRecords || allRecords) {
+        const settingsResponse = await chrome.runtime.sendMessage({
+          type: 'GET_SETTINGS',
+        });
+        if (settingsResponse.success) {
+          setSettings(settingsResponse.data);
+        }
 
-      if (recordsResponse.success) {
-        setRecords(recordsResponse.data);
+        // allRecordsが利用可能な場合はそれをrecordsに設定、そうでなければinitialRecordsを使用
+        setRecords(allRecords || initialRecords || []);
+      } else {
+        // 従来通りの処理
+        const [settingsResponse, recordsResponse] = await Promise.all([
+          chrome.runtime.sendMessage({ type: 'GET_SETTINGS' }),
+          chrome.runtime.sendMessage({ type: 'GET_RECORDS' }),
+        ]);
+
+        if (settingsResponse.success) {
+          setSettings(settingsResponse.data);
+        }
+
+        if (recordsResponse.success) {
+          setRecords(recordsResponse.data);
+        } else {
+          setFetchError(true);
+          setRecords([]);
+        }
       }
     } catch (error) {
       console.error('Failed to load data:', error);
+      setFetchError(true);
+      setRecords([]);
     } finally {
       setLoading(false);
     }
@@ -55,45 +98,82 @@ export const SelectionView: React.FC<SelectionViewProps> = ({ onRegister }) => {
   const refreshRecords = async () => {
     setRefreshing(true);
     try {
+      setFetchError(false);
+
       const response = await chrome.runtime.sendMessage({
         type: 'GET_RECORDS',
-        data: { forceRefresh: true }
+        data: { forceRefresh: true },
       });
 
       if (response.success) {
         setRecords(response.data);
+      } else {
+        setFetchError(true);
+        setRecords([]);
       }
     } catch (error) {
       console.error('Failed to refresh records:', error);
+      setFetchError(true);
+      setRecords([]);
     } finally {
       setRefreshing(false);
     }
   };
 
   const filterRecords = () => {
+    // 検索に使用するレコードを決定（allRecordsが利用可能ならそれを使用、そうでなければrecords）
+    const searchableRecords = allRecords || records;
+
     if (!searchQuery.trim()) {
-      setFilteredRecords(records);
+      setFilteredRecords(searchableRecords);
       return;
     }
 
-    const queries = searchQuery.toLowerCase().split(' ').filter(q => q.length > 0);
-    const filtered = records.filter(record => {
-      const searchableText = `${record.name} ${record.url}`.toLowerCase();
-      return queries.every(query => searchableText.includes(query));
+    const queries = searchQuery
+      .toLowerCase()
+      .split(' ')
+      .filter((q) => q.length > 0);
+    const filtered = searchableRecords.filter((record) => {
+      return queries.every((query) => {
+        const lowerQuery = query.toLowerCase();
+
+        // URL matching
+        let urlMatch = false;
+        if (record.url.includes('*')) {
+          // Wildcard matching if record URL has asterisk
+          urlMatch = matchURL(query, record.url);
+
+          // If query doesn't look like a full URL, also try text matching
+          if (!urlMatch && !query.includes('://')) {
+            urlMatch = record.url.toLowerCase().includes(lowerQuery);
+          }
+        } else {
+          // Text matching for non-wildcard URLs
+          urlMatch = record.url.toLowerCase().includes(lowerQuery);
+        }
+
+        // Name matching (always text-based)
+        const nameMatch = record.name.toLowerCase().includes(lowerQuery);
+
+        // Either URL or name should match
+        return urlMatch || nameMatch;
+      });
     });
 
     setFilteredRecords(filtered);
   };
 
   const updateOTPs = async () => {
-    const newOtpData: { [recordId: string]: { otp: string; remaining: number } } = {};
+    const newOtpData: {
+      [recordId: string]: { otp: string; remaining: number };
+    } = {};
 
     for (const record of filteredRecords) {
       if (record.otpAuthUri) {
         try {
           const response = await chrome.runtime.sendMessage({
             type: 'GET_OTP',
-            data: { recordId: record.recordId }
+            data: { recordId: record.recordId },
           });
 
           if (response.success) {
@@ -103,11 +183,14 @@ export const SelectionView: React.FC<SelectionViewProps> = ({ onRegister }) => {
 
             newOtpData[record.recordId] = {
               otp: response.data.otp,
-              remaining: Math.ceil(remaining / 1000)
+              remaining: Math.ceil(remaining / 1000),
             };
           }
         } catch (error) {
-          console.error(`Failed to generate OTP for record ${record.recordId}:`, error);
+          console.error(
+            `Failed to generate OTP for record ${record.recordId}:`,
+            error
+          );
         }
       }
     }
@@ -115,13 +198,28 @@ export const SelectionView: React.FC<SelectionViewProps> = ({ onRegister }) => {
     setOtpData(newOtpData);
   };
 
-  const copyToClipboard = async (text: string, type: string) => {
+  const isEmpty = (value: string): boolean => {
+    return !value || value.trim() === '';
+  };
+
+  const copyToClipboard = async (
+    text: string,
+    type: string,
+    recordId?: string
+  ) => {
+    // contentスクリプトモードの場合はフィールド選択コールバックを実行
+    if (isModal && onFieldSelect) {
+      onFieldSelect(type as 'username' | 'password' | 'otp', text, recordId);
+      return;
+    }
+
+    // 通常のクリップボードコピー処理
     try {
       await chrome.runtime.sendMessage({
         type: 'COPY_TO_CLIPBOARD',
-        data: { text }
+        data: { text },
       });
-      
+
       // Show temporary notification
       const button = document.activeElement as HTMLElement;
       if (button) {
@@ -150,7 +248,7 @@ export const SelectionView: React.FC<SelectionViewProps> = ({ onRegister }) => {
       <div className="setup-required">
         <h2>設定が必要です</h2>
         <p>kintone Authenticatorを使用するには、まず設定を完了してください。</p>
-        <button 
+        <button
           className="button button-primary"
           onClick={() => chrome.runtime.openOptionsPage()}
         >
@@ -166,7 +264,8 @@ export const SelectionView: React.FC<SelectionViewProps> = ({ onRegister }) => {
         .selection-view {
           width: 400px;
           max-height: 600px;
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+          font-family:
+            -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
           display: flex;
           flex-direction: column;
         }
@@ -177,9 +276,31 @@ export const SelectionView: React.FC<SelectionViewProps> = ({ onRegister }) => {
           background: #f8f9fa;
         }
 
+        .header-title {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 12px;
+        }
+
         .header h1 {
-          margin: 0 0 12px 0;
+          margin: 0;
           font-size: 18px;
+          color: #333;
+        }
+
+        .close-button {
+          background: none;
+          border: none;
+          font-size: 20px;
+          color: #666;
+          cursor: pointer;
+          padding: 4px;
+          border-radius: 4px;
+        }
+
+        .close-button:hover {
+          background: #e0e0e0;
           color: #333;
         }
 
@@ -275,7 +396,6 @@ export const SelectionView: React.FC<SelectionViewProps> = ({ onRegister }) => {
           background: #f9f9f9;
         }
 
-
         .otp-button {
           display: flex;
           flex-direction: column;
@@ -283,6 +403,11 @@ export const SelectionView: React.FC<SelectionViewProps> = ({ onRegister }) => {
           padding: 8px;
           background: #e3f2fd;
           border-color: #2196f3;
+        }
+
+        .otp-button:disabled {
+          background: #f9f9f9;
+          border-color: #ddd;
         }
 
         .otp-value {
@@ -296,6 +421,11 @@ export const SelectionView: React.FC<SelectionViewProps> = ({ onRegister }) => {
         .otp-timer {
           font-size: 10px;
           color: #666;
+        }
+
+        .otp-placeholder {
+          font-size: 12px;
+          color: #999;
         }
 
         .footer {
@@ -325,6 +455,16 @@ export const SelectionView: React.FC<SelectionViewProps> = ({ onRegister }) => {
           color: #666;
         }
 
+        .error-state {
+          padding: 48px 24px;
+          text-align: center;
+          color: #e74c3c;
+          background: #fdf2f2;
+          border: 1px solid #f5c6cb;
+          border-radius: 4px;
+          margin: 16px;
+        }
+
         .loading {
           padding: 48px 24px;
           text-align: center;
@@ -342,8 +482,12 @@ export const SelectionView: React.FC<SelectionViewProps> = ({ onRegister }) => {
         }
 
         @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
+          0% {
+            transform: rotate(0deg);
+          }
+          100% {
+            transform: rotate(360deg);
+          }
         }
 
         .setup-required {
@@ -380,7 +524,14 @@ export const SelectionView: React.FC<SelectionViewProps> = ({ onRegister }) => {
       `}</style>
 
       <div className="header">
-        <h1>kintone Authenticator</h1>
+        <div className="header-title">
+          <h1>kintone Authenticator</h1>
+          {isModal && onClose && (
+            <button className="close-button" onClick={onClose} title="閉じる">
+              ✕
+            </button>
+          )}
+        </div>
         <div className="search-container">
           <input
             type="text"
@@ -401,44 +552,96 @@ export const SelectionView: React.FC<SelectionViewProps> = ({ onRegister }) => {
       </div>
 
       <div className="records-container">
-        {filteredRecords.length === 0 ? (
+        {fetchError ? (
+          <div className="error-state">
+            データの取得に失敗しました。
+            <br />
+            <a
+              href=""
+              onClick={(ev) => {
+                ev.preventDefault();
+                chrome.runtime.openOptionsPage();
+              }}
+              style={{ color: 'inherit' }}
+            >
+              設定
+            </a>
+            を確認してください
+          </div>
+        ) : filteredRecords.length === 0 ? (
           <div className="empty-state">
-            {searchQuery ? '検索条件に一致するレコードがありません' : 'レコードがありません'}
+            {searchQuery
+              ? '検索条件に一致するレコードがありません'
+              : 'レコードがありません'}
           </div>
         ) : (
-            filteredRecords.map(record => (
-              <div key={record.recordId} className="record-item">
-                <div className="record-name">{record.name}</div>
-                <div className="record-url">{record.url}</div>
-                <div className={`record-actions ${record.otpAuthUri ? 'with-otp' : ''}`}>
-                  <button
-                    className="action-button"
-                    onClick={() => copyToClipboard(record.username, 'username')}
-                  >
-                    ユーザー名
-                  </button>
-                  <button
-                    className="action-button"
-                    onClick={() => copyToClipboard(record.password, 'password')}
-                  >
-                    パスワード
-                  </button>
-                  {record.otpAuthUri && otpData[record.recordId] && (
-                    <button
-                      className="action-button otp-button"
-                      onClick={() => copyToClipboard(otpData[record.recordId].otp, 'otp')}
-                    >
+          filteredRecords.map((record) => (
+            <div key={record.recordId} className="record-item">
+              <div className="record-name">{record.name}</div>
+              <div className="record-url">{record.url}</div>
+              <div className="record-actions with-otp">
+                <button
+                  className="action-button"
+                  disabled={isEmpty(record.username)}
+                  onClick={() =>
+                    copyToClipboard(
+                      record.username,
+                      'username',
+                      record.recordId
+                    )
+                  }
+                >
+                  ユーザー名
+                </button>
+                <button
+                  className="action-button"
+                  disabled={isEmpty(record.password)}
+                  onClick={() =>
+                    copyToClipboard(
+                      record.password,
+                      'password',
+                      record.recordId
+                    )
+                  }
+                >
+                  パスワード
+                </button>
+                <button
+                  className="action-button otp-button"
+                  disabled={isEmpty(record.otpAuthUri)}
+                  onClick={() => {
+                    if (!isEmpty(record.otpAuthUri)) {
+                      if (otpData[record.recordId]) {
+                        copyToClipboard(
+                          otpData[record.recordId].otp,
+                          'otp',
+                          record.recordId
+                        );
+                      } else {
+                        // For HOTP or when OTP data is not yet generated, request OTP generation
+                        copyToClipboard('', 'otp', record.recordId);
+                      }
+                    }
+                  }}
+                >
+                  {!isEmpty(record.otpAuthUri) && otpData[record.recordId] ? (
+                    <>
                       <div className="otp-value">
                         {prettifyOTP(otpData[record.recordId].otp)}
                       </div>
                       <div className="otp-timer">
                         {otpData[record.recordId].remaining}s
                       </div>
-                    </button>
+                    </>
+                  ) : !isEmpty(record.otpAuthUri) ? (
+                    <div className="otp-placeholder">ワンタイムパスワード</div>
+                  ) : (
+                    <div className="otp-placeholder">ワンタイムパスワード</div>
                   )}
-                </div>
+                </button>
               </div>
-            ))
+            </div>
+          ))
         )}
       </div>
 

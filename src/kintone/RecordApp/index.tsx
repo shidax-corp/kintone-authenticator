@@ -17,7 +17,9 @@ export interface RecordAppProps {
 }
 
 export default function RecordApp({ record }: RecordAppProps) {
-  const width = kintone.app.record.getFieldElement('name')?.parentElement?.style?.width ?? '100%';
+  const width =
+    kintone.app.record.getFieldElement('name')?.parentElement?.style?.width ??
+    '100%';
   useEffect(() => {
     kintone.app.record.setFieldShown('name', false);
     kintone.app.record.setFieldShown('url', false);
@@ -28,23 +30,26 @@ export default function RecordApp({ record }: RecordAppProps) {
 
   const [otp, setOtp] = useState<OTP | null>(null);
 
-  const otpInfo = record.otpuri.value ? decodeOTPAuthURI(record.otpuri.value) : null;
+  const otpInfo = record.otpuri.value
+    ? decodeOTPAuthURI(record.otpuri.value)
+    : null;
 
   const updateOTP = () => {
     if (!otpInfo) {
       setOtp(null);
       return;
     }
-    (otpInfo.type === 'totp' ? (
-      generateTOTP(otpInfo)
-    ) : (
-      generateHOTP(otpInfo, otpInfo.counter)
-    )).then((generatedOtp) => {
-      setOtp(generatedOtp);
-    }).catch((error) => {
-      console.error('Failed to generate OTP:', error);
-      setOtp(null);
-    });
+    (otpInfo.type === 'totp'
+      ? generateTOTP(otpInfo)
+      : generateHOTP(otpInfo, otpInfo.counter)
+    )
+      .then((generatedOtp) => {
+        setOtp(generatedOtp);
+      })
+      .catch((error) => {
+        console.error('Failed to generate OTP:', error);
+        setOtp(null);
+      });
   };
 
   useEffect(() => {

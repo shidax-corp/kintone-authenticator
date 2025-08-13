@@ -25,7 +25,7 @@ export interface OTPData {
   remainingTime: number;
 }
 
-export type MessageType = 
+export type MessageType =
   | 'READ_QR'
   | 'REGISTER_OTP'
   | 'GET_RECORDS'
@@ -33,7 +33,9 @@ export type MessageType =
   | 'GET_OTP'
   | 'COPY_TO_CLIPBOARD'
   | 'GET_SETTINGS'
-  | 'SAVE_SETTINGS';
+  | 'SAVE_SETTINGS'
+  | 'TEST_CONNECTION'
+  | 'SHOW_FILL_OPTIONS';
 
 export interface Message {
   type: MessageType;
@@ -62,6 +64,7 @@ export interface GetRecordsMessage extends Message {
   type: 'GET_RECORDS';
   data?: {
     url?: string;
+    forceRefresh?: boolean;
   };
 }
 
@@ -84,5 +87,21 @@ export interface CopyToClipboardMessage extends Message {
   type: 'COPY_TO_CLIPBOARD';
   data: {
     text: string;
+  };
+}
+
+export interface TestConnectionMessage extends Message {
+  type: 'TEST_CONNECTION';
+  data: ExtensionSettings;
+}
+
+export interface ShowFillOptionsMessage extends Message {
+  type: 'SHOW_FILL_OPTIONS';
+  data: {
+    records: KintoneRecord[];
+    allRecords: KintoneRecord[];
+    currentUrl: string;
+    isGeneral: boolean;
+    title?: string;
   };
 }

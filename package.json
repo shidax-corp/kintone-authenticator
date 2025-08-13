@@ -18,8 +18,11 @@
     "dev": "node --env-file=.env build.mjs --serve",
     "deploy:kintone": "dotenv -c development -- sh -c 'cd dist/kintone && kintone-customize-uploader --base-url=${KINTONE_BASE_URL} --username=${KINTONE_USERNAME} --password=${KINTONE_PASSWORD} dest/customize-manifest.json'",
     "gen:dts": "dotenv -c development -- sh -c 'kintone-dts-gen --base-url ${KINTONE_BASE_URL} --app-id ${KINTONE_APP_ID} --username ${KINTONE_USERNAME} --password ${KINTONE_PASSWORD} --output src/fields.d.ts'",
-    "check": "tsc --noEmit",
-    "test": "jest"
+    "check": "npm run check:type && npm run check:format",
+    "check:type": "tsc --noEmit",
+    "check:format": "prettier --check .",
+    "test": "jest",
+    "format": "prettier --write ."
   },
   "dependencies": {
     "@kintone/rest-api-client": "^5.7.4",
@@ -48,6 +51,7 @@
     "jest": "^30.0.5",
     "jest-environment-jsdom": "^30.0.5",
     "jsdom": "^26.1.0",
+    "prettier": "^3.6.2",
     "ts-jest": "^29.4.1",
     "typescript": "^5.9.2"
   }

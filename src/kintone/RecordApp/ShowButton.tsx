@@ -5,7 +5,10 @@ export interface ShowButtonProps {
   disabled?: boolean;
 }
 
-export default function ShowButton({ onClick, disabled = false }: ShowButtonProps) {
+export default function ShowButton({
+  onClick,
+  disabled = false,
+}: ShowButtonProps) {
   return (
     <button
       type="button"
