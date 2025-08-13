@@ -9,8 +9,7 @@ import type {
   ReadQRMessage, 
   RegisterOTPMessage, 
   GetRecordsMessage, 
-  GetOTPMessage, 
-  CopyToClipboardMessage 
+  GetOTPMessage 
 } from './lib/types';
 
 const KINTONE_APP_ID = process.env.KINTONE_APP_ID || '1';
@@ -225,22 +224,6 @@ chrome.runtime.onMessage.addListener((message: Message, sender, sendResponse) =>
           break;
         }
 
-        case 'COPY_TO_CLIPBOARD': {
-          const { text } = (message as CopyToClipboardMessage).data;
-          
-          try {
-            // Use the service worker clipboard API directly
-            await navigator.clipboard.writeText(text);
-            sendResponse({ success: true });
-          } catch (error) {
-            console.error('Failed to write to clipboard:', error);
-            sendResponse({ 
-              success: false, 
-              error: error instanceof Error ? error.message : 'Clipboard write failed' 
-            });
-          }
-          break;
-        }
 
         case 'GET_SETTINGS': {
           sendResponse({ success: true, data: settings });

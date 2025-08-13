@@ -610,8 +610,21 @@ describe('SelectionView - URL and Name Matching', () => {
       }
     ];
 
+    // Mock navigator.clipboard
+    const mockClipboard = {
+      writeText: jest.fn()
+    };
+
     beforeEach(() => {
       jest.clearAllMocks();
+      
+      // Setup clipboard mock
+      Object.defineProperty(navigator, 'clipboard', {
+        writable: true,
+        value: mockClipboard
+      });
+      
+      mockClipboard.writeText.mockResolvedValue(undefined);
       
       mockChrome.runtime.sendMessage.mockImplementation((message) => {
         if (message.type === 'GET_SETTINGS') {
@@ -626,15 +639,12 @@ describe('SelectionView - URL and Name Matching', () => {
             data: { otp: '123456', remainingTime: 25 }
           });
         }
-        if (message.type === 'COPY_TO_CLIPBOARD') {
-          return Promise.resolve({ success: true });
-        }
         return Promise.resolve({ success: true });
       });
     });
 
 
-    it('should call chrome.runtime.sendMessage with COPY_TO_CLIPBOARD when username button is clicked', async () => {
+    it('should call navigator.clipboard.writeText when username button is clicked', async () => {
       render(<SelectionView 
         onRegister={jest.fn()}
         initialRecords={testRecords}
@@ -649,14 +659,11 @@ describe('SelectionView - URL and Name Matching', () => {
       fireEvent.click(usernameButton);
 
       await waitFor(() => {
-        expect(mockChrome.runtime.sendMessage).toHaveBeenCalledWith({
-          type: 'COPY_TO_CLIPBOARD',
-          data: { text: 'testuser' }
-        });
+        expect(mockClipboard.writeText).toHaveBeenCalledWith('testuser');
       });
     });
 
-    it('should call chrome.runtime.sendMessage with COPY_TO_CLIPBOARD when password button is clicked', async () => {
+    it('should call navigator.clipboard.writeText when password button is clicked', async () => {
       render(<SelectionView 
         onRegister={jest.fn()}
         initialRecords={testRecords}
@@ -671,14 +678,11 @@ describe('SelectionView - URL and Name Matching', () => {
       fireEvent.click(passwordButton);
 
       await waitFor(() => {
-        expect(mockChrome.runtime.sendMessage).toHaveBeenCalledWith({
-          type: 'COPY_TO_CLIPBOARD',
-          data: { text: 'testpass' }
-        });
+        expect(mockClipboard.writeText).toHaveBeenCalledWith('testpass');
       });
     });
 
-    it('should call chrome.runtime.sendMessage with COPY_TO_CLIPBOARD when OTP button is clicked', async () => {
+    it('should call navigator.clipboard.writeText when OTP button is clicked', async () => {
       render(<SelectionView 
         onRegister={jest.fn()}
         initialRecords={testRecords}
@@ -697,13 +701,9 @@ describe('SelectionView - URL and Name Matching', () => {
       
       fireEvent.click(otpButton!);
 
-      // Should call copy functionality when OTP button is clicked
+      // Should call clipboard API when OTP button is clicked
       await waitFor(() => {
-        expect(mockChrome.runtime.sendMessage).toHaveBeenCalledWith(
-          expect.objectContaining({
-            type: 'COPY_TO_CLIPBOARD'
-          })
-        );
+        expect(mockClipboard.writeText).toHaveBeenCalled();
       });
     });
 
@@ -717,25 +717,9 @@ describe('SelectionView - URL and Name Matching', () => {
       // The error handling itself is covered by other tests
     });
 
-    it('should handle service worker response errors', async () => {
-      mockChrome.runtime.sendMessage.mockImplementation((message) => {
-        if (message.type === 'GET_SETTINGS') {
-          return Promise.resolve({ success: true, data: mockSettings });
-        }
-        if (message.type === 'GET_RECORDS') {
-          return Promise.resolve({ success: true, data: testRecords });
-        }
-        if (message.type === 'GET_OTP') {
-          return Promise.resolve({ 
-            success: true, 
-            data: { otp: '123456', remainingTime: 25 }
-          });
-        }
-        if (message.type === 'COPY_TO_CLIPBOARD') {
-          return Promise.resolve({ success: false, error: 'Clipboard write failed' });
-        }
-        return Promise.resolve({ success: true });
-      });
+    it('should handle clipboard API errors', async () => {
+      // Mock clipboard API to reject
+      mockClipboard.writeText.mockRejectedValue(new Error('Clipboard API failed'));
 
       const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
       
@@ -752,9 +736,9 @@ describe('SelectionView - URL and Name Matching', () => {
       const usernameButton = screen.getByText('ユーザー名');
       fireEvent.click(usernameButton);
 
-      // Should log error when service worker returns failure
+      // Should log error when clipboard API fails
       await waitFor(() => {
-        expect(consoleSpy).toHaveBeenCalledWith('Failed to copy to clipboard:', 'Clipboard write failed');
+        expect(consoleSpy).toHaveBeenCalledWith('Failed to copy to clipboard:', expect.any(Error));
       });
 
       consoleSpy.mockRestore();
@@ -762,26 +746,6 @@ describe('SelectionView - URL and Name Matching', () => {
 
     it('should call onFieldSelect callback when in modal mode instead of copying', async () => {
       const mockOnFieldSelect = jest.fn();
-      
-      // Reset the mock implementation to ensure clean state
-      mockChrome.runtime.sendMessage.mockImplementation((message) => {
-        if (message.type === 'GET_SETTINGS') {
-          return Promise.resolve({ success: true, data: mockSettings });
-        }
-        if (message.type === 'GET_RECORDS') {
-          return Promise.resolve({ success: true, data: testRecords });
-        }
-        if (message.type === 'GET_OTP') {
-          return Promise.resolve({ 
-            success: true, 
-            data: { otp: '123456', remainingTime: 25 }
-          });
-        }
-        if (message.type === 'COPY_TO_CLIPBOARD') {
-          return Promise.resolve({ success: true });
-        }
-        return Promise.resolve({ success: true });
-      });
       
       render(<SelectionView 
         onRegister={jest.fn()}
@@ -799,10 +763,7 @@ describe('SelectionView - URL and Name Matching', () => {
       fireEvent.click(usernameButton);
 
       expect(mockOnFieldSelect).toHaveBeenCalledWith('username', 'testuser', '1');
-      expect(mockChrome.runtime.sendMessage).not.toHaveBeenCalledWith({
-        type: 'COPY_TO_CLIPBOARD',
-        data: { text: 'testuser' }
-      });
+      expect(mockClipboard.writeText).not.toHaveBeenCalled();
     });
 
     it('should not attempt copy when button is disabled due to empty field', async () => {
@@ -831,11 +792,7 @@ describe('SelectionView - URL and Name Matching', () => {
       
       fireEvent.click(usernameButton);
 
-      expect(mockChrome.runtime.sendMessage).not.toHaveBeenCalledWith(
-        expect.objectContaining({
-          type: 'COPY_TO_CLIPBOARD'
-        })
-      );
+      expect(mockClipboard.writeText).not.toHaveBeenCalled();
     });
   });
 });

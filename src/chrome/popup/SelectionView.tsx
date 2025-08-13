@@ -200,25 +200,14 @@ export const SelectionView: React.FC<SelectionViewProps> = ({
     const originalText = button.textContent;
     
     try {
-      const response = await chrome.runtime.sendMessage({
-        type: 'COPY_TO_CLIPBOARD',
-        data: { text }
-      });
-
-      if (response.success) {
-        // Show success notification
-        button.textContent = 'コピーしました!';
-        setTimeout(() => {
-          button.textContent = originalText;
-        }, 1000);
-      } else {
-        // Show error notification
-        button.textContent = 'コピー失敗';
-        setTimeout(() => {
-          button.textContent = originalText;
-        }, 1000);
-        console.error('Failed to copy to clipboard:', response.error);
-      }
+      // Use navigator.clipboard API directly in popup context
+      await navigator.clipboard.writeText(text);
+      
+      // Show success notification
+      button.textContent = 'コピーしました!';
+      setTimeout(() => {
+        button.textContent = originalText;
+      }, 1000);
     } catch (error) {
       // Show error notification
       button.textContent = 'コピー失敗';
