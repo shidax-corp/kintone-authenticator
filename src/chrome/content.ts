@@ -1,8 +1,33 @@
+import React from 'react';
 import { isInputField, getFieldType, normalizeURL } from './lib/url-matcher';
 import { readQRFromElement } from '../lib/qr-reader';
+import { renderModalComponent, closeModal } from './lib/content-react-helper';
+import { SelectionView } from './popup/SelectionView';
 
 let currentInputElement: HTMLElement | null = null;
 let autoFillExecuted = false;
+
+const generateInitialSearchQuery = (url: string): string => {
+  try {
+    const urlObj = new URL(url);
+    const hostname = urlObj.hostname;
+    
+    // Remove 'www.' prefix if present
+    const cleanHostname = hostname.replace(/^www\./, '');
+    
+    // Extract main domain name (remove subdomains if they exist)
+    const parts = cleanHostname.split('.');
+    if (parts.length >= 2) {
+      // Take the second-to-last part as the main domain name
+      return parts[parts.length - 2];
+    }
+    
+    return cleanHostname;
+  } catch (error) {
+    console.error('Failed to parse URL for search query:', error);
+    return '';
+  }
+};
 
 const performAutoFill = async () => {
   if (autoFillExecuted) return;
@@ -101,209 +126,66 @@ const showToast = (message: string, type: 'success' | 'error' = 'success') => {
   }, 3000);
 };
 
-const showFillOptionsModal = (records: any[], isGeneral: boolean, title?: string) => {
-  const existingModal = document.getElementById('kintone-auth-modal');
-  if (existingModal) {
-    existingModal.remove();
-  }
-
-  const modal = document.createElement('div');
-  modal.id = 'kintone-auth-modal';
-  modal.style.cssText = `
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.5);
-    z-index: 10001;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  `;
-
-  const content = document.createElement('div');
-  content.style.cssText = `
-    background: white;
-    border-radius: 8px;
-    padding: 24px;
-    max-width: 400px;
-    max-height: 600px;
-    overflow-y: auto;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-  `;
-
-  const titleElement = document.createElement('h3');
-  titleElement.textContent = title || (isGeneral ? 'レコードを選択' : '一致するレコード');
-  titleElement.style.cssText = 'margin: 0 0 16px 0; font-size: 18px; color: #333;';
-
-  const list = document.createElement('ul');
-  list.style.cssText = 'list-style: none; padding: 0; margin: 0;';
-
-  records.forEach(record => {
-    const listItem = document.createElement('li');
-    listItem.style.cssText = 'margin: 8px 0;';
-
-    const recordButton = document.createElement('button');
-    recordButton.textContent = record.name;
-    recordButton.style.cssText = `
-      width: 100%;
-      padding: 12px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      background: #f9f9f9;
-      cursor: pointer;
-      text-align: left;
-    `;
-
-    recordButton.addEventListener('click', () => {
-      showFieldOptionsModal(record);
-    });
-
-    listItem.appendChild(recordButton);
-    list.appendChild(listItem);
-  });
-
-  const closeButton = document.createElement('button');
-  closeButton.textContent = 'キャンセル';
-  closeButton.style.cssText = `
-    margin-top: 16px;
-    padding: 8px 16px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    background: white;
-    cursor: pointer;
-  `;
-
-  closeButton.addEventListener('click', () => {
-    modal.remove();
-  });
-
-  modal.addEventListener('click', (e) => {
-    if (e.target === modal) {
-      modal.remove();
-    }
-  });
-
-  content.appendChild(titleElement);
-  content.appendChild(list);
-  content.appendChild(closeButton);
-  modal.appendChild(content);
-  document.body.appendChild(modal);
-};
-
-const showFieldOptionsModal = (record: any) => {
-  const existingModal = document.getElementById('kintone-auth-modal');
-  if (existingModal) {
-    existingModal.remove();
-  }
-
-  const modal = document.createElement('div');
-  modal.id = 'kintone-auth-modal';
-  modal.style.cssText = `
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.5);
-    z-index: 10001;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  `;
-
-  const content = document.createElement('div');
-  content.style.cssText = `
-    background: white;
-    border-radius: 8px;
-    padding: 24px;
-    max-width: 300px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-  `;
-
-  const title = document.createElement('h3');
-  title.textContent = record.name;
-  title.style.cssText = 'margin: 0 0 16px 0; font-size: 18px; color: #333;';
-
-  const fields = [
-    { label: 'ユーザー名', value: record.username, type: 'username' },
-    { label: 'パスワード', value: record.password, type: 'password' },
-  ];
-
-  if (record.otpAuthUri) {
-    fields.push({ label: 'ワンタイムパスワード', value: '', type: 'otp' });
-  }
-
-  const fieldList = document.createElement('div');
-
-  fields.forEach(field => {
-    const button = document.createElement('button');
-    button.textContent = field.label;
-    button.style.cssText = `
-      width: 100%;
-      margin: 8px 0;
-      padding: 12px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      background: #f9f9f9;
-      cursor: pointer;
-      text-align: left;
-    `;
-
-    button.addEventListener('click', async () => {
-      if (field.type === 'otp') {
+const showFillOptionsModal = async (
+  records: any[], 
+  allRecords: any[], 
+  currentUrl: string, 
+  isGeneral: boolean, 
+  title?: string
+) => {
+  try {
+    // レコードデータをStoreに保存するか、直接propsとして渡す
+    const handleFieldSelect = async (type: 'username' | 'password' | 'otp', value: string, recordId?: string) => {
+      if (type === 'otp' && recordId) {
+        // OTPの場合は動的に生成
         try {
           const response = await chrome.runtime.sendMessage({
             type: 'GET_OTP',
-            data: { recordId: record.recordId }
+            data: { recordId }
           });
-
+          
           if (response.success && currentInputElement) {
             fillInputField(currentInputElement, response.data.otp);
             showToast('OTPを入力しました');
-            modal.remove();
+            closeModal();
           }
         } catch (error) {
           showToast('OTPの取得に失敗しました', 'error');
         }
       } else if (currentInputElement) {
-        fillInputField(currentInputElement, field.value);
-        showToast(`${field.label}を入力しました`);
-        modal.remove();
+        fillInputField(currentInputElement, value);
+        showToast(`${type === 'username' ? 'ユーザー名' : 'パスワード'}を入力しました`);
+        closeModal();
       }
+    };
+
+    const handleClose = () => {
+      closeModal();
+    };
+
+    // 現在のURLから初期検索クエリを生成
+    const initialSearchQuery = generateInitialSearchQuery(currentUrl);
+
+    // SelectionViewコンポーネントをレンダリング
+    const selectionViewElement = React.createElement(SelectionView, {
+      onRegister: () => {
+        // 登録機能は contentスクリプトでは使用しないため空にする
+      },
+      isModal: true,
+      onClose: handleClose,
+      onFieldSelect: handleFieldSelect,
+      initialRecords: records, // マッチしたレコードデータを渡す
+      allRecords: allRecords, // すべてのレコードデータを渡す
+      initialSearchQuery: initialSearchQuery // 初期検索クエリを渡す
     });
 
-    fieldList.appendChild(button);
-  });
-
-  const closeButton = document.createElement('button');
-  closeButton.textContent = 'キャンセル';
-  closeButton.style.cssText = `
-    margin-top: 16px;
-    padding: 8px 16px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    background: white;
-    cursor: pointer;
-  `;
-
-  closeButton.addEventListener('click', () => {
-    modal.remove();
-  });
-
-  modal.addEventListener('click', (e) => {
-    if (e.target === modal) {
-      modal.remove();
-    }
-  });
-
-  content.appendChild(title);
-  content.appendChild(fieldList);
-  content.appendChild(closeButton);
-  modal.appendChild(content);
-  document.body.appendChild(modal);
+    renderModalComponent(selectionViewElement);
+  } catch (error) {
+    console.error('Failed to show selection modal:', error);
+    showToast('モーダルの表示に失敗しました', 'error');
+  }
 };
+
 
 document.addEventListener('contextmenu', (e) => {
   const target = e.target as HTMLElement;
@@ -320,7 +202,13 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       break;
 
     case 'SHOW_FILL_OPTIONS':
-      showFillOptionsModal(message.data.records, message.data.isGeneral, message.data.title);
+      showFillOptionsModal(
+        message.data.records, 
+        message.data.allRecords, 
+        message.data.currentUrl, 
+        message.data.isGeneral, 
+        message.data.title
+      );
       break;
 
     case 'FILL_OTP':

@@ -146,7 +146,12 @@ const handleFillFromKintone = async (tabId: number, url: string, client: Kintone
 
     chrome.tabs.sendMessage(tabId, {
       type: 'SHOW_FILL_OPTIONS',
-      data: { records: matchingRecords, isGeneral: false }
+      data: { 
+        records: matchingRecords, 
+        allRecords: records,
+        currentUrl: url,
+        isGeneral: false 
+      }
     });
   } catch (error) {
     chrome.tabs.sendMessage(tabId, {

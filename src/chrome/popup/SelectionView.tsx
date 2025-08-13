@@ -7,12 +7,26 @@ import type { KintoneRecord, ExtensionSettings } from '../lib/types';
 
 interface SelectionViewProps {
   onRegister: () => void;
+  isModal?: boolean;
+  onClose?: () => void;
+  onFieldSelect?: (type: 'username' | 'password' | 'otp', value: string, recordId?: string) => void;
+  initialRecords?: KintoneRecord[];
+  allRecords?: KintoneRecord[];
+  initialSearchQuery?: string;
 }
 
-export const SelectionView: React.FC<SelectionViewProps> = ({ onRegister }) => {
+export const SelectionView: React.FC<SelectionViewProps> = ({ 
+  onRegister, 
+  isModal = false, 
+  onClose, 
+  onFieldSelect,
+  initialRecords,
+  allRecords,
+  initialSearchQuery = ''
+}) => {
   const [records, setRecords] = useState<KintoneRecord[]>([]);
   const [filteredRecords, setFilteredRecords] = useState<KintoneRecord[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState(initialSearchQuery);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [settings, setSettings] = useState<ExtensionSettings | null>(null);
@@ -36,20 +50,32 @@ export const SelectionView: React.FC<SelectionViewProps> = ({ onRegister }) => {
     try {
       setFetchError(false);
 
-      const [settingsResponse, recordsResponse] = await Promise.all([
-        chrome.runtime.sendMessage({ type: 'GET_SETTINGS' }),
-        chrome.runtime.sendMessage({ type: 'GET_RECORDS' })
-      ]);
-
-      if (settingsResponse.success) {
-        setSettings(settingsResponse.data);
-      }
-
-      if (recordsResponse.success) {
-        setRecords(recordsResponse.data);
+      // 初期レコードが渡されている場合はそれを使用
+      if (initialRecords || allRecords) {
+        const settingsResponse = await chrome.runtime.sendMessage({ type: 'GET_SETTINGS' });
+        if (settingsResponse.success) {
+          setSettings(settingsResponse.data);
+        }
+        
+        // allRecordsが利用可能な場合はそれをrecordsに設定、そうでなければinitialRecordsを使用
+        setRecords(allRecords || initialRecords || []);
       } else {
-        setFetchError(true);
-        setRecords([]);
+        // 従来通りの処理
+        const [settingsResponse, recordsResponse] = await Promise.all([
+          chrome.runtime.sendMessage({ type: 'GET_SETTINGS' }),
+          chrome.runtime.sendMessage({ type: 'GET_RECORDS' })
+        ]);
+
+        if (settingsResponse.success) {
+          setSettings(settingsResponse.data);
+        }
+
+        if (recordsResponse.success) {
+          setRecords(recordsResponse.data);
+        } else {
+          setFetchError(true);
+          setRecords([]);
+        }
       }
     } catch (error) {
       console.error('Failed to load data:', error);
@@ -86,13 +112,16 @@ export const SelectionView: React.FC<SelectionViewProps> = ({ onRegister }) => {
   };
 
   const filterRecords = () => {
+    // 検索に使用するレコードを決定（allRecordsが利用可能ならそれを使用、そうでなければrecords）
+    const searchableRecords = allRecords || records;
+    
     if (!searchQuery.trim()) {
-      setFilteredRecords(records);
+      setFilteredRecords(searchableRecords);
       return;
     }
 
     const queries = searchQuery.toLowerCase().split(' ').filter(q => q.length > 0);
-    const filtered = records.filter(record => {
+    const filtered = searchableRecords.filter(record => {
       const searchableText = `${record.name} ${record.url}`.toLowerCase();
       return queries.every(query => searchableText.includes(query));
     });
@@ -130,7 +159,14 @@ export const SelectionView: React.FC<SelectionViewProps> = ({ onRegister }) => {
     setOtpData(newOtpData);
   };
 
-  const copyToClipboard = async (text: string, type: string) => {
+  const copyToClipboard = async (text: string, type: string, recordId?: string) => {
+    // contentスクリプトモードの場合はフィールド選択コールバックを実行
+    if (isModal && onFieldSelect) {
+      onFieldSelect(type as 'username' | 'password' | 'otp', text, recordId);
+      return;
+    }
+
+    // 通常のクリップボードコピー処理
     try {
       await chrome.runtime.sendMessage({
         type: 'COPY_TO_CLIPBOARD',
@@ -192,9 +228,31 @@ export const SelectionView: React.FC<SelectionViewProps> = ({ onRegister }) => {
           background: #f8f9fa;
         }
 
+        .header-title {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 12px;
+        }
+
         .header h1 {
-          margin: 0 0 12px 0;
+          margin: 0;
           font-size: 18px;
+          color: #333;
+        }
+
+        .close-button {
+          background: none;
+          border: none;
+          font-size: 20px;
+          color: #666;
+          cursor: pointer;
+          padding: 4px;
+          border-radius: 4px;
+        }
+
+        .close-button:hover {
+          background: #e0e0e0;
           color: #333;
         }
 
@@ -405,7 +463,14 @@ export const SelectionView: React.FC<SelectionViewProps> = ({ onRegister }) => {
       `}</style>
 
       <div className="header">
-        <h1>kintone Authenticator</h1>
+        <div className="header-title">
+          <h1>kintone Authenticator</h1>
+          {isModal && onClose && (
+            <button className="close-button" onClick={onClose} title="閉じる">
+              ✕
+            </button>
+          )}
+        </div>
         <div className="search-container">
           <input
             type="text"
@@ -446,20 +511,20 @@ export const SelectionView: React.FC<SelectionViewProps> = ({ onRegister }) => {
                 <div className={`record-actions ${record.otpAuthUri ? 'with-otp' : ''}`}>
                   <button
                     className="action-button"
-                    onClick={() => copyToClipboard(record.username, 'username')}
+                    onClick={() => copyToClipboard(record.username, 'username', record.recordId)}
                   >
                     ユーザー名
                   </button>
                   <button
                     className="action-button"
-                    onClick={() => copyToClipboard(record.password, 'password')}
+                    onClick={() => copyToClipboard(record.password, 'password', record.recordId)}
                   >
                     パスワード
                   </button>
                   {record.otpAuthUri && otpData[record.recordId] && (
                     <button
                       className="action-button otp-button"
-                      onClick={() => copyToClipboard(otpData[record.recordId].otp, 'otp')}
+                      onClick={() => copyToClipboard(otpData[record.recordId].otp, 'otp', record.recordId)}
                     >
                       <div className="otp-value">
                         {prettifyOTP(otpData[record.recordId].otp)}
