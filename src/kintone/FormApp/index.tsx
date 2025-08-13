@@ -3,7 +3,7 @@ import { isOTPAuthURI } from '@lib/qr-reader';
 
 import InputField from './InputField';
 import PasswordField from './PasswordField';
-import TextAreaField from './TextAreaField';
+import OTPAuthURIField from './OTPAuthURIField';
 import { FormData, FormErrors, validateFormData } from '../lib/validation';
 
 export interface FormAppProps {
@@ -23,6 +23,16 @@ export default function FormApp({ record, mode }: FormAppProps) {
   });
 
   const [errors, setErrors] = useState<FormErrors>({});
+  const [parsedOTPData, setParsedOTPData] = useState<any>(null);
+
+  const handleOTPDataChange = (parsedData: any) => {
+    setParsedOTPData(parsedData);
+
+    // Auto-populate form fields from parsed URI when available
+    if (parsedData && parsedData.issuer && !formData.name.trim()) {
+      handleFieldChange('name', parsedData.issuer);
+    }
+  };
 
   useEffect(() => {
     if (mode === 'edit' && record) {
@@ -127,25 +137,14 @@ export default function FormApp({ record, mode }: FormAppProps) {
             helpText="任意入力"
           />
 
-          <TextAreaField
+          <OTPAuthURIField
             label="OTPAuth URI"
             value={formData.otpuri}
             onChange={(value) => handleFieldChange('otpuri', value)}
-            placeholder="otpauth://totp/..."
-            error={errors.otpuri}
-            helpText="QRコードから読み取ったOTPAuth URIを入力してください（任意入力）"
-            rows={3}
+            onParsedDataChange={handleOTPDataChange}
+            placeholder="otpauth://totp/Example:user@example.com?secret=JBSWY3DPEHPK3PXP&issuer=Example"
+            rows={4}
           />
-
-          {formData.otpuri && isOTPAuthURI(formData.otpuri) && (
-            <div className="otp-preview">
-              <div className="otp-preview-icon">✓</div>
-              <div className="otp-preview-text">
-                有効なOTPAuth
-                URIです。二段階認証のワンタイムパスワードが生成できます。
-              </div>
-            </div>
-          )}
         </div>
       </div>
 
@@ -171,29 +170,6 @@ export default function FormApp({ record, mode }: FormAppProps) {
 
         .form-content {
           max-width: 100%;
-        }
-
-        .otp-preview {
-          background: #e8f5e8;
-          border: 1px solid #4caf50;
-          border-radius: 4px;
-          padding: 12px;
-          margin-top: 8px;
-          display: flex;
-          align-items: flex-start;
-          gap: 8px;
-        }
-
-        .otp-preview-icon {
-          color: #4caf50;
-          font-weight: bold;
-          flex-shrink: 0;
-        }
-
-        .otp-preview-text {
-          font-size: 12px;
-          color: #2e7d32;
-          line-height: 1.4;
         }
 
         @media (max-width: 768px) {
