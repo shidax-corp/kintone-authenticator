@@ -330,9 +330,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       }
       break;
 
-    case 'SHOW_OTP_OPTIONS':
-      showFillOptionsModal(message.data.records, false);
-      break;
 
     case 'OPEN_REGISTER_FORM':
       chrome.runtime.sendMessage({

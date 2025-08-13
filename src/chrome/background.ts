@@ -1,6 +1,6 @@
 import { getSettings, isSettingsComplete } from './lib/storage';
 import { KintoneClient } from './lib/kintone-client';
-import { getBestMatch, getMatchingRecords } from './lib/url-matcher';
+import { getMatchingRecords } from './lib/url-matcher';
 import { readQRFromImage, isOTPAuthURI } from '../lib/qr-reader';
 import { generateTOTP } from '../lib/gen-otp';
 import { decodeOTPAuthURI } from '../lib/otpauth-uri';
@@ -9,7 +9,6 @@ import type {
   ReadQRMessage, 
   RegisterOTPMessage, 
   GetRecordsMessage, 
-  FillInputMessage, 
   GetOTPMessage, 
   CopyToClipboardMessage 
 } from './lib/types';
@@ -29,7 +28,7 @@ const createContextMenus = async () => {
 
     chrome.contextMenus.create({
       id: 'read_qr',
-      title: 'OTPを登録する',
+      title: 'ワンタイムパスワードを登録する',
       contexts: ['image'],
     });
 
@@ -39,11 +38,6 @@ const createContextMenus = async () => {
       contexts: ['editable'],
     });
 
-    chrome.contextMenus.create({
-      id: 'fill_otp',
-      title: 'OTPを入力する',
-      contexts: ['editable'],
-    });
 
     contextMenusCreated = true;
   } catch (error) {
@@ -113,9 +107,6 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
         await handleFillFromKintone(tab.id, tab.url || '', client);
         break;
 
-      case 'fill_otp':
-        await handleFillOTP(tab.id, tab.url || '', client);
-        break;
     }
   } catch (error) {
     chrome.tabs.sendMessage(tab.id, {
@@ -153,27 +144,10 @@ const handleFillFromKintone = async (tabId: number, url: string, client: Kintone
     const records = await client.getRecords();
     const matchingRecords = getMatchingRecords(records, url);
 
-    if (matchingRecords.length === 0) {
-      chrome.tabs.sendMessage(tabId, {
-        type: 'SHOW_FILL_OPTIONS',
-        data: { records, isGeneral: true }
-      });
-    } else if (matchingRecords.length === 1) {
-      const record = matchingRecords[0];
-      chrome.tabs.sendMessage(tabId, {
-        type: 'SHOW_FILL_OPTIONS',
-        data: { 
-          records: [record], 
-          isGeneral: false,
-          title: record.name 
-        }
-      });
-    } else {
-      chrome.tabs.sendMessage(tabId, {
-        type: 'SHOW_FILL_OPTIONS',
-        data: { records: matchingRecords, isGeneral: false }
-      });
-    }
+    chrome.tabs.sendMessage(tabId, {
+      type: 'SHOW_FILL_OPTIONS',
+      data: { records: matchingRecords, isGeneral: false }
+    });
   } catch (error) {
     chrome.tabs.sendMessage(tabId, {
       type: 'SHOW_ERROR',
@@ -182,35 +156,6 @@ const handleFillFromKintone = async (tabId: number, url: string, client: Kintone
   }
 };
 
-const handleFillOTP = async (tabId: number, url: string, client: KintoneClient) => {
-  try {
-    const records = await client.getRecords();
-    const matchingRecords = getMatchingRecords(records, url).filter(r => r.otpAuthUri);
-
-    if (matchingRecords.length === 0) {
-      chrome.tabs.sendMessage(tabId, {
-        type: 'SHOW_ERROR',
-        data: { message: 'このサイトに対応するOTPが見つかりません。' }
-      });
-    } else if (matchingRecords.length === 1) {
-      const otp = await generateOTPFromRecord(matchingRecords[0]);
-      chrome.tabs.sendMessage(tabId, {
-        type: 'FILL_OTP',
-        data: { otp: otp.otp }
-      });
-    } else {
-      chrome.tabs.sendMessage(tabId, {
-        type: 'SHOW_OTP_OPTIONS',
-        data: { records: matchingRecords }
-      });
-    }
-  } catch (error) {
-    chrome.tabs.sendMessage(tabId, {
-      type: 'SHOW_ERROR',
-      data: { message: 'OTPの生成に失敗しました。' }
-    });
-  }
-};
 
 const generateOTPFromRecord = async (record: any) => {
   const otpAuthRecord = decodeOTPAuthURI(record.otpAuthUri);
