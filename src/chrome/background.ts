@@ -60,7 +60,15 @@ const removeContextMenus = async () => {
   }
 };
 
-chrome.runtime.onInstalled.addListener(async () => {
+chrome.runtime.onInstalled.addListener(async (details) => {
+  // インストールまたはアップデート時に設定をチェック
+  if (details.reason === 'install' || details.reason === 'update') {
+    const settings = await getSettings();
+    if (!isSettingsComplete(settings)) {
+      chrome.runtime.openOptionsPage();
+    }
+  }
+  
   await createContextMenus();
 });
 
