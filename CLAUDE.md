@@ -32,10 +32,12 @@ This is a kintone authenticator application similar to Google Authenticator, wit
    - QR code reading functionality
    - OTP generation and management
    - PIN-based encryption for sensitive data
+   - Read [kintone requirements](docs/kintone-requirements.md) for more details.
 
 2. **Chrome Extension** (`src/chrome/`) - Provides:
    - OTP generation capabilities
    - Auto-fill functionality for authentication
+   - Read [Chrome extension requirements](docs/chrome-extension-requirements.md) for more details.
 
 ### Build System
 
