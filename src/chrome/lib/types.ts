@@ -14,6 +14,7 @@ export interface KintoneRecord {
   password: string;
   otpAuthUri: string;
   updatedTime: string;
+  decryptionFailed?: boolean;
 }
 
 export interface CacheEntry<T> {
