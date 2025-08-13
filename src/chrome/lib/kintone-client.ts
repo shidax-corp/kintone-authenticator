@@ -51,19 +51,16 @@ export class KintoneClient {
         fields: ['$id', 'name', 'url', 'username', 'password', 'otpuri', '更新日時'],
       });
 
-      const records: KintoneRecord[] = response.records.map(record => 
+      const records: KintoneRecord[] = response.records.map(record =>
         this.extractRecordData(record)
       );
 
       await setCachedRecords(records);
       return records;
     } catch (error) {
-      console.error('Failed to get records:', error);
-      
       if (useCache) {
         const cached = await getCachedRecords();
         if (cached) {
-          console.warn('Using cached records due to API error');
           return cached;
         }
       }

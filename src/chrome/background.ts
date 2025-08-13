@@ -254,8 +254,8 @@ chrome.runtime.onMessage.addListener((message: Message, sender, sendResponse) =>
         }
 
         case 'GET_RECORDS': {
-          const { url } = (message as GetRecordsMessage).data || {};
-          const records = await client.getRecords();
+          const { url, forceRefresh } = (message as GetRecordsMessage).data || {};
+          const records = await client.getRecords(!forceRefresh);
           const filteredRecords = url ? getMatchingRecords(records, url) : records;
           sendResponse({ success: true, data: filteredRecords });
           break;
