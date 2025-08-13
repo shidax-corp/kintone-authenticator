@@ -11,7 +11,6 @@ import type {
   GetRecordsMessage,
   FillInputMessage,
   GetOTPMessage,
-  CopyToClipboardMessage,
 } from './lib/types';
 
 const KINTONE_APP_ID = process.env.KINTONE_APP_ID || '1';
@@ -269,23 +268,6 @@ chrome.runtime.onMessage.addListener(
 
             const otp = await generateOTPFromRecord(record);
             sendResponse({ success: true, data: otp });
-            break;
-          }
-
-          case 'COPY_TO_CLIPBOARD': {
-            const { text } = (message as CopyToClipboardMessage).data;
-            await chrome.offscreen.createDocument({
-              url: chrome.runtime.getURL('offscreen.html'),
-              reasons: ['CLIPBOARD'],
-              justification: 'Copy text to clipboard',
-            });
-
-            await chrome.runtime.sendMessage({
-              type: 'COPY_TO_CLIPBOARD',
-              data: { text },
-            });
-
-            sendResponse({ success: true });
             break;
           }
 
