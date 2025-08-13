@@ -1,6 +1,7 @@
 import * as path from 'path';
 import * as esbuild from 'esbuild';
 import { copy } from 'esbuild-plugin-copy';
+import babel from 'esbuild-plugin-babel';
 
 const NODE_ENV = process.env.NODE_ENV || 'production';
 const isDev = NODE_ENV === 'development';
@@ -24,6 +25,12 @@ const options = {
     'process.env.KINTONE_VIEW_ID': JSON.stringify(process.env.KINTONE_VIEW_ID),
   },
   plugins: [
+    babel({
+      filter: /\.(tsx?)$/,
+      config: {
+        plugins: ['styled-jsx/babel'],
+      },
+    }),
     copy({
       assets: [
         {

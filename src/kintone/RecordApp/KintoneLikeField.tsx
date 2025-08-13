@@ -9,14 +9,28 @@ export interface KintoneLikeFieldProps {
 
 export default function KintoneLikeField({ label, width = '100%', children }: KintoneLikeFieldProps) {
   return (
-    <div className="control-gaia control-show-gaia" style={{ boxSizing: 'border-box', marginBottom: '12px', height: 'auto', width }}>
-      <div className="control-label-gaia">
-        <span className="control-label-text-gaia">{label}</span>
+    <>
+      <div className="control-gaia control-show-gaia field-container">
+        <div className="control-label-gaia">
+          <span className="control-label-text-gaia">{label}</span>
+        </div>
+        <div className="control-value-gaia value-container">
+          <span className="control-value-content-gaia">{children}</span>
+        </div>
+        <div className="control-design-gaia"></div>
       </div>
-      <div className="control-value-gaia" style={{ padding: 0 }}>
-        <span className="control-value-content-gaia">{children}</span>
-      </div>
-      <div className="control-design-gaia"></div>
-    </div>
+      <style jsx>{`
+        .field-container {
+          box-sizing: border-box;
+          margin-bottom: 12px;
+          height: auto;
+          width: ${width};
+        }
+
+        .value-container {
+          padding: 0;
+        }
+      `}</style>
+    </>
   );
 }

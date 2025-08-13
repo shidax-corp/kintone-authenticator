@@ -25,9 +25,13 @@
     "@kintone/rest-api-client": "^5.7.4",
     "esbuild-plugin-copy": "^2.1.1",
     "react": "^19.1.1",
-    "react-dom": "^19.1.1"
+    "react-dom": "^19.1.1",
+    "styled-jsx": "^5.1.7"
   },
   "devDependencies": {
+    "@babel/core": "^7.28.0",
+    "@babel/preset-react": "^7.27.1",
+    "@babel/preset-typescript": "^7.27.1",
     "@kintone/customize-uploader": "^8.0.14",
     "@kintone/dts-gen": "^8.1.2",
     "@types/jest": "^30.0.0",
@@ -35,6 +39,7 @@
     "@types/react-dom": "^19.1.7",
     "dotenv-cli": "^10.0.0",
     "esbuild": "^0.25.8",
+    "esbuild-plugin-babel": "^0.2.3",
     "jest": "^30.0.5",
     "ts-jest": "^29.4.1",
     "typescript": "^5.9.2"

@@ -12,7 +12,16 @@ export interface OTPFieldProps {
 
 export default function OTPField({ otp, barOffset }: OTPFieldProps) {
   if (!otp) {
-    return <div className="otp-display">OTPの生成に失敗しました。</div>;
+    return (
+      <>
+        <div className="otp-display">OTPの生成に失敗しました。</div>
+        <style jsx>{`
+          .otp-display {
+            padding: 4px 8px;
+          }
+        `}</style>
+      </>
+    );
   }
 
   const [remaining, setRemaining] = useState(0);
@@ -39,14 +48,44 @@ export default function OTPField({ otp, barOffset }: OTPFieldProps) {
   }, [otp]);
 
   return (
-    <div style={{ position: 'relative', fontSize: '140%' }}>
-      <CopyBlock style={{ padding: '4px 8px 8px' }}>{!otp ? 'loading...' : prettifyOTP(otp.otp)}</CopyBlock>
+    <>
+      <div className="otp-container">
+        <CopyBlock className="otp-copy-block">{!otp ? 'loading...' : prettifyOTP(otp.otp)}</CopyBlock>
 
-      {otp?.type === 'TOTP' && (
-        <div style={{ position: 'absolute', left: barOffset?.x ?? 0, bottom: barOffset?.y ?? 0, right: barOffset?.x ?? 0, height: '4px', backgroundColor: '#0003' }}>
-          <div style={{ position: 'absolute', left: barOffset?.x ?? 0, bottom: barOffset?.y ?? 0, height: '100%', backgroundColor: '#0009', width: `${100 - remaining}%` }}></div>
-        </div>
-      )}
-    </div>
+        {otp?.type === 'TOTP' && (
+          <div className="progress-bar-container">
+            <div className="progress-bar" style={{ width: `${100 - remaining}%` }}></div>
+          </div>
+        )}
+      </div>
+      <style jsx>{`
+        .otp-container {
+          position: relative;
+          font-size: 140%;
+        }
+
+        .otp-container :global(.otp-copy-block) {
+          padding: 4px 8px 8px;
+        }
+
+        .progress-bar-container {
+          position: absolute;
+          left: ${barOffset?.x ?? 0};
+          bottom: ${barOffset?.y ?? 0};
+          right: ${barOffset?.x ?? 0};
+          height: 4px;
+          background-color: #0003;
+        }
+
+        .progress-bar {
+          position: absolute;
+          left: ${barOffset?.x ?? 0};
+          bottom: ${barOffset?.y ?? 0};
+          height: 100%;
+          background-color: #0009;
+          transition: width 0.1s linear;
+        }
+      `}</style>
+    </>
   );
 }
