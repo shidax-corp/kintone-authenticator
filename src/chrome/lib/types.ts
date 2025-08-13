@@ -2,7 +2,6 @@ export interface ExtensionSettings {
   kintoneBaseUrl: string;
   kintoneUsername: string;
   kintonePassword: string;
-  passphrase: string;
   autoFillEnabled: boolean;
 }
 
@@ -14,7 +13,6 @@ export interface KintoneRecord {
   password: string;
   otpAuthUri: string;
   updatedTime: string;
-  decryptionFailed?: boolean;
 }
 
 export interface CacheEntry<T> {

@@ -2,11 +2,9 @@ import { KintoneClient, KintoneClientError } from './kintone-client';
 import type { ExtensionSettings } from './types';
 
 jest.mock('@kintone/rest-api-client');
-jest.mock('../../lib/crypto');
 jest.mock('./storage');
 
 import { KintoneRestAPIClient } from '@kintone/rest-api-client';
-import { encrypt, decrypt } from '../../lib/crypto';
 import { getCachedRecords, setCachedRecords } from './storage';
 
 const mockKintoneClient = {
@@ -21,8 +19,6 @@ const mockKintoneClient = {
   },
 };
 
-const mockEncrypt = encrypt as jest.MockedFunction<typeof encrypt>;
-const mockDecrypt = decrypt as jest.MockedFunction<typeof decrypt>;
 const mockGetCachedRecords = getCachedRecords as jest.MockedFunction<typeof getCachedRecords>;
 const mockSetCachedRecords = setCachedRecords as jest.MockedFunction<typeof setCachedRecords>;
 
@@ -33,7 +29,6 @@ describe('KintoneClient', () => {
     kintoneBaseUrl: 'https://example.cybozu.com',
     kintoneUsername: 'user',
     kintonePassword: 'pass',
-    passphrase: 'secret',
     autoFillEnabled: true,
   };
 
@@ -43,8 +38,6 @@ describe('KintoneClient', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     client = new KintoneClient(mockSettings, appId);
-    mockEncrypt.mockResolvedValue('encrypted_data');
-    mockDecrypt.mockResolvedValue('decrypted_data');
   });
 
   describe('constructor', () => {
@@ -66,8 +59,8 @@ describe('KintoneClient', () => {
         name: { value: 'Test Site' },
         url: { value: 'https://example.com' },
         username: { value: 'user1' },
-        password: { value: 'encrypted_pass' },
-        otpuri: { value: 'encrypted_uri' },
+        password: { value: 'password123' },
+        otpuri: { value: 'otpauth://totp/Example:user@example.com?secret=JBSWY3DPEHPK3PXP&issuer=Example' },
         更新日時: { value: '2023-01-01T00:00:00Z' },
       },
     ];
@@ -104,8 +97,6 @@ describe('KintoneClient', () => {
         app: appId,
         fields: ['$id', 'name', 'url', 'username', 'password', 'otpuri', '更新日時'],
       });
-      expect(mockDecrypt).toHaveBeenCalledWith('encrypted_pass', 'secret');
-      expect(mockDecrypt).toHaveBeenCalledWith('encrypted_uri', 'secret');
       expect(mockSetCachedRecords).toHaveBeenCalled();
     });
 
@@ -141,7 +132,7 @@ describe('KintoneClient', () => {
   });
 
   describe('createRecord', () => {
-    it('should create record with encrypted sensitive data', async () => {
+    it('should create record with sensitive data', async () => {
       const recordData = {
         name: 'New Site',
         url: 'https://new.com',
@@ -155,16 +146,14 @@ describe('KintoneClient', () => {
 
       const result = await client.createRecord(recordData);
 
-      expect(mockEncrypt).toHaveBeenCalledWith('newpass', 'secret');
-      expect(mockEncrypt).toHaveBeenCalledWith('otpauth://totp/test', 'secret');
       expect(mockKintoneClient.record.addRecord).toHaveBeenCalledWith({
         app: appId,
         record: {
           name: { value: 'New Site' },
           url: { value: 'https://new.com' },
           username: { value: 'newuser' },
-          password: { value: 'encrypted_data' },
-          otpuri: { value: 'encrypted_data' },
+          password: { value: 'newpass' },
+          otpuri: { value: 'otpauth://totp/test' },
         },
       });
       expect(result).toBe('123');
@@ -195,13 +184,12 @@ describe('KintoneClient', () => {
 
       await client.updateRecord('123', updateData);
 
-      expect(mockEncrypt).toHaveBeenCalledWith('newpass', 'secret');
       expect(mockKintoneClient.record.updateRecord).toHaveBeenCalledWith({
         app: appId,
         id: '123',
         record: {
           name: { value: 'Updated Site' },
-          password: { value: 'encrypted_data' },
+          password: { value: 'newpass' },
         },
       });
     });

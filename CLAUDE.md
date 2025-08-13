@@ -31,7 +31,6 @@ This is a kintone authenticator application similar to Google Authenticator, wit
 1. **Kintone App** (`src/kintone/`) - A customization for kintone that provides:
    - QR code reading functionality
    - OTP generation and management
-   - PIN-based encryption for sensitive data
    - Read [kintone requirements](docs/kintone-requirements.md) for more details.
 
 2. **Chrome Extension** (`src/chrome/`) - Provides:
