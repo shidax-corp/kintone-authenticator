@@ -61,7 +61,8 @@ declare namespace kintone {
       function getFieldElement(fieldCode: string): HTMLDivElement | null;
       function getSpaceElement(spaceId: string): HTMLDivElement | null;
       function setFieldShown(fieldCode: string, isShown: boolean): void;
-      function set(record: kintone.types.SavedFields): Promise<void>;
+      function get(): { record: kintone.types.Fields | kintone.types.SavedFields };
+      function set(params: { record: kintone.types.Fields | kintone.types.SavedFields }): Promise<void>;
     }
   }
 }

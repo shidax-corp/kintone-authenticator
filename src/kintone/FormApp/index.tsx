@@ -4,6 +4,7 @@ import { isOTPAuthURI } from '@lib/qr-reader';
 import InputField from './InputField';
 import PasswordField from './PasswordField';
 import TextAreaField from './TextAreaField';
+import { FormData, FormErrors, validateFormData } from '../lib/validation';
 
 export interface FormAppProps {
   appId: number;
@@ -12,21 +13,6 @@ export interface FormAppProps {
   mode: 'create' | 'edit';
 }
 
-interface FormData {
-  name: string;
-  url: string;
-  username: string;
-  password: string;
-  otpuri: string;
-}
-
-interface FormErrors {
-  name?: string;
-  url?: string;
-  username?: string;
-  password?: string;
-  otpuri?: string;
-}
 
 export default function FormApp({ record, mode }: FormAppProps) {
   const [formData, setFormData] = useState<FormData>({
@@ -51,42 +37,29 @@ export default function FormApp({ record, mode }: FormAppProps) {
     }
   }, [mode, record]);
 
-  const validateUrl = (url: string): boolean => {
-    if (!url.trim()) return false;
-    
-    try {
-      new URL(url.replace(/\*/g, 'example'));
-      return true;
-    } catch {
-      return /^https?:\/\/[^\s/$.?#].[^\s]*$/.test(url);
-    }
-  };
 
-  const validateForm = (): FormErrors => {
-    const newErrors: FormErrors = {};
-
-    if (!formData.name.trim()) {
-      newErrors.name = 'サイト名は必須です';
-    }
-
-    if (!formData.url.trim()) {
-      newErrors.url = 'URLは必須です';
-    } else if (!validateUrl(formData.url)) {
-      newErrors.url = '有効なURLを入力してください';
-    }
-
-    if (formData.otpuri && !isOTPAuthURI(formData.otpuri)) {
-      newErrors.otpuri = '有効なOTPAuth URIを入力してください';
-    }
-
-    return newErrors;
-  };
-
-  const handleFieldChange = (field: keyof FormData, value: string) => {
-    setFormData(prev => ({
-      ...prev,
+  const handleFieldChange = async (field: keyof FormData, value: string) => {
+    const newFormData = {
+      ...formData,
       [field]: value
-    }));
+    };
+    
+    setFormData(newFormData);
+
+    try {
+      // Get current record and update the specific field
+      const currentRecord = kintone.app.record.get();
+      const updatedRecord = {
+        ...currentRecord.record,
+        [field]: { 
+          type: 'SINGLE_LINE_TEXT',
+          value: value 
+        }
+      };
+      await kintone.app.record.set({ record: updatedRecord });
+    } catch (error) {
+      console.error('Failed to update kintone record:', error);
+    }
 
     if (errors[field]) {
       setErrors(prev => ({
@@ -97,8 +70,8 @@ export default function FormApp({ record, mode }: FormAppProps) {
   };
 
   useEffect(() => {
-    (window as any).__kintonFormData = formData;
-    (window as any).__kintonFormValidate = validateForm;
+    const currentErrors = validateFormData(formData);
+    setErrors(currentErrors);
   }, [formData]);
 
   useEffect(() => {
