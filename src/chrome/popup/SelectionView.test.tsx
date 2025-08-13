@@ -751,14 +751,99 @@ describe('SelectionView - URL and Name Matching', () => {
       });
     });
 
-    it.skip('should show feedback when copy operation completes', async () => {
-      // This test is skipped due to timer-based feedback complexity in testing
-      // The core functionality is covered by other tests
+    it('should show feedback when copy operation completes', async () => {
+      jest.useFakeTimers();
+
+      const { unmount } = render(
+        <SelectionView
+          onRegister={jest.fn()}
+          initialRecords={testRecords}
+          allRecords={testRecords}
+        />
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('Test Site')).toBeInTheDocument();
+      });
+
+      const usernameButton = screen.getByText('ユーザー名');
+      const originalText = usernameButton.textContent;
+
+      // Focus the button before clicking to ensure document.activeElement is set correctly
+      usernameButton.focus();
+      fireEvent.click(usernameButton);
+
+      // Should show success feedback immediately
+      await waitFor(() => {
+        expect(usernameButton.textContent).toBe('コピーしました!');
+      });
+
+      // Advance timers by 1000ms to trigger text restoration
+      act(() => {
+        jest.advanceTimersByTime(1000);
+      });
+
+      // Should restore original text after timeout
+      expect(usernameButton.textContent).toBe(originalText);
+      expect(mockClipboard.writeText).toHaveBeenCalledWith('testuser');
+
+      unmount();
+      jest.useRealTimers();
     });
 
-    it.skip('should handle copy errors gracefully', async () => {
-      // This test is skipped due to timer-based feedback complexity in testing
-      // The error handling itself is covered by other tests
+    it('should handle copy errors gracefully', async () => {
+      jest.useFakeTimers();
+
+      // Mock clipboard API to reject
+      mockClipboard.writeText.mockRejectedValue(
+        new Error('Clipboard API failed')
+      );
+
+      const consoleSpy = jest
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+
+      const { unmount } = render(
+        <SelectionView
+          onRegister={jest.fn()}
+          initialRecords={testRecords}
+          allRecords={testRecords}
+        />
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('Test Site')).toBeInTheDocument();
+      });
+
+      const usernameButton = screen.getByText('ユーザー名');
+      const originalText = usernameButton.textContent;
+
+      // Focus the button before clicking to ensure document.activeElement is set correctly
+      usernameButton.focus();
+      fireEvent.click(usernameButton);
+
+      // Should show error feedback
+      await waitFor(() => {
+        expect(usernameButton.textContent).toBe('コピー失敗');
+      });
+
+      // Advance timers by 1000ms to trigger text restoration
+      act(() => {
+        jest.advanceTimersByTime(1000);
+      });
+
+      // Should restore original text after timeout
+      expect(usernameButton.textContent).toBe(originalText);
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Failed to copy to clipboard:',
+        expect.any(Error)
+      );
+
+      consoleSpy.mockRestore();
+      // Reset clipboard mock to success for subsequent tests
+      mockClipboard.writeText.mockResolvedValue(undefined);
+      unmount();
+      jest.useRealTimers();
     });
 
     it('should handle clipboard API errors', async () => {
