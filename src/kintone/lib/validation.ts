@@ -19,11 +19,21 @@ export interface FormErrors {
 export const validateUrl = (url: string): boolean => {
   if (!url.trim()) return false;
   
+  let testUrl = url.trim();
+  
+  // プロトコルがない場合はhttps://を追加
+  if (!testUrl.match(/^https?:\/\//)) {
+    testUrl = 'https://' + testUrl;
+  }
+  
   try {
-    new URL(url.replace(/\*/g, 'example'));
+    // ワイルドカードを有効なホスト名に置き換えてバリデーション
+    const urlWithoutWildcard = testUrl.replace(/\*/g, 'wildcard');
+    new URL(urlWithoutWildcard);
     return true;
   } catch {
-    return /^https?:\/\/[^\s/$.?#].[^\s]*$/.test(url);
+    // fallbackで正規表現チェック（ワイルドカード対応）
+    return /^https?:\/\/[\w\-*]+(\.[\w\-*]+)*(\:[0-9]+)?(\/.*)?$/.test(testUrl);
   }
 };
 
