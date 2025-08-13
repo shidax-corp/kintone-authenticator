@@ -28,7 +28,7 @@ export default function KintoneLikeField({ label, width = '100%', children }: Ki
         }
 
         .value-container {
-          padding: 0;
+          padding: 0 !important;
         }
       `}</style>
     </>
