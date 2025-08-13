@@ -3,7 +3,9 @@ description: Check the issue and implement.
 allowed-tools: Bash(git add:*), Bash(git status:*), Bash(git commit:*)
 argument-hint: [issue_number]
 ---
+
 Following the steps below to fix the issue:
+
 1. Check the issue #$ARGUMENTS.
 2. Make a plan to address the issue.
 3. Create a new branch for the issue.

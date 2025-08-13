@@ -25,7 +25,7 @@ export interface OTPData {
   remainingTime: number;
 }
 
-export type MessageType = 
+export type MessageType =
   | 'READ_QR'
   | 'REGISTER_OTP'
   | 'GET_RECORDS'

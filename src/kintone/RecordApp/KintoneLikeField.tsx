@@ -7,7 +7,11 @@ export interface KintoneLikeFieldProps {
   children: ReactNode;
 }
 
-export default function KintoneLikeField({ label, width = '100%', children }: KintoneLikeFieldProps) {
+export default function KintoneLikeField({
+  label,
+  width = '100%',
+  children,
+}: KintoneLikeFieldProps) {
   return (
     <>
       <div className="control-gaia control-show-gaia field-container">

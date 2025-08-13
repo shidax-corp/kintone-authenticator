@@ -12,7 +12,7 @@ const performAutoFill = async () => {
 
   try {
     const response = await chrome.runtime.sendMessage({
-      type: 'GET_SETTINGS'
+      type: 'GET_SETTINGS',
     });
 
     if (!response.success || !response.data.autoFillEnabled) {
@@ -24,7 +24,7 @@ const performAutoFill = async () => {
 
     const recordsResponse = await chrome.runtime.sendMessage({
       type: 'GET_RECORDS',
-      data: { url: currentUrl }
+      data: { url: currentUrl },
     });
 
     if (!recordsResponse.success || recordsResponse.data.length === 0) {
@@ -34,7 +34,9 @@ const performAutoFill = async () => {
     const record = recordsResponse.data[0];
     autoFillExecuted = true;
 
-    const usernameFields = document.querySelectorAll('input[type="text"], input[type="email"], input[name*="user"], input[name*="login"], input[id*="user"], input[id*="login"]');
+    const usernameFields = document.querySelectorAll(
+      'input[type="text"], input[type="email"], input[name*="user"], input[name*="login"], input[id*="user"], input[id*="login"]'
+    );
     const passwordFields = document.querySelectorAll('input[type="password"]');
 
     usernameFields.forEach((field) => {
@@ -53,14 +55,16 @@ const performAutoFill = async () => {
       inputField.dispatchEvent(new Event('input', { bubbles: true }));
       inputField.dispatchEvent(new Event('change', { bubbles: true }));
     });
-
   } catch (error) {
     console.error('Auto-fill failed:', error);
   }
 };
 
 const fillInputField = (element: HTMLElement, value: string) => {
-  if (element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement) {
+  if (
+    element instanceof HTMLInputElement ||
+    element instanceof HTMLTextAreaElement
+  ) {
     element.value = value;
     element.dispatchEvent(new Event('input', { bubbles: true }));
     element.dispatchEvent(new Event('change', { bubbles: true }));
@@ -105,23 +109,27 @@ const showToast = (message: string, type: 'success' | 'error' = 'success') => {
 };
 
 const showFillOptionsModal = async (
-  records: any[], 
-  allRecords: any[], 
-  currentUrl: string, 
-  isGeneral: boolean, 
+  records: any[],
+  allRecords: any[],
+  currentUrl: string,
+  isGeneral: boolean,
   title?: string
 ) => {
   try {
     // レコードデータをStoreに保存するか、直接propsとして渡す
-    const handleFieldSelect = async (type: 'username' | 'password' | 'otp', value: string, recordId?: string) => {
+    const handleFieldSelect = async (
+      type: 'username' | 'password' | 'otp',
+      value: string,
+      recordId?: string
+    ) => {
       if (type === 'otp' && recordId) {
         // OTPの場合は動的に生成
         try {
           const response = await chrome.runtime.sendMessage({
             type: 'GET_OTP',
-            data: { recordId }
+            data: { recordId },
           });
-          
+
           if (response.success && currentInputElement) {
             fillInputField(currentInputElement, response.data.otp);
             showToast('OTPを入力しました');
@@ -132,7 +140,9 @@ const showFillOptionsModal = async (
         }
       } else if (currentInputElement) {
         fillInputField(currentInputElement, value);
-        showToast(`${type === 'username' ? 'ユーザー名' : 'パスワード'}を入力しました`);
+        showToast(
+          `${type === 'username' ? 'ユーザー名' : 'パスワード'}を入力しました`
+        );
         closeModal();
       }
     };
@@ -154,7 +164,7 @@ const showFillOptionsModal = async (
       onFieldSelect: handleFieldSelect,
       initialRecords: records, // マッチしたレコードデータを渡す
       allRecords: allRecords, // すべてのレコードデータを渡す
-      initialSearchQuery: initialSearchQuery // 初期検索クエリを渡す
+      initialSearchQuery: initialSearchQuery, // 初期検索クエリを渡す
     });
 
     renderModalComponent(selectionViewElement);
@@ -164,10 +174,9 @@ const showFillOptionsModal = async (
   }
 };
 
-
 document.addEventListener('contextmenu', (e) => {
   const target = e.target as HTMLElement;
-  
+
   if (isInputField(target)) {
     currentInputElement = target;
   }
@@ -181,10 +190,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
     case 'SHOW_FILL_OPTIONS':
       showFillOptionsModal(
-        message.data.records, 
-        message.data.allRecords, 
-        message.data.currentUrl, 
-        message.data.isGeneral, 
+        message.data.records,
+        message.data.allRecords,
+        message.data.currentUrl,
+        message.data.isGeneral,
         message.data.title
       );
       break;
@@ -196,11 +205,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       }
       break;
 
-
     case 'OPEN_REGISTER_FORM':
       chrome.runtime.sendMessage({
         type: 'OPEN_POPUP',
-        data: { action: 'register', otpAuthUri: message.data.otpAuthUri }
+        data: { action: 'register', otpAuthUri: message.data.otpAuthUri },
       });
       break;
   }

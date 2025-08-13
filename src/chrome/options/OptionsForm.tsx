@@ -37,10 +37,13 @@ export const OptionsForm: React.FC = () => {
     }
   };
 
-  const handleInputChange = (field: keyof ExtensionSettings, value: string | boolean) => {
-    setSettings(prev => ({
+  const handleInputChange = (
+    field: keyof ExtensionSettings,
+    value: string | boolean
+  ) => {
+    setSettings((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
     setTestResult(null);
   };
@@ -54,13 +57,13 @@ export const OptionsForm: React.FC = () => {
       // 保存前に接続テストを実行
       const connectionResponse = await chrome.runtime.sendMessage({
         type: 'TEST_CONNECTION',
-        data: settings
+        data: settings,
       });
 
       if (!connectionResponse.success) {
         setTestResult({
           success: false,
-          message: 'kintoneへの接続に失敗しました。設定を確認してください。'
+          message: 'kintoneへの接続に失敗しました。設定を確認してください。',
         });
         return;
       }
@@ -69,12 +72,12 @@ export const OptionsForm: React.FC = () => {
       await saveSettings(settings);
       setTestResult({
         success: true,
-        message: '設定を保存しました。'
+        message: '設定を保存しました。',
       });
     } catch (error) {
       setTestResult({
         success: false,
-        message: `設定の保存に失敗しました: ${error instanceof Error ? error.message : 'Unknown error'}`
+        message: `設定の保存に失敗しました: ${error instanceof Error ? error.message : 'Unknown error'}`,
       });
     } finally {
       setSaving(false);
@@ -88,24 +91,24 @@ export const OptionsForm: React.FC = () => {
     try {
       const response = await chrome.runtime.sendMessage({
         type: 'TEST_CONNECTION',
-        data: settings
+        data: settings,
       });
 
       if (response.success) {
         setTestResult({
           success: true,
-          message: 'kintoneへの接続に成功しました。'
+          message: 'kintoneへの接続に成功しました。',
         });
       } else {
         setTestResult({
           success: false,
-          message: 'kintoneへの接続に失敗しました。設定を確認してください。'
+          message: 'kintoneへの接続に失敗しました。設定を確認してください。',
         });
       }
     } catch (error) {
       setTestResult({
         success: false,
-        message: `接続テストに失敗しました: ${error instanceof Error ? error.message : 'Unknown error'}`
+        message: `接続テストに失敗しました: ${error instanceof Error ? error.message : 'Unknown error'}`,
       });
     } finally {
       setTesting(false);
@@ -125,7 +128,8 @@ export const OptionsForm: React.FC = () => {
           max-width: 600px;
           margin: 0 auto;
           padding: 32px;
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+          font-family:
+            -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
 
         .form-header {
@@ -159,9 +163,9 @@ export const OptionsForm: React.FC = () => {
           color: #e74c3c;
         }
 
-        .form-group input[type="text"],
-        .form-group input[type="password"],
-        .form-group input[type="url"] {
+        .form-group input[type='text'],
+        .form-group input[type='password'],
+        .form-group input[type='url'] {
           width: 100%;
           padding: 12px;
           border: 2px solid #e0e0e0;
@@ -181,7 +185,7 @@ export const OptionsForm: React.FC = () => {
           gap: 8px;
         }
 
-        .checkbox-group input[type="checkbox"] {
+        .checkbox-group input[type='checkbox'] {
           width: 16px;
           height: 16px;
         }
@@ -271,13 +275,13 @@ export const OptionsForm: React.FC = () => {
             id="kintoneBaseUrl"
             type="url"
             value={settings.kintoneBaseUrl}
-            onChange={(e) => handleInputChange('kintoneBaseUrl', e.target.value)}
+            onChange={(e) =>
+              handleInputChange('kintoneBaseUrl', e.target.value)
+            }
             placeholder="https://example.cybozu.com"
             required
           />
-          <div className="help-text">
-            例: https://example.cybozu.com
-          </div>
+          <div className="help-text">例: https://example.cybozu.com</div>
         </div>
 
         <div className="form-group">
@@ -288,7 +292,9 @@ export const OptionsForm: React.FC = () => {
             id="kintoneUsername"
             type="text"
             value={settings.kintoneUsername}
-            onChange={(e) => handleInputChange('kintoneUsername', e.target.value)}
+            onChange={(e) =>
+              handleInputChange('kintoneUsername', e.target.value)
+            }
             placeholder="username"
             required
           />
@@ -302,12 +308,13 @@ export const OptionsForm: React.FC = () => {
             id="kintonePassword"
             type="password"
             value={settings.kintonePassword}
-            onChange={(e) => handleInputChange('kintonePassword', e.target.value)}
+            onChange={(e) =>
+              handleInputChange('kintonePassword', e.target.value)
+            }
             placeholder="password"
             required
           />
         </div>
-
 
         <div className="form-group">
           <div className="checkbox-group">
@@ -315,11 +322,11 @@ export const OptionsForm: React.FC = () => {
               id="autoFillEnabled"
               type="checkbox"
               checked={settings.autoFillEnabled}
-              onChange={(e) => handleInputChange('autoFillEnabled', e.target.checked)}
+              onChange={(e) =>
+                handleInputChange('autoFillEnabled', e.target.checked)
+              }
             />
-            <label htmlFor="autoFillEnabled">
-              自動入力を有効にする
-            </label>
+            <label htmlFor="autoFillEnabled">自動入力を有効にする</label>
           </div>
           <div className="help-text">
             ページの読み込み時に自動的にユーザー名とパスワードを入力します
@@ -334,7 +341,7 @@ export const OptionsForm: React.FC = () => {
           >
             {saving ? '保存中...' : '設定を保存'}
           </button>
-          
+
           <button
             type="button"
             className="button button-secondary"
@@ -346,7 +353,9 @@ export const OptionsForm: React.FC = () => {
         </div>
 
         {testResult && (
-          <div className={`test-result ${testResult.success ? 'success' : 'error'}`}>
+          <div
+            className={`test-result ${testResult.success ? 'success' : 'error'}`}
+          >
             {testResult.message}
           </div>
         )}

@@ -8,7 +8,12 @@ export interface CopyBlockProps {
   children: string;
 }
 
-export default function CopyBlock({ disabled, children: text, style, className }: CopyBlockProps) {
+export default function CopyBlock({
+  disabled,
+  children: text,
+  style,
+  className,
+}: CopyBlockProps) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy: MouseEventHandler<HTMLDivElement> = () => {
@@ -22,9 +27,15 @@ export default function CopyBlock({ disabled, children: text, style, className }
 
   return (
     <>
-      <div className={`copy-block ${className || ''}`} onClick={handleCopy} style={style}>
+      <div
+        className={`copy-block ${className || ''}`}
+        onClick={handleCopy}
+        style={style}
+      >
         {text}
-        <span className={`copy-notification ${copied ? 'visible' : ''}`}>コピーしました</span>
+        <span className={`copy-notification ${copied ? 'visible' : ''}`}>
+          コピーしました
+        </span>
       </div>
       <style jsx>{`
         .copy-block {
@@ -40,13 +51,15 @@ export default function CopyBlock({ disabled, children: text, style, className }
           color: #333;
           border: 1px solid #3339;
           border-radius: 4px;
-          padding: 2px .5em;
+          padding: 2px 0.5em;
           position: absolute;
-          right: .5em;
+          right: 0.5em;
           user-select: none;
           opacity: 0;
           visibility: hidden;
-          transition: opacity .2s ease, visibility .2s;
+          transition:
+            opacity 0.2s ease,
+            visibility 0.2s;
         }
 
         .copy-notification.visible {
