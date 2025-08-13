@@ -65,7 +65,6 @@ export class KintoneClient {
       await setCachedRecords(records);
       return records;
     } catch (error) {
-      console.error('Failed to get records:', error);
       if (useCache) {
         const cached = await getCachedRecords();
         if (cached) {
