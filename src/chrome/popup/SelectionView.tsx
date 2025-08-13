@@ -89,7 +89,8 @@ export const SelectionView: React.FC<SelectionViewProps> = ({ onRegister }) => {
     const newOtpData: { [recordId: string]: { otp: string; remaining: number } } = {};
 
     for (const record of filteredRecords) {
-      if (record.otpAuthUri) {
+      // Skip OTP generation for records with decryption failures
+      if (record.otpAuthUri && !record.decryptionFailed) {
         try {
           const response = await chrome.runtime.sendMessage({
             type: 'GET_OTP',
@@ -265,6 +266,43 @@ export const SelectionView: React.FC<SelectionViewProps> = ({ onRegister }) => {
           background: #f5f5f5;
         }
 
+        .action-button:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+          background: #f9f9f9;
+        }
+
+        .action-button:disabled:hover {
+          background: #f9f9f9;
+        }
+
+        .record-item.failed {
+          opacity: 0.6;
+          background: #fafafa;
+        }
+
+        .record-name.failed {
+          color: #999;
+        }
+
+        .record-url.failed {
+          color: #aaa;
+        }
+
+        .decryption-error {
+          font-size: 11px;
+          color: #e74c3c;
+          margin-bottom: 8px;
+          display: flex;
+          align-items: center;
+          gap: 4px;
+        }
+
+        .error-icon {
+          width: 12px;
+          height: 12px;
+        }
+
         .otp-button {
           display: flex;
           flex-direction: column;
@@ -395,39 +433,46 @@ export const SelectionView: React.FC<SelectionViewProps> = ({ onRegister }) => {
             {searchQuery ? '検索条件に一致するレコードがありません' : 'レコードがありません'}
           </div>
         ) : (
-          filteredRecords.map(record => (
-            <div key={record.recordId} className="record-item">
-              <div className="record-name">{record.name}</div>
-              <div className="record-url">{record.url}</div>
-              <div className={`record-actions ${record.otpAuthUri ? 'with-otp' : ''}`}>
-                <button
-                  className="action-button"
-                  onClick={() => copyToClipboard(record.username, 'username')}
-                >
-                  ユーザー名
-                </button>
-                <button
-                  className="action-button"
-                  onClick={() => copyToClipboard(record.password, 'password')}
-                >
-                  パスワード
-                </button>
-                {record.otpAuthUri && otpData[record.recordId] && (
-                  <button
-                    className="action-button otp-button"
-                    onClick={() => copyToClipboard(otpData[record.recordId].otp, 'otp')}
-                  >
-                    <div className="otp-value">
-                      {prettifyOTP(otpData[record.recordId].otp)}
-                    </div>
-                    <div className="otp-timer">
-                      {otpData[record.recordId].remaining}s
-                    </div>
-                  </button>
+            filteredRecords.map(record => (
+              <div key={record.recordId} className={`record-item ${record.decryptionFailed ? 'failed' : ''}`}>
+                <div className={`record-name ${record.decryptionFailed ? 'failed' : ''}`}>{record.name}</div>
+                <div className={`record-url ${record.decryptionFailed ? 'failed' : ''}`}>{record.url}</div>
+                {record.decryptionFailed && (
+                  <div className="decryption-error">
+                    <span className="error-icon">⚠️</span>
+                    復号化できません（パスワードが変更された可能性があります）
+                  </div>
                 )}
+                <div className={`record-actions ${record.otpAuthUri && !record.decryptionFailed ? 'with-otp' : ''}`}>
+                  <button
+                    className="action-button"
+                    onClick={() => copyToClipboard(record.username, 'username')}
+                  >
+                    ユーザー名
+                  </button>
+                  <button
+                    className="action-button"
+                    disabled={record.decryptionFailed}
+                    onClick={() => !record.decryptionFailed && copyToClipboard(record.password, 'password')}
+                  >
+                    パスワード
+                  </button>
+                  {record.otpAuthUri && !record.decryptionFailed && otpData[record.recordId] && (
+                    <button
+                      className="action-button otp-button"
+                      onClick={() => copyToClipboard(otpData[record.recordId].otp, 'otp')}
+                    >
+                      <div className="otp-value">
+                        {prettifyOTP(otpData[record.recordId].otp)}
+                      </div>
+                      <div className="otp-timer">
+                        {otpData[record.recordId].remaining}s
+                      </div>
+                    </button>
+                  )}
+                </div>
               </div>
-            </div>
-          ))
+            ))
         )}
       </div>
 

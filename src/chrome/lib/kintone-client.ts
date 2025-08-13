@@ -42,7 +42,17 @@ export class KintoneClient {
   }
 
   private async decryptSensitiveData(record: any): Promise<KintoneRecord> {
+    // First, extract the basic information that doesn't require decryption
+    const basicInfo = {
+      recordId: record.$id.value,
+      name: record.name?.value || '',
+      url: record.url?.value || '',
+      username: record.username?.value || '',
+      updatedTime: record.更新日時?.value || new Date().toISOString(),
+    };
+
     try {
+      // Try to decrypt sensitive data
       const password = record.password?.value ?
         await decrypt(record.password.value, this.passphrase) : '';
 
@@ -50,16 +60,21 @@ export class KintoneClient {
         await decrypt(record.otpuri.value, this.passphrase) : '';
 
       return {
-        recordId: record.$id.value,
-        name: record.name?.value || '',
-        url: record.url?.value || '',
-        username: record.username?.value || '',
+        ...basicInfo,
         password,
         otpAuthUri,
-        updatedTime: record.更新日時?.value || new Date().toISOString(),
+        decryptionFailed: false,
       };
     } catch (error) {
-      throw new KintoneClientError(`Failed to decrypt record data: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      console.warn(`Decryption failed for record ${record.$id?.value}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+
+      // Return partial record with basic information when decryption fails
+      return {
+        ...basicInfo,
+        password: '',
+        otpAuthUri: '',
+        decryptionFailed: true,
+      };
     }
   }
 
@@ -77,16 +92,28 @@ export class KintoneClient {
         fields: ['$id', 'name', 'url', 'username', 'password', 'otpuri', '更新日時'],
       });
 
-      const decryptedRecords = await Promise.all(
-        response.records.map(record => this.decryptSensitiveData(record))
-      );
+      // Process each record individually to handle decryption failures gracefully
+      const decryptedRecords: KintoneRecord[] = [];
+      
+      for (const record of response.records) {
+        const decryptedRecord = await this.decryptSensitiveData(record);
+        decryptedRecords.push(decryptedRecord);
+      }
+
+      const failedRecords = decryptedRecords.filter(r => r.decryptionFailed);
+      if (failedRecords.length > 0) {
+        console.warn(`${failedRecords.length} record(s) failed to decrypt and will be shown in limited mode`);
+      }
 
       await setCachedRecords(decryptedRecords);
       return decryptedRecords;
     } catch (error) {
+      console.error('Failed to get records:', error);
+      
       if (useCache) {
         const cached = await getCachedRecords();
         if (cached) {
+          console.warn('Using cached records due to API error');
           return cached;
         }
       }
