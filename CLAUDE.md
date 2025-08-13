@@ -52,6 +52,7 @@ This is a kintone authenticator application similar to Google Authenticator, wit
 - Write comments in English. Clear and self-explanatory codes are preferred over excessive comments.
 - Write unit tests as much as possible.
 - Run `npm run check && npm run test` before committing.
+- DO NOT use `as unknown` or `as any` in TypeScript. Use proper type definitions.
 
 ## Git guidelines
 
