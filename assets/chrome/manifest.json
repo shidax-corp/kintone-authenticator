@@ -1,0 +1,41 @@
+{
+  "manifest_version": 3,
+  "name": "kintone Authenticator",
+  "version": "1.0.0",
+  "description": "kintoneと連携する認証アプリ。ワンタイムパスワードの生成と自動入力を提供します。",
+  "permissions": [
+    "contextMenus",
+    "storage",
+    "activeTab",
+    "clipboardWrite"
+  ],
+  "host_permissions": [
+    "https://*.cybozu.com/*",
+    "https://*.kintone.com/*",
+    "https://*.cybozu-dev.com/*",
+    "https://*.kintone-dev.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png"
+    }
+  },
+  "options_page": "options.html",
+  "icons": {
+    "16": "icons/icon16.png"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'none'"
+  }
+}
