@@ -20,7 +20,7 @@ export const b32encode = (data: ArrayLike<number>): string => {
   }
 
   return output.padEnd(Math.ceil(output.length / 8) * 8, '=');
-}
+};
 
 export const b32decode = (str: string): Uint8Array => {
   const output = [];
@@ -40,13 +40,13 @@ export const b32decode = (str: string): Uint8Array => {
 
     while (offset >= 8) {
       offset -= 8;
-      output.push((buffer >> offset) & 0xFF);
+      output.push((buffer >> offset) & 0xff);
     }
   }
 
   if (offset > 0) {
-    output.push((buffer << (8 - offset)) & 0xFF);
+    output.push((buffer << (8 - offset)) & 0xff);
   }
 
   return new Uint8Array(output);
-}
+};

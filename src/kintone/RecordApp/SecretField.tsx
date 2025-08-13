@@ -10,15 +10,14 @@ export default function SecretField({ value }: SectetFieldProps) {
   const [isRevealed, setIsRevealed] = useState(false);
 
   return (
-    <div style={{ padding: '4px 8px' }} onMouseEnter={() => setIsRevealed(true)} onMouseLeave={() => setIsRevealed(false)}>
+    <div
+      style={{ padding: '4px 8px' }}
+      onMouseEnter={() => setIsRevealed(true)}
+      onMouseLeave={() => setIsRevealed(false)}
+    >
       <CopyBlock disabled={!isRevealed}>
-        {isRevealed ? (
-          value
-        ) : (
-          "█████"
-        )}
+        {isRevealed ? value : '█████'}
       </CopyBlock>
     </div>
   );
 }
-

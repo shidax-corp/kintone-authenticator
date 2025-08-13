@@ -7,7 +7,7 @@ import CopyBlock from './CopyBlock';
 
 export interface OTPFieldProps {
   otp: OTP | null;
-  barOffset?: { x?: string; y?: string; };
+  barOffset?: { x?: string; y?: string };
 }
 
 export default function OTPField({ otp, barOffset }: OTPFieldProps) {
@@ -34,8 +34,9 @@ export default function OTPField({ otp, barOffset }: OTPFieldProps) {
         if (!running) return;
 
         const timeLeft = otp.availableUntil.getTime() - Date.now();
-        const duration = otp.availableUntil.getTime() - otp.availableFrom.getTime();
-        setRemaining(Math.max(0, timeLeft / duration * 100));
+        const duration =
+          otp.availableUntil.getTime() - otp.availableFrom.getTime();
+        setRemaining(Math.max(0, (timeLeft / duration) * 100));
 
         requestAnimationFrame(updateRemaining);
       };
@@ -50,11 +51,16 @@ export default function OTPField({ otp, barOffset }: OTPFieldProps) {
   return (
     <>
       <div className="otp-container">
-        <CopyBlock className="otp-copy-block">{!otp ? 'loading...' : prettifyOTP(otp.otp)}</CopyBlock>
+        <CopyBlock className="otp-copy-block">
+          {!otp ? 'loading...' : prettifyOTP(otp.otp)}
+        </CopyBlock>
 
         {otp?.type === 'TOTP' && (
           <div className="progress-bar-container">
-            <div className="progress-bar" style={{ width: `${100 - remaining}%` }}></div>
+            <div
+              className="progress-bar"
+              style={{ width: `${100 - remaining}%` }}
+            ></div>
           </div>
         )}
       </div>

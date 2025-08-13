@@ -1,11 +1,11 @@
-import { 
-  getSettings, 
-  saveSettings, 
-  isSettingsComplete, 
-  getCachedRecords, 
-  setCachedRecords, 
+import {
+  getSettings,
+  saveSettings,
+  isSettingsComplete,
+  getCachedRecords,
+  setCachedRecords,
   clearCache,
-  clearAllData 
+  clearAllData,
 } from './storage';
 import type { ExtensionSettings, KintoneRecord } from './types';
 
@@ -47,7 +47,9 @@ describe('storage', () => {
 
       const result = await getSettings();
       expect(result).toEqual(mockSettings);
-      expect(mockChrome.storage.sync.get).toHaveBeenCalledWith('kintone_authenticator_settings');
+      expect(mockChrome.storage.sync.get).toHaveBeenCalledWith(
+        'kintone_authenticator_settings'
+      );
     });
 
     it('should return null when no settings exist', async () => {
@@ -92,7 +94,9 @@ describe('storage', () => {
 
       mockChrome.storage.sync.set.mockRejectedValue(new Error('Storage error'));
 
-      await expect(saveSettings(settings)).rejects.toThrow('Failed to save settings');
+      await expect(saveSettings(settings)).rejects.toThrow(
+        'Failed to save settings'
+      );
     });
   });
 
@@ -191,7 +195,7 @@ describe('storage', () => {
       mockChrome.storage.local.set.mockResolvedValue(undefined);
 
       await setCachedRecords(records);
-      
+
       expect(mockChrome.storage.local.set).toHaveBeenCalledWith({
         kintone_authenticator_cache: {
           data: records,
@@ -206,7 +210,9 @@ describe('storage', () => {
       mockChrome.storage.local.remove.mockResolvedValue(undefined);
 
       await clearCache();
-      expect(mockChrome.storage.local.remove).toHaveBeenCalledWith('kintone_authenticator_cache');
+      expect(mockChrome.storage.local.remove).toHaveBeenCalledWith(
+        'kintone_authenticator_cache'
+      );
     });
   });
 

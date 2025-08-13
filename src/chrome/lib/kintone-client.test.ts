@@ -19,8 +19,12 @@ const mockKintoneClient = {
   },
 };
 
-const mockGetCachedRecords = getCachedRecords as jest.MockedFunction<typeof getCachedRecords>;
-const mockSetCachedRecords = setCachedRecords as jest.MockedFunction<typeof setCachedRecords>;
+const mockGetCachedRecords = getCachedRecords as jest.MockedFunction<
+  typeof getCachedRecords
+>;
+const mockSetCachedRecords = setCachedRecords as jest.MockedFunction<
+  typeof setCachedRecords
+>;
 
 (KintoneRestAPIClient as any).mockImplementation(() => mockKintoneClient);
 
@@ -60,7 +64,10 @@ describe('KintoneClient', () => {
         url: { value: 'https://example.com' },
         username: { value: 'user1' },
         password: { value: 'password123' },
-        otpuri: { value: 'otpauth://totp/Example:user@example.com?secret=JBSWY3DPEHPK3PXP&issuer=Example' },
+        otpuri: {
+          value:
+            'otpauth://totp/Example:user@example.com?secret=JBSWY3DPEHPK3PXP&issuer=Example',
+        },
         更新日時: { value: '2023-01-01T00:00:00Z' },
       },
     ];
@@ -95,7 +102,15 @@ describe('KintoneClient', () => {
 
       expect(mockKintoneClient.record.getRecords).toHaveBeenCalledWith({
         app: appId,
-        fields: ['$id', 'name', 'url', 'username', 'password', 'otpuri', '更新日時'],
+        fields: [
+          '$id',
+          'name',
+          'url',
+          'username',
+          'password',
+          'otpuri',
+          '更新日時',
+        ],
       });
       expect(mockSetCachedRecords).toHaveBeenCalled();
     });
@@ -117,7 +132,9 @@ describe('KintoneClient', () => {
         .mockResolvedValueOnce(null) // First call returns null
         .mockResolvedValueOnce(cachedRecords); // Second call returns cache
 
-      mockKintoneClient.record.getRecords.mockRejectedValue(new Error('Network error'));
+      mockKintoneClient.record.getRecords.mockRejectedValue(
+        new Error('Network error')
+      );
 
       const result = await client.getRecords(true);
       expect(result).toEqual(cachedRecords);
@@ -125,7 +142,9 @@ describe('KintoneClient', () => {
 
     it('should throw error when fetch fails and no cache available', async () => {
       mockGetCachedRecords.mockResolvedValue(null);
-      mockKintoneClient.record.getRecords.mockRejectedValue(new Error('Network error'));
+      mockKintoneClient.record.getRecords.mockRejectedValue(
+        new Error('Network error')
+      );
 
       await expect(client.getRecords(true)).rejects.toThrow(KintoneClientError);
     });
@@ -167,9 +186,13 @@ describe('KintoneClient', () => {
         password: 'newpass',
       };
 
-      mockKintoneClient.record.addRecord.mockRejectedValue(new Error('Create failed'));
+      mockKintoneClient.record.addRecord.mockRejectedValue(
+        new Error('Create failed')
+      );
 
-      await expect(client.createRecord(recordData)).rejects.toThrow(KintoneClientError);
+      await expect(client.createRecord(recordData)).rejects.toThrow(
+        KintoneClientError
+      );
     });
   });
 
@@ -195,10 +218,13 @@ describe('KintoneClient', () => {
     });
 
     it('should throw error on update failure', async () => {
-      mockKintoneClient.record.updateRecord.mockRejectedValue(new Error('Update failed'));
+      mockKintoneClient.record.updateRecord.mockRejectedValue(
+        new Error('Update failed')
+      );
 
-      await expect(client.updateRecord('123', { name: 'Updated' }))
-        .rejects.toThrow(KintoneClientError);
+      await expect(
+        client.updateRecord('123', { name: 'Updated' })
+      ).rejects.toThrow(KintoneClientError);
     });
   });
 
@@ -216,9 +242,13 @@ describe('KintoneClient', () => {
     });
 
     it('should throw error on deletion failure', async () => {
-      mockKintoneClient.record.deleteRecords.mockRejectedValue(new Error('Delete failed'));
+      mockKintoneClient.record.deleteRecords.mockRejectedValue(
+        new Error('Delete failed')
+      );
 
-      await expect(client.deleteRecord('123')).rejects.toThrow(KintoneClientError);
+      await expect(client.deleteRecord('123')).rejects.toThrow(
+        KintoneClientError
+      );
     });
   });
 
@@ -231,7 +261,9 @@ describe('KintoneClient', () => {
     });
 
     it('should return false for failed connection', async () => {
-      mockKintoneClient.app.getApp.mockRejectedValue(new Error('Connection failed'));
+      mockKintoneClient.app.getApp.mockRejectedValue(
+        new Error('Connection failed')
+      );
 
       const result = await client.testConnection();
       expect(result).toBe(false);

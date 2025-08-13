@@ -13,7 +13,9 @@ export const getSettings = async (): Promise<ExtensionSettings | null> => {
   }
 };
 
-export const saveSettings = async (settings: ExtensionSettings): Promise<void> => {
+export const saveSettings = async (
+  settings: ExtensionSettings
+): Promise<void> => {
   try {
     await chrome.storage.sync.set({ [SETTINGS_KEY]: settings });
   } catch {
@@ -21,7 +23,9 @@ export const saveSettings = async (settings: ExtensionSettings): Promise<void> =
   }
 };
 
-export const isSettingsComplete = (settings: ExtensionSettings | null): settings is ExtensionSettings => {
+export const isSettingsComplete = (
+  settings: ExtensionSettings | null
+): settings is ExtensionSettings => {
   if (!settings) return false;
 
   return !!(
@@ -45,22 +49,22 @@ export const getCachedRecords = async (): Promise<KintoneRecord[] | null> => {
   }
 };
 
-export const setCachedRecords = async (records: KintoneRecord[]): Promise<void> => {
+export const setCachedRecords = async (
+  records: KintoneRecord[]
+): Promise<void> => {
   try {
     const cache: CacheEntry<KintoneRecord[]> = {
       data: records,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     };
     await chrome.storage.local.set({ [CACHE_KEY]: cache });
-  } catch {
-  }
+  } catch {}
 };
 
 export const clearCache = async (): Promise<void> => {
   try {
     await chrome.storage.local.remove(CACHE_KEY);
-  } catch {
-  }
+  } catch {}
 };
 
 export const clearAllData = async (): Promise<void> => {

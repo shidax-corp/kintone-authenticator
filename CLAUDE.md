@@ -5,21 +5,31 @@ This file provides guidance to Claude Code and GitHub Copilot when working with 
 ## Commands
 
 Build the project:
+
 ```bash
 npm run build
 ```
 
 Run development server:
+
 ```bash
 npm run dev
 ```
 
 Type check:
+
 ```bash
-npm run check
+npm run check:type
+```
+
+Format code:
+
+```bash
+npm run format
 ```
 
 Run tests:
+
 ```bash
 npm run test
 ```
@@ -53,7 +63,7 @@ This is a kintone authenticator application similar to Google Authenticator, wit
 - Write comments in English. Clear and self-explanatory codes are preferred over excessive comments.
 - Write unit tests when adding or modifying features.
 - Check tests covers user's requirements, and it passes all tests.
-- Run `npm run check && npm run test` before committing.
+- Run `npm run format && npm run check && npm run test` before committing.
 - DO NOT use `as unknown` or `as any` in TypeScript. Use proper type definitions.
 
 ## Git guidelines
