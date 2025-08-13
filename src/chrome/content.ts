@@ -7,28 +7,6 @@ import { SelectionView } from './popup/SelectionView';
 let currentInputElement: HTMLElement | null = null;
 let autoFillExecuted = false;
 
-const generateInitialSearchQuery = (url: string): string => {
-  try {
-    const urlObj = new URL(url);
-    const hostname = urlObj.hostname;
-    
-    // Remove 'www.' prefix if present
-    const cleanHostname = hostname.replace(/^www\./, '');
-    
-    // Extract main domain name (remove subdomains if they exist)
-    const parts = cleanHostname.split('.');
-    if (parts.length >= 2) {
-      // Take the second-to-last part as the main domain name
-      return parts[parts.length - 2];
-    }
-    
-    return cleanHostname;
-  } catch (error) {
-    console.error('Failed to parse URL for search query:', error);
-    return '';
-  }
-};
-
 const performAutoFill = async () => {
   if (autoFillExecuted) return;
 
@@ -163,8 +141,8 @@ const showFillOptionsModal = async (
       closeModal();
     };
 
-    // 現在のURLから初期検索クエリを生成
-    const initialSearchQuery = generateInitialSearchQuery(currentUrl);
+    // 現在のURLを初期検索クエリとして使用
+    const initialSearchQuery = currentUrl;
 
     // SelectionViewコンポーネントをレンダリング
     const selectionViewElement = React.createElement(SelectionView, {
