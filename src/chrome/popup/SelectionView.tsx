@@ -38,6 +38,13 @@ export const SelectionView: React.FC<SelectionViewProps> = ({
   const [otpData, setOtpData] = useState<{
     [recordId: string]: { otp: string; remaining: number };
   }>({});
+  const [hotpData, setHotpData] = useState<{
+    [recordId: string]: {
+      otp: string;
+      generating: boolean;
+      showCopied: boolean;
+    };
+  }>({});
   const [fetchError, setFetchError] = useState<boolean>(false);
 
   useEffect(() => {
@@ -200,6 +207,83 @@ export const SelectionView: React.FC<SelectionViewProps> = ({
 
   const isEmpty = (value: string): boolean => {
     return !value || value.trim() === '';
+  };
+
+  const isHOTP = (otpAuthUri: string): boolean => {
+    try {
+      const otpAuthRecord = decodeOTPAuthURI(otpAuthUri);
+      return otpAuthRecord.type === 'hotp';
+    } catch {
+      return false;
+    }
+  };
+
+  const generateHOTP = async (recordId: string) => {
+    setHotpData((prev) => ({
+      ...prev,
+      [recordId]: { otp: '', generating: true, showCopied: false },
+    }));
+
+    try {
+      const response = await chrome.runtime.sendMessage({
+        type: 'GET_OTP',
+        data: { recordId },
+      });
+
+      if (response.success) {
+        const otp = response.data.otp;
+
+        // Update HOTP data with generated OTP
+        setHotpData((prev) => ({
+          ...prev,
+          [recordId]: { otp, generating: false, showCopied: false },
+        }));
+
+        // Copy to clipboard
+        try {
+          if (!isModal || !onFieldSelect) {
+            await navigator.clipboard.writeText(otp);
+          } else {
+            onFieldSelect('otp', otp, recordId);
+          }
+
+          // Show "copied" state
+          setHotpData((prev) => ({
+            ...prev,
+            [recordId]: { ...prev[recordId], showCopied: true },
+          }));
+
+          // Hide "copied" state after 2 seconds
+          setTimeout(() => {
+            setHotpData((prev) => ({
+              ...prev,
+              [recordId]: { ...prev[recordId], showCopied: false },
+            }));
+          }, 2000);
+        } catch (error) {
+          console.error('Failed to copy HOTP to clipboard:', error);
+          setHotpData((prev) => ({
+            ...prev,
+            [recordId]: { otp, generating: false, showCopied: false },
+          }));
+        }
+
+        // Force refresh records to get updated counter
+        refreshRecords();
+      } else {
+        console.error('Failed to generate HOTP:', response.error);
+        setHotpData((prev) => ({
+          ...prev,
+          [recordId]: { otp: '', generating: false, showCopied: false },
+        }));
+      }
+    } catch (error) {
+      console.error('Failed to generate HOTP:', error);
+      setHotpData((prev) => ({
+        ...prev,
+        [recordId]: { otp: '', generating: false, showCopied: false },
+      }));
+    }
   };
 
   const copyToClipboard = async (
@@ -427,6 +511,12 @@ export const SelectionView: React.FC<SelectionViewProps> = ({
           color: #666;
         }
 
+        .otp-copied {
+          font-size: 10px;
+          color: #4caf50;
+          font-weight: normal;
+        }
+
         .otp-placeholder {
           font-size: 12px;
           color: #999;
@@ -612,23 +702,51 @@ export const SelectionView: React.FC<SelectionViewProps> = ({
                 </button>
                 <button
                   className="action-button otp-button"
-                  disabled={isEmpty(record.otpAuthUri)}
+                  disabled={
+                    isEmpty(record.otpAuthUri) ||
+                    (isHOTP(record.otpAuthUri) &&
+                      hotpData[record.recordId]?.generating)
+                  }
                   onClick={() => {
                     if (!isEmpty(record.otpAuthUri)) {
-                      if (otpData[record.recordId]) {
+                      if (isHOTP(record.otpAuthUri)) {
+                        // For HOTP, generate and copy
+                        generateHOTP(record.recordId);
+                      } else if (otpData[record.recordId]) {
+                        // For TOTP with available data
                         copyToClipboard(
                           otpData[record.recordId].otp,
                           'otp',
                           record.recordId
                         );
                       } else {
-                        // For HOTP or when OTP data is not yet generated, request OTP generation
+                        // For TOTP without data (shouldn't happen normally)
                         copyToClipboard('', 'otp', record.recordId);
                       }
                     }
                   }}
                 >
-                  {!isEmpty(record.otpAuthUri) && otpData[record.recordId] ? (
+                  {!isEmpty(record.otpAuthUri) && isHOTP(record.otpAuthUri) ? (
+                    // HOTP display logic
+                    hotpData[record.recordId]?.generating ? (
+                      <div className="otp-placeholder">生成中...</div>
+                    ) : hotpData[record.recordId]?.otp ? (
+                      <>
+                        <div className="otp-value">
+                          {prettifyOTP(hotpData[record.recordId].otp)}
+                        </div>
+                        {hotpData[record.recordId]?.showCopied && (
+                          <div className="otp-copied">コピーしました！</div>
+                        )}
+                      </>
+                    ) : (
+                      <div className="otp-placeholder">
+                        ワンタイムパスワード
+                      </div>
+                    )
+                  ) : !isEmpty(record.otpAuthUri) &&
+                    otpData[record.recordId] ? (
+                    // TOTP display logic
                     <>
                       <div className="otp-value">
                         {prettifyOTP(otpData[record.recordId].otp)}

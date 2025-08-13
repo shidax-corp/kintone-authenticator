@@ -2,8 +2,9 @@ import { getSettings, isSettingsComplete } from './lib/storage';
 import { KintoneClient } from './lib/kintone-client';
 import { getMatchingRecords } from './lib/url-matcher';
 import { readQRFromImage, isOTPAuthURI } from '../lib/qr-reader';
-import { generateTOTP } from '../lib/gen-otp';
-import { decodeOTPAuthURI } from '../lib/otpauth-uri';
+import { generateTOTP, generateHOTP } from '../lib/gen-otp';
+import { decodeOTPAuthURI, encodeOTPAuthURI } from '../lib/otpauth-uri';
+import { getCachedRecords, setCachedRecords } from './lib/storage';
 import type {
   Message,
   ReadQRMessage,
@@ -214,9 +215,48 @@ const generateOTPFromRecord = async (record: any) => {
       digits: otpAuthRecord.digits,
       period: otpAuthRecord.period,
     });
+  } else if (otpAuthRecord.type === 'hotp') {
+    // Generate HOTP with current counter
+    const hotp = await generateHOTP(
+      {
+        secret: otpAuthRecord.secret,
+        algorithm: otpAuthRecord.algorithm,
+        digits: otpAuthRecord.digits,
+      },
+      otpAuthRecord.counter
+    );
+
+    // Increment counter and update record
+    const newCounter = otpAuthRecord.counter + 1;
+    const updatedOTPAuthRecord = { ...otpAuthRecord, counter: newCounter };
+    const updatedOTPAuthURI = encodeOTPAuthURI(updatedOTPAuthRecord);
+
+    // Update in kintone
+    const settings = await getSettings();
+    if (!isSettingsComplete(settings)) {
+      throw new Error('Settings not complete');
+    }
+
+    const client = new KintoneClient(settings, KINTONE_APP_ID);
+    await client.updateRecord(record.recordId, {
+      otpAuthUri: updatedOTPAuthURI,
+    });
+
+    // Update cached records
+    const cachedRecords = await getCachedRecords();
+    if (cachedRecords) {
+      const updatedRecords = cachedRecords.map((r) =>
+        r.recordId === record.recordId
+          ? { ...r, otpAuthUri: updatedOTPAuthURI }
+          : r
+      );
+      await setCachedRecords(updatedRecords);
+    }
+
+    return hotp;
   }
 
-  throw new Error('HOTP is not supported yet');
+  throw new Error('Unsupported OTP type');
 };
 
 chrome.runtime.onMessage.addListener(
