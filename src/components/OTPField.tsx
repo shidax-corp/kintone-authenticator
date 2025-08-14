@@ -74,6 +74,7 @@ export default function OTPField({
   }, [uri]);
 
   const setSelection = () => {
+    // TODO: クリックした直後にDOMが変わってしまうせいでうまく動かなそう。
     if (!ref.current) return;
 
     const range = document.createRange();
@@ -130,7 +131,13 @@ export default function OTPField({
         <CopyField className="otp-field" copied={copied}>
           {/* HOTPの対応が必要なので、組込みのコピー機能は使わない */}
           <span ref={ref}>
-            {error ? error : !otp ? '●●●●●●' : prettifyOTP(otp.otp)}
+            {error
+              ? error
+              : !otp
+                ? '●●●●●●'
+                : prettifyOTP(otp.otp)
+                    .split(' ')
+                    .map((part) => <span key={part}>{part}</span>)}
           </span>
         </CopyField>
 
@@ -143,6 +150,12 @@ export default function OTPField({
         div :global(.otp-field) {
           font-size: 1.3rem;
           cursor: ${info ? 'pointer' : 'default'};
+        }
+        span > span {
+          margin-right: 0.5rem;
+        }
+        span > span:last-child {
+          margin-right: 0;
         }
       `}</style>
     </div>

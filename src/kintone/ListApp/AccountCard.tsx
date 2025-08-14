@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { isValidURL } from '@lib/url';
 import TextField from '@components/TextField';
 import PasswordField from '@components/PasswordField';
 import OTPField from '@components/OTPField';
@@ -81,13 +82,4 @@ export default function AccountCard({
       `}</style>
     </li>
   );
-}
-
-function isValidURL(url: string): boolean {
-  try {
-    new URL(url);
-    return true;
-  } catch {
-    return false;
-  }
 }

@@ -1,7 +1,8 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 
-import GlobalStyle from './GlobalStyle';
+import GlobalStyle from '@components/GlobalStyle';
+
 import ListApp from './ListApp';
 import RecordApp from './RecordApp';
 import FormApp from './FormApp';
@@ -28,8 +29,8 @@ kintone.events.on(
   (ev) => {
     const root = createRoot(kintone.app.record.getSpaceElement('space')!);
     root.render(
-      <GlobalStyle>
-        <RecordApp appId={ev.appId} recordId={ev.recordId} record={ev.record} />
+      <GlobalStyle tint>
+        <RecordApp record={ev.record} />
       </GlobalStyle>
     );
 
