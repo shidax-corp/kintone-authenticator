@@ -22,14 +22,14 @@ export default function DetailApp({
   }, []);
 
   return (
-    <>
+    <div>
       <Field label="名前">
-        <div>{name.value}</div>
+        <div className="field">{name.value}</div>
       </Field>
 
       {url.value ? (
         <Field label="URL">
-          <div>
+          <div className="field">
             {isValidURL(url.value) ? (
               <a
                 href={url.value}
@@ -65,11 +65,14 @@ export default function DetailApp({
       )}
 
       <style jsx>{`
-        div {
+        & > :global(*) {
+          margin-bottom: 1em;
+        }
+        .field {
           padding: var(--ka-field-padding);
         }
       `}</style>
-    </>
+    </div>
   );
 }
 

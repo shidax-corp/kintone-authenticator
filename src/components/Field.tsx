@@ -1,7 +1,7 @@
 import React, { ReactNode } from 'react';
 
 export interface FieldProps {
-  label: string;
+  label: ReactNode;
   onClick?: () => void;
   children: ReactNode;
 }

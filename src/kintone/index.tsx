@@ -6,7 +6,6 @@ import GlobalStyle from '@components/GlobalStyle';
 import ListApp from './ListApp';
 import DetailApp from './DetailApp';
 import FormApp from './FormApp';
-import { validateKintoneRecord } from './lib/validation';
 
 kintone.events.on(
   ['app.record.index.show', 'mobile.app.record.index.show'],
@@ -43,8 +42,8 @@ kintone.events.on(
   (ev: kintone.events.RecordCreateShowEvent) => {
     const root = createRoot(kintone.app.record.getSpaceElement('space')!);
     root.render(
-      <GlobalStyle>
-        <FormApp appId={ev.appId} mode="create" />
+      <GlobalStyle tint>
+        <FormApp record={kintone.app.record.get().record} />
       </GlobalStyle>
     );
 
@@ -58,48 +57,9 @@ kintone.events.on(
     const root = createRoot(kintone.app.record.getSpaceElement('space')!);
     root.render(
       <GlobalStyle>
-        <FormApp
-          appId={ev.appId}
-          recordId={ev.recordId}
-          record={ev.record}
-          mode="edit"
-        />
+        <FormApp record={ev.record} />
       </GlobalStyle>
     );
-
-    return ev;
-  }
-);
-
-kintone.events.on(
-  ['app.record.create.submit', 'mobile.app.record.create.submit'],
-  (ev: kintone.events.RecordCreateSubmitEvent) => {
-    const errors = validateKintoneRecord(ev.record);
-
-    if (Object.keys(errors).length > 0) {
-      Object.entries(errors).forEach(([field, error]) => {
-        if (error && ev.record[field as keyof kintone.types.Fields]) {
-          (ev.record[field as keyof kintone.types.Fields] as any).error = error;
-        }
-      });
-    }
-
-    return ev;
-  }
-);
-
-kintone.events.on(
-  ['app.record.edit.submit', 'mobile.app.record.edit.submit'],
-  (ev: kintone.events.RecordEditSubmitEvent) => {
-    const errors = validateKintoneRecord(ev.record);
-
-    if (Object.keys(errors).length > 0) {
-      Object.entries(errors).forEach(([field, error]) => {
-        if (error && ev.record[field as keyof kintone.types.Fields]) {
-          (ev.record[field as keyof kintone.types.Fields] as any).error = error;
-        }
-      });
-    }
 
     return ev;
   }
