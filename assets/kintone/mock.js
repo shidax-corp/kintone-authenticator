@@ -1,11 +1,20 @@
 // ローカルでkintoneを模倣するためのプログラム
 
 // ダミーレコードのサンプルデータを作成する関数
-const createRecord = (id, revision, createdTime, updatedTime, recordNumber) => ({
+const createRecord = (
+  id,
+  revision,
+  createdTime,
+  updatedTime,
+  recordNumber
+) => ({
   $id: { type: 'RECORD_NUMBER', value: id },
   $revision: { type: '__REVISION__', value: revision },
   作成者: { type: 'CREATOR', value: { code: 'user1', name: '作成者ユーザー' } },
-  更新者: { type: 'MODIFIER', value: { code: 'user1', name: '更新者ユーザー' } },
+  更新者: {
+    type: 'MODIFIER',
+    value: { code: 'user1', name: '更新者ユーザー' },
+  },
   作成日時: { type: 'CREATED_TIME', value: createdTime },
   更新日時: { type: 'UPDATED_TIME', value: updatedTime },
   レコード番号: { type: 'RECORD_NUMBER', value: recordNumber },
@@ -13,27 +22,50 @@ const createRecord = (id, revision, createdTime, updatedTime, recordNumber) => (
   url: { type: 'SINGLE_LINE_TEXT', value: 'https://github.com' },
   username: { type: 'SINGLE_LINE_TEXT', value: 'testuser@example.com' },
   password: { type: 'SINGLE_LINE_TEXT', value: '********' },
-  otpuri: { type: 'SINGLE_LINE_TEXT', value: 'otpauth://totp/GitHub:testuser@example.com?secret=JBSWY3DPEHPK3PXP&issuer=GitHub' },
+  otpuri: {
+    type: 'SINGLE_LINE_TEXT',
+    value:
+      'otpauth://totp/GitHub:testuser@example.com?secret=JBSWY3DPEHPK3PXP&issuer=GitHub',
+  },
 });
 
 // 複数のダミーレコード
 const dummyRecords = [
   createRecord('1', '1', '2024-01-01T00:00:00Z', '2024-01-01T00:00:00Z', '1'),
   {
-    ...createRecord('2', '2', '2024-01-02T00:00:00Z', '2024-01-02T00:00:00Z', '2'),
+    ...createRecord(
+      '2',
+      '2',
+      '2024-01-02T00:00:00Z',
+      '2024-01-02T00:00:00Z',
+      '2'
+    ),
     name: { type: 'SINGLE_LINE_TEXT', value: 'Google' },
     url: { type: 'SINGLE_LINE_TEXT', value: 'https://accounts.google.com' },
     username: { type: 'SINGLE_LINE_TEXT', value: 'user@gmail.com' },
     password: { type: 'SINGLE_LINE_TEXT', value: '********' },
-    otpuri: { type: 'SINGLE_LINE_TEXT', value: 'otpauth://totp/Google:user@gmail.com?secret=JBSWY3DPEHPK3PXQ&issuer=Google' },
+    otpuri: {
+      type: 'SINGLE_LINE_TEXT',
+      value:
+        'otpauth://totp/Google:user@gmail.com?secret=JBSWY3DPEHPK3PXQ&issuer=Google',
+    },
   },
   {
-    ...createRecord('3', '1', '2024-01-03T00:00:00Z', '2024-01-03T00:00:00Z', '3'),
+    ...createRecord(
+      '3',
+      '1',
+      '2024-01-03T00:00:00Z',
+      '2024-01-03T00:00:00Z',
+      '3'
+    ),
     name: { type: 'SINGLE_LINE_TEXT', value: 'AWS' },
     url: { type: 'SINGLE_LINE_TEXT', value: 'https://console.aws.amazon.com' },
     username: { type: 'SINGLE_LINE_TEXT', value: 'aws-admin' },
     password: { type: 'SINGLE_LINE_TEXT', value: '********' },
-    otpuri: { type: 'SINGLE_LINE_TEXT', value: 'otpauth://totp/AWS:aws-admin?secret=JBSWY3DPEHPK3PXR&issuer=AWS' },
+    otpuri: {
+      type: 'SINGLE_LINE_TEXT',
+      value: 'otpauth://totp/AWS:aws-admin?secret=JBSWY3DPEHPK3PXR&issuer=AWS',
+    },
   },
 ];
 
@@ -110,7 +142,9 @@ function createKintoneMock(allowEvents) {
 
       record: {
         getFieldElement(fieldCode) {
-          return document.querySelector(`.field[data-field-code="${fieldCode}"]`);
+          return document.querySelector(
+            `.field[data-field-code="${fieldCode}"]`
+          );
         },
         getSaceElement(spaceId) {
           return document.querySelector(`.space[data-space-id="${spaceId}"]`);
@@ -129,7 +163,7 @@ function createKintoneMock(allowEvents) {
         set(record) {
           console.log('Record set:', record);
           return Promise.resolve();
-        }
+        },
       },
     },
   };
