@@ -1,9 +1,23 @@
 import React, { ReactNode, useState } from 'react';
 import type { MouseEventHandler } from 'react';
 
+/**
+ * テキストをクリップボードにコピーする。
+ *
+ * @param text - コピーするテキスト。
+ * @return Promise<void> - コピーが完了したら解決されるPromise。
+ */
+export function copyToClipboard(text: string): Promise<void> {
+  return navigator.clipboard.writeText(text);
+}
+
+/** コピー完了メッセージの表示時間（ミリ秒） */
+export const COPIED_MESSAGE_DURATION = 3000;
+
 export interface CopyFieldProps {
   value?: string;
   className?: string;
+  copied?: boolean;
   children: ReactNode;
 }
 
@@ -12,21 +26,23 @@ export interface CopyFieldProps {
  *
  * @param value - コピーするテキスト。省略された場合はクリックしても反応しなくなる。
  * @param className - コンポーネントに適用する追加のCSSクラス。
- * @param children - フィールド内に表示するコンテンツ。通常はコピー対象のテキスト。
+ * @param copied - trueにするとコピー完了のメッセージが表示される。通常は自動で制御されるので指定しなくてもよい。
+ * @param children - フィールド内に表示するコンテンツ。
  */
 export default function CopyField({
   value,
   className,
+  copied = false,
   children,
 }: CopyFieldProps) {
-  const [copied, setCopied] = useState(false);
+  const [autoCopied, setAutoCopied] = useState(false);
 
   const handleCopy: MouseEventHandler<HTMLDivElement> = () => {
     if (!value) return;
 
-    navigator.clipboard.writeText(value).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 3000);
+    copyToClipboard(value).then(() => {
+      setAutoCopied(true);
+      setTimeout(() => setAutoCopied(false), COPIED_MESSAGE_DURATION);
     });
   };
 
@@ -46,7 +62,7 @@ export default function CopyField({
         }
 
         span {
-          font-size: 70%;
+          font-size: 10px;
           background-color: var(--ka-bg-dark-color);
           border: 1px solid var(rgba(var(--ka-fg-rgb), 0.8));
           border-radius: 4px;
@@ -54,8 +70,8 @@ export default function CopyField({
           position: absolute;
           right: 0.5em;
           user-select: none;
-          opacity: ${copied ? 1 : 0};
-          visibility: ${copied ? 'visible' : 'hidden'};
+          opacity: ${copied || autoCopied ? 1 : 0};
+          visibility: ${copied || autoCopied ? 'visible' : 'hidden'};
           transition:
             opacity 0.2s ease,
             visibility 0.2s;

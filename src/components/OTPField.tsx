@@ -8,25 +8,35 @@ import {
 import type { OTP } from '@lib/gen-otp';
 import { generateHOTP, generateTOTP, prettifyOTP } from '@lib/gen-otp';
 import Field from '@components/Field';
-import CopyField from '@components/CopyField';
+import CopyField, {
+  copyToClipboard,
+  COPIED_MESSAGE_DURATION,
+} from '@components/CopyField';
 
 export interface OTPProps {
   uri: string;
-  onclick?: (otp: string) => void;
-  onupdate?: (newURI: string) => void;
+  onClick?: (otp: string) => void;
+  onUpdate?: (newURI: string) => void;
 }
 
 /**
  * ワンタイムパスワードを表示するコンポーネント
  *
  * @param uri - OTP Auth URI。
- * @param onclick - OTPがクリックされたときのコールバック関数。デフォルトではOTPをコピーする。
- * @param onupdate - HOTPのカウンターが更新されたときに呼び出されるコールバック関数。引数にはい新しいURIが渡される。
+ * @param onClick - OTPがクリックされたときのコールバック関数。デフォルトではOTPをコピーする。
+ * @param onUpdate - HOTPのカウンターが更新されたときに呼び出されるコールバック関数。引数にはい新しいURIが渡される。
  */
-export default function OTPField({ uri, onclick, onupdate }: OTPProps) {
+export default function OTPField({
+  uri: initialURI,
+  onClick,
+  onUpdate,
+}: OTPProps) {
+  const [uri, setUri] = useState(initialURI);
   const [info, setInfo] = useState<OTPAuthRecord | null>(null);
   const [otp, setOtp] = useState<OTP | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+  const ref = React.useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     let info: OTPAuthRecord | null = null;
@@ -63,19 +73,44 @@ export default function OTPField({ uri, onclick, onupdate }: OTPProps) {
     }
   }, [uri]);
 
+  const setSelection = () => {
+    if (!ref.current) return;
+
+    const range = document.createRange();
+    range.selectNodeContents(ref.current);
+
+    window.getSelection()?.removeAllRanges();
+    window.getSelection()?.addRange(range);
+  };
+
+  const handleCallback = (otp: string) => {
+    if (onClick) {
+      onClick(otp);
+    } else {
+      copyToClipboard(otp).then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), COPIED_MESSAGE_DURATION);
+      });
+    }
+  };
+
   const onClickHandler = () => {
     if (info?.type === 'TOTP' && otp?.otp) {
-      onclick?.(otp.otp);
+      handleCallback(otp.otp);
     } else if (info?.type === 'HOTP') {
       generateHOTP(info, info.counter)
         .then((generatedOtp) => {
           setOtp(generatedOtp);
-          if (onupdate) {
+          handleCallback(generatedOtp.otp);
+
+          if (onUpdate) {
             const newURI = encodeOTPAuthURI({
               ...info,
               counter: info.counter + 1,
             });
-            onupdate(newURI);
+            onUpdate(newURI);
+            setUri(newURI);
+            setSelection();
           }
         })
         .catch((error) => {
@@ -92,8 +127,11 @@ export default function OTPField({ uri, onclick, onupdate }: OTPProps) {
         label="ワンタイムパスワード"
         onClick={info ? () => onClickHandler() : undefined}
       >
-        <CopyField value={otp?.otp || ''} className="otp-field">
-          {error ? error : !otp ? '●●●●●●' : prettifyOTP(otp.otp)}
+        <CopyField className="otp-field" copied={copied}>
+          {/* HOTPの対応が必要なので、組込みのコピー機能は使わない */}
+          <span ref={ref}>
+            {error ? error : !otp ? '●●●●●●' : prettifyOTP(otp.otp)}
+          </span>
         </CopyField>
 
         {otp?.type === 'TOTP' && (
@@ -104,6 +142,7 @@ export default function OTPField({ uri, onclick, onupdate }: OTPProps) {
       <style jsx>{`
         div :global(.otp-field) {
           font-size: 1.3rem;
+          cursor: ${info ? 'pointer' : 'default'};
         }
       `}</style>
     </div>

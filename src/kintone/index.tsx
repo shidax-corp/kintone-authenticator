@@ -14,7 +14,7 @@ kintone.events.on(
       const root = createRoot(kintone.app.getHeaderSpaceElement()!);
       root.render(
         <GlobalStyle>
-          <ListApp appId={ev.appId} records={ev.records} />
+          <ListApp appId={ev.appId} viewId={ev.viewId} records={ev.records} />
         </GlobalStyle>
       );
     }

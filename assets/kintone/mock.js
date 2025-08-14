@@ -81,7 +81,7 @@ const emptyRecord = {
 const events = {
   [['app.record.index.show', 'mobile.app.record.index.show']]: {
     appId: 1,
-    viewId: '2022',
+    viewId: 2022,
     records: dummyRecords,
   },
   [['app.record.detail.show', 'mobile.app.record.detail.show']]: {
@@ -136,6 +136,9 @@ function createKintoneMock(allowEvents) {
     },
 
     app: {
+      getId() {
+        return 1;
+      },
       getHeaderSpaceElement() {
         return document.querySelector('.header-space');
       },
@@ -165,6 +168,11 @@ function createKintoneMock(allowEvents) {
           return Promise.resolve();
         },
       },
+    },
+
+    api(pathOrUrl, method, params) {
+      console.log(`API called: ${method} ${pathOrUrl}`, params);
+      return Promise.resolve({});
     },
   };
 }

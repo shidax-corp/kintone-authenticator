@@ -55,6 +55,7 @@ declare namespace kintone {
   }
 
   namespace app {
+    function getId(): number;
     function getHeaderSpaceElement(): HTMLDivElement | null;
 
     namespace record {
@@ -65,4 +66,6 @@ declare namespace kintone {
       function set(params: { record: kintone.types.Fields | kintone.types.SavedFields }): Promise<void>;
     }
   }
+
+  function api(pathOrUrl: string, method: string, params: Record<string, any>): Promise<Record<string, any>>;
 }

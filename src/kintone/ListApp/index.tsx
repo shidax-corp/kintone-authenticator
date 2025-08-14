@@ -4,15 +4,21 @@ import AccountCard from './AccountCard';
 
 export interface ListAppProps {
   appId: number;
+  viewId: number;
   records: kintone.types.SavedFields[];
 }
 
-export default function ListApp({ appId, records }: ListAppProps) {
+export default function ListApp({ appId, viewId, records }: ListAppProps) {
   return (
     <div>
       <ul>
         {records.map((record) => (
-          <AccountCard account={record} key={record.$id.value} />
+          <AccountCard
+            appId={appId}
+            viewId={viewId}
+            account={record}
+            key={record.$id.value}
+          />
         ))}
       </ul>
       <style jsx>{`

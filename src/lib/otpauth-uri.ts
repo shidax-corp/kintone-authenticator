@@ -47,7 +47,7 @@ export const encodeOTPAuthURI = (record: OTPAuthRecord): string => {
   }
 
   const label = encodeURIComponent(`${record.issuer}:${record.accountName}`);
-  return `otpauth://${record.type}/${label}?${params.toString()}`;
+  return `otpauth://${record.type.toLowerCase()}/${label}?${params.toString()}`;
 };
 
 export const decodeOTPAuthURI = (uri: string): OTPAuthRecord => {
