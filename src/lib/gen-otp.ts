@@ -5,7 +5,6 @@
 
 import type { HashAlgorithm } from './hmac';
 import { hmac } from './hmac';
-import type { OTPAuthRecord } from './otpauth-uri';
 
 /** Truncates the last byte of the data to extract a 32-bit integer.
  *

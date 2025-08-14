@@ -1,6 +1,7 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 
+import GlobalStyle from './GlobalStyle';
 import ListApp from './ListApp';
 import RecordApp from './RecordApp';
 import FormApp from './FormApp';
@@ -11,7 +12,11 @@ kintone.events.on(
   (ev) => {
     if (`${ev.viewId}` === process.env.KINTONE_VIEW_ID) {
       const root = createRoot(kintone.app.getHeaderSpaceElement()!);
-      root.render(<ListApp appId={ev.appId} records={ev.records} />);
+      root.render(
+        <GlobalStyle>
+          <ListApp appId={ev.appId} records={ev.records} />
+        </GlobalStyle>
+      );
     }
 
     return ev;
@@ -23,7 +28,9 @@ kintone.events.on(
   (ev) => {
     const root = createRoot(kintone.app.record.getSpaceElement('space')!);
     root.render(
-      <RecordApp appId={ev.appId} recordId={ev.recordId} record={ev.record} />
+      <GlobalStyle>
+        <RecordApp appId={ev.appId} recordId={ev.recordId} record={ev.record} />
+      </GlobalStyle>
     );
 
     return ev;
@@ -34,7 +41,11 @@ kintone.events.on(
   ['app.record.create.show', 'mobile.app.record.create.show'],
   (ev: kintone.events.RecordCreateShowEvent) => {
     const root = createRoot(kintone.app.record.getSpaceElement('space')!);
-    root.render(<FormApp appId={ev.appId} mode="create" />);
+    root.render(
+      <GlobalStyle>
+        <FormApp appId={ev.appId} mode="create" />
+      </GlobalStyle>
+    );
 
     return ev;
   }
@@ -45,12 +56,14 @@ kintone.events.on(
   (ev: kintone.events.RecordEditShowEvent) => {
     const root = createRoot(kintone.app.record.getSpaceElement('space')!);
     root.render(
-      <FormApp
-        appId={ev.appId}
-        recordId={ev.recordId}
-        record={ev.record}
-        mode="edit"
-      />
+      <GlobalStyle>
+        <FormApp
+          appId={ev.appId}
+          recordId={ev.recordId}
+          record={ev.record}
+          mode="edit"
+        />
+      </GlobalStyle>
     );
 
     return ev;

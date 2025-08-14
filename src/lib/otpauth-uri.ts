@@ -9,36 +9,34 @@ type OTPAuthRecordBase = {
   digits: number;
 };
 
-export type OTPAuthRecordHOTP = OTPAuthRecordBase & {
-  type: 'hotp';
-  counter: number;
-};
+export type OTPAuthRecordHOTP = Readonly<
+  OTPAuthRecordBase & {
+    type: 'HOTP';
+    counter: number;
+  }
+>;
 
-export type OTPAuthRecordTOTP = OTPAuthRecordBase & {
-  type: 'totp';
-  period: number;
-};
+export type OTPAuthRecordTOTP = Readonly<
+  OTPAuthRecordBase & {
+    type: 'TOTP';
+    period: number;
+  }
+>;
 
-export type OTPAuthRecord = OTPAuthRecordHOTP | OTPAuthRecordTOTP;
+export type OTPAuthRecord = Readonly<OTPAuthRecordHOTP | OTPAuthRecordTOTP>;
 
 export const encodeOTPAuthURI = (record: OTPAuthRecord): string => {
-  const { type, issuer, accountName, secret, algorithm, digits } = record;
   const params = new URLSearchParams({
-    secret: b32encode(secret),
-    issuer: encodeURIComponent(issuer),
-    algorithm: algorithm.toUpperCase().replace(/-/g, ''),
-    digits: digits.toString(),
+    secret: b32encode(record.secret),
+    issuer: encodeURIComponent(record.issuer),
+    algorithm: record.algorithm.toUpperCase().replace(/-/g, ''),
+    digits: record.digits.toString(),
   });
 
-  if (
-    type === 'totp' &&
-    record.type === 'totp' &&
-    record.period != null &&
-    record.period > 0
-  ) {
+  if (record.type === 'TOTP' && record.period != null && record.period > 0) {
     params.append('period', record.period.toString());
   }
-  if (type === 'hotp' && record.type === 'hotp') {
+  if (record.type === 'HOTP') {
     params.append(
       'counter',
       (record.counter != null && record.counter >= 0
@@ -48,13 +46,13 @@ export const encodeOTPAuthURI = (record: OTPAuthRecord): string => {
     );
   }
 
-  const label = encodeURIComponent(`${issuer}:${accountName}`);
-  return `otpauth://${type}/${label}?${params.toString()}`;
+  const label = encodeURIComponent(`${record.issuer}:${record.accountName}`);
+  return `otpauth://${record.type}/${label}?${params.toString()}`;
 };
 
 export const decodeOTPAuthURI = (uri: string): OTPAuthRecord => {
   const url = new URL(uri);
-  const type = url.hostname;
+  const type = url.hostname.toUpperCase();
   const label = url.pathname.slice(1);
   const [issuerByLabel, accountName] = decodeURIComponent(label).split(':');
 
@@ -76,9 +74,9 @@ export const decodeOTPAuthURI = (uri: string): OTPAuthRecord => {
   };
   const normalizedAlgorithm = algorithmMap[algorithm.toUpperCase()] || 'SHA-1';
 
-  if (type === 'totp') {
+  if (type === 'TOTP') {
     return {
-      type: 'totp' as const,
+      type: 'TOTP' as const,
       issuer,
       accountName,
       secret,
@@ -88,7 +86,7 @@ export const decodeOTPAuthURI = (uri: string): OTPAuthRecord => {
     };
   } else {
     return {
-      type: 'hotp' as const,
+      type: 'HOTP' as const,
       issuer,
       accountName,
       secret,
