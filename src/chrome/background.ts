@@ -207,7 +207,7 @@ const handleFillOTP = async (
 const generateOTPFromRecord = async (record: any) => {
   const otpAuthRecord = decodeOTPAuthURI(record.otpAuthUri);
 
-  if (otpAuthRecord.type === 'totp') {
+  if (otpAuthRecord.type === 'TOTP') {
     return await generateTOTP({
       secret: otpAuthRecord.secret,
       algorithm: otpAuthRecord.algorithm,
