@@ -6,13 +6,13 @@ import TextField from '@components/TextField';
 import PasswordField from '@components/PasswordField';
 import OTPField from '@components/OTPField';
 
-export interface RecordAppProps {
+export interface DetailAppProps {
   record: kintone.types.SavedFields;
 }
 
-export default function RecordApp({
+export default function DetailApp({
   record: { name, username, password, otpuri, url },
-}: RecordAppProps) {
+}: DetailAppProps) {
   useEffect(() => {
     kintone.app.record.setFieldShown('name', false);
     kintone.app.record.setFieldShown('url', false);

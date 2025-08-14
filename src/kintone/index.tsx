@@ -4,7 +4,7 @@ import { createRoot } from 'react-dom/client';
 import GlobalStyle from '@components/GlobalStyle';
 
 import ListApp from './ListApp';
-import RecordApp from './RecordApp';
+import DetailApp from './DetailApp';
 import FormApp from './FormApp';
 import { validateKintoneRecord } from './lib/validation';
 
@@ -30,7 +30,7 @@ kintone.events.on(
     const root = createRoot(kintone.app.record.getSpaceElement('space')!);
     root.render(
       <GlobalStyle tint>
-        <RecordApp record={ev.record} />
+        <DetailApp record={ev.record} />
       </GlobalStyle>
     );
 
