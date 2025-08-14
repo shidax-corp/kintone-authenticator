@@ -1,0 +1,18 @@
+<!doctype html>
+
+<!-- テスト用のHTMLファイル。kintone画面の動作確認をするために使う。 -->
+
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <script src="kintone-authenticator.js" defer></script>
+    <link rel="stylesheet" href="mock.css" />
+    <script src="mock.js"></script>
+    <script>
+const kintone = createKintoneMock(['app.record.index.show']);
+    </script>
+  </head>
+  <body>
+    <div class="header-space"></div>
+  </body>
+</html>
