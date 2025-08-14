@@ -149,7 +149,7 @@ function createKintoneMock(allowEvents) {
             `.field[data-field-code="${fieldCode}"]`
           );
         },
-        getSaceElement(spaceId) {
+        getSpaceElement(spaceId) {
           return document.querySelector(`.space[data-space-id="${spaceId}"]`);
         },
         setFieldShown(fieldCode, isShown) {
