@@ -29,7 +29,7 @@ describe('SelectionView - URL and Name Matching', () => {
       url: 'https://github.com/login',
       username: 'user1',
       password: 'pass1',
-      otpAuthUri: 'otpauth://totp/test1',
+      otpAuthUri: 'otpauth://totp/GitHub:user1?secret=JBSWY3DPEHPK3PXP&issuer=GitHub',
       updatedTime: '2023-01-01T00:00:00Z',
     },
     {
@@ -38,7 +38,7 @@ describe('SelectionView - URL and Name Matching', () => {
       url: 'https://github.com/*',
       username: 'user2',
       password: 'pass2',
-      otpAuthUri: 'otpauth://totp/test2',
+      otpAuthUri: 'otpauth://totp/GitHub:user2?secret=GEZDGNBVGY3TQOJQ&issuer=GitHub',
       updatedTime: '2023-01-02T00:00:00Z',
     },
     {
@@ -47,7 +47,7 @@ describe('SelectionView - URL and Name Matching', () => {
       url: 'https://example.com/login',
       username: 'user3',
       password: 'pass3',
-      otpAuthUri: 'otpauth://totp/test3',
+      otpAuthUri: 'otpauth://totp/Example:user3?secret=MFRGGZDFMZTWQ2LK&issuer=Example',
       updatedTime: '2023-01-03T00:00:00Z',
     },
     {
@@ -56,7 +56,7 @@ describe('SelectionView - URL and Name Matching', () => {
       url: 'https://test.service.com/*',
       username: 'user4',
       password: 'pass4',
-      otpAuthUri: 'otpauth://totp/test4',
+      otpAuthUri: 'otpauth://totp/TestService:user4?secret=NNXWGZDBOQYTOMZR&issuer=TestService',
       updatedTime: '2023-01-04T00:00:00Z',
     },
     {
@@ -65,7 +65,7 @@ describe('SelectionView - URL and Name Matching', () => {
       url: 'https://subdomain.cybozu.com/k/*',
       username: 'user5',
       password: 'pass5',
-      otpAuthUri: 'otpauth://totp/test5',
+      otpAuthUri: 'otpauth://totp/Kintone:user5?secret=OVZWK4RMEBRW633E&issuer=Kintone',
       updatedTime: '2023-01-05T00:00:00Z',
     },
   ];
@@ -308,7 +308,7 @@ describe('SelectionView - URL and Name Matching', () => {
           url: '*.example.com',
           username: 'user6',
           password: 'pass6',
-          otpAuthUri: 'otpauth://totp/test6',
+          otpAuthUri: 'otpauth://totp/Example:user6?secret=PJWXQZLDNBSWY3DP&issuer=Example',
           updatedTime: '2023-01-06T00:00:00Z',
         },
       ];
@@ -403,7 +403,7 @@ describe('SelectionView - URL and Name Matching', () => {
     });
   });
 
-  describe('Button Disabled State for Empty Fields', () => {
+  describe('Conditional Field Rendering for Empty Values', () => {
     const mockRecordsWithEmptyFields: KintoneRecord[] = [
       {
         recordId: '1',
@@ -411,7 +411,7 @@ describe('SelectionView - URL and Name Matching', () => {
         url: 'https://example.com',
         username: 'user1',
         password: 'pass1',
-        otpAuthUri: 'otpauth://totp/test1',
+        otpAuthUri: 'otpauth://totp/Example:user1?secret=JBSWY3DPEHPK3PXP&issuer=Example',
         updatedTime: '2023-01-01T00:00:00Z',
       },
       {
@@ -420,7 +420,7 @@ describe('SelectionView - URL and Name Matching', () => {
         url: 'https://example2.com',
         username: '',
         password: 'pass2',
-        otpAuthUri: 'otpauth://totp/test2',
+        otpAuthUri: 'otpauth://totp/Example:pass2?secret=GEZDGNBVGY3TQOJQ&issuer=Example',
         updatedTime: '2023-01-02T00:00:00Z',
       },
       {
@@ -429,7 +429,7 @@ describe('SelectionView - URL and Name Matching', () => {
         url: 'https://example3.com',
         username: 'user3',
         password: '',
-        otpAuthUri: 'otpauth://totp/test3',
+        otpAuthUri: 'otpauth://totp/Example:user3?secret=MFRGGZDFMZTWQ2LK&issuer=Example',
         updatedTime: '2023-01-03T00:00:00Z',
       },
       {
@@ -485,7 +485,7 @@ describe('SelectionView - URL and Name Matching', () => {
       });
     });
 
-    it('should display all three buttons for each record', async () => {
+    it('should only render fields with non-empty values', async () => {
       render(
         <SelectionView
           onRegister={jest.fn()}
@@ -498,28 +498,27 @@ describe('SelectionView - URL and Name Matching', () => {
         expect(screen.getByText('Complete Record')).toBeInTheDocument();
       });
 
-      // Check username and password buttons
-      const usernameButtons = screen.getAllByText('ユーザー名');
-      const passwordButtons = screen.getAllByText('パスワード');
+      // Count components by their labels - only non-empty fields should be rendered
+      const usernameFields = screen.getAllByText('ユーザー名');
+      const passwordFields = screen.getAllByText('パスワード');
+      const otpFields = screen.getAllByText('ワンタイムパスワード');
 
-      // Check OTP buttons by class
-      const allButtons = screen.getAllByRole('button');
-      const otpButtons = allButtons.filter((button) =>
-        button.className.includes('otp-button')
-      );
+      // Complete Record, Empty Password, Empty OTP, HOTP Record have username (4 total)
+      expect(usernameFields).toHaveLength(4);
 
-      // Should have 6 of each type of button (one per record)
-      expect(usernameButtons).toHaveLength(6);
-      expect(passwordButtons).toHaveLength(6);
-      expect(otpButtons).toHaveLength(6);
+      // Complete Record, Empty Username, Empty OTP, HOTP Record have password (4 total)
+      expect(passwordFields).toHaveLength(4);
+
+      // Complete Record, Empty Username, Empty Password, HOTP Record have OTP (4 total)
+      expect(otpFields).toHaveLength(4);
     });
 
-    it('should disable username button when username is empty', async () => {
+    it('should not render username field when username is empty', async () => {
       render(
         <SelectionView
           onRegister={jest.fn()}
-          initialRecords={mockRecordsWithEmptyFields}
-          allRecords={mockRecordsWithEmptyFields}
+          initialRecords={[mockRecordsWithEmptyFields[1]]} // Empty Username record
+          allRecords={[mockRecordsWithEmptyFields[1]]}
         />
       );
 
@@ -527,21 +526,19 @@ describe('SelectionView - URL and Name Matching', () => {
         expect(screen.getByText('Empty Username')).toBeInTheDocument();
       });
 
-      const usernameButtons = screen.getAllByText('ユーザー名');
-
-      // First record (Complete Record) should have enabled username button
-      expect(usernameButtons[0]).not.toBeDisabled();
-
-      // Second record (Empty Username) should have disabled username button
-      expect(usernameButtons[1]).toBeDisabled();
+      // Should not have username field for this record
+      expect(screen.queryByText('ユーザー名')).not.toBeInTheDocument();
+      // Should have password and OTP fields
+      expect(screen.getByText('パスワード')).toBeInTheDocument();
+      expect(screen.getByText('ワンタイムパスワード')).toBeInTheDocument();
     });
 
-    it('should disable password button when password is empty', async () => {
+    it('should not render password field when password is empty', async () => {
       render(
         <SelectionView
           onRegister={jest.fn()}
-          initialRecords={mockRecordsWithEmptyFields}
-          allRecords={mockRecordsWithEmptyFields}
+          initialRecords={[mockRecordsWithEmptyFields[2]]} // Empty Password record
+          allRecords={[mockRecordsWithEmptyFields[2]]}
         />
       );
 
@@ -549,21 +546,19 @@ describe('SelectionView - URL and Name Matching', () => {
         expect(screen.getByText('Empty Password')).toBeInTheDocument();
       });
 
-      const passwordButtons = screen.getAllByText('パスワード');
-
-      // First record (Complete Record) should have enabled password button
-      expect(passwordButtons[0]).not.toBeDisabled();
-
-      // Third record (Empty Password) should have disabled password button
-      expect(passwordButtons[2]).toBeDisabled();
+      // Should have username and OTP fields
+      expect(screen.getByText('ユーザー名')).toBeInTheDocument();
+      expect(screen.getByText('ワンタイムパスワード')).toBeInTheDocument();
+      // Should not have password field for this record
+      expect(screen.queryByText('パスワード')).not.toBeInTheDocument();
     });
 
-    it('should disable OTP button when otpAuthUri is empty', async () => {
+    it('should not render OTP field when otpAuthUri is empty', async () => {
       render(
         <SelectionView
           onRegister={jest.fn()}
-          initialRecords={mockRecordsWithEmptyFields}
-          allRecords={mockRecordsWithEmptyFields}
+          initialRecords={[mockRecordsWithEmptyFields[3]]} // Empty OTP record
+          allRecords={[mockRecordsWithEmptyFields[3]]}
         />
       );
 
@@ -571,53 +566,44 @@ describe('SelectionView - URL and Name Matching', () => {
         expect(screen.getByText('Empty OTP')).toBeInTheDocument();
       });
 
-      // Get all buttons and filter for OTP buttons specifically
-      const allButtons = screen.getAllByRole('button');
-      const otpButtons = allButtons.filter((button) =>
-        button.className.includes('otp-button')
-      );
-
-      // Fourth record (Empty OTP) should have disabled OTP button
-      expect(otpButtons[3]).toBeDisabled();
-
-      // Fifth record (All Empty) should have disabled OTP button
-      expect(otpButtons[4]).toBeDisabled();
+      // Should have username and password fields
+      expect(screen.getByText('ユーザー名')).toBeInTheDocument();
+      expect(screen.getByText('パスワード')).toBeInTheDocument();
+      // Should not have OTP field for this record
+      expect(
+        screen.queryByText('ワンタイムパスワード')
+      ).not.toBeInTheDocument();
     });
 
-    it('should disable all buttons when all fields are empty', async () => {
+    it('should not display records when all fields are empty', async () => {
       render(
         <SelectionView
           onRegister={jest.fn()}
-          initialRecords={mockRecordsWithEmptyFields}
-          allRecords={mockRecordsWithEmptyFields}
+          initialRecords={[mockRecordsWithEmptyFields[4]]} // All Empty record
+          allRecords={[mockRecordsWithEmptyFields[4]]}
         />
       );
 
       await waitFor(() => {
-        expect(screen.getByText('All Empty')).toBeInTheDocument();
+        expect(screen.getByText('レコードがありません')).toBeInTheDocument();
       });
 
-      const usernameButtons = screen.getAllByText('ユーザー名');
-      const passwordButtons = screen.getAllByText('パスワード');
-
-      // Get all buttons and filter for OTP buttons specifically
-      const allButtons = screen.getAllByRole('button');
-      const otpButtons = allButtons.filter((button) =>
-        button.className.includes('otp-button')
-      );
-
-      // Fifth record (All Empty) should have all buttons disabled
-      expect(usernameButtons[4]).toBeDisabled();
-      expect(passwordButtons[4]).toBeDisabled();
-      expect(otpButtons[4]).toBeDisabled();
+      // Should not display the "All Empty" record at all
+      expect(screen.queryByText('All Empty')).not.toBeInTheDocument();
+      // Should not have any field components
+      expect(screen.queryByText('ユーザー名')).not.toBeInTheDocument();
+      expect(screen.queryByText('パスワード')).not.toBeInTheDocument();
+      expect(
+        screen.queryByText('ワンタイムパスワード')
+      ).not.toBeInTheDocument();
     });
 
-    it('should not disable HOTP button when otpAuthUri contains HOTP', async () => {
+    it('should render OTP field for HOTP records', async () => {
       render(
         <SelectionView
           onRegister={jest.fn()}
-          initialRecords={mockRecordsWithEmptyFields}
-          allRecords={mockRecordsWithEmptyFields}
+          initialRecords={[mockRecordsWithEmptyFields[5]]} // HOTP Record
+          allRecords={[mockRecordsWithEmptyFields[5]]}
         />
       );
 
@@ -625,14 +611,34 @@ describe('SelectionView - URL and Name Matching', () => {
         expect(screen.getByText('HOTP Record')).toBeInTheDocument();
       });
 
-      // Get all buttons and filter for OTP buttons specifically
-      const allButtons = screen.getAllByRole('button');
-      const otpButtons = allButtons.filter((button) =>
-        button.className.includes('otp-button')
+      // Should have all field components including OTP for HOTP record
+      expect(screen.getByText('ユーザー名')).toBeInTheDocument();
+      expect(screen.getByText('パスワード')).toBeInTheDocument();
+      expect(screen.getByText('ワンタイムパスワード')).toBeInTheDocument();
+    });
+
+    it('should exclude all-empty records from mixed record list', async () => {
+      render(
+        <SelectionView
+          onRegister={jest.fn()}
+          initialRecords={mockRecordsWithEmptyFields}
+          allRecords={mockRecordsWithEmptyFields}
+        />
       );
 
-      // Sixth record (HOTP Record) should have enabled OTP button even without otpData
-      expect(otpButtons[5]).not.toBeDisabled();
+      await waitFor(() => {
+        expect(screen.getByText('Complete Record')).toBeInTheDocument();
+      });
+
+      // Should display valid records
+      expect(screen.getByText('Complete Record')).toBeInTheDocument();
+      expect(screen.getByText('Empty Username')).toBeInTheDocument();
+      expect(screen.getByText('Empty Password')).toBeInTheDocument();
+      expect(screen.getByText('Empty OTP')).toBeInTheDocument();
+      expect(screen.getByText('HOTP Record')).toBeInTheDocument();
+
+      // Should not display the "All Empty" record
+      expect(screen.queryByText('All Empty')).not.toBeInTheDocument();
     });
   });
 
@@ -644,7 +650,7 @@ describe('SelectionView - URL and Name Matching', () => {
         url: 'https://test.example.com',
         username: 'testuser',
         password: 'testpass',
-        otpAuthUri: 'otpauth://totp/test1',
+        otpAuthUri: 'otpauth://totp/Test:testuser?secret=JBSWY3DPEHPK3PXP&issuer=Test',
         updatedTime: '2023-01-01T00:00:00Z',
       },
     ];
@@ -682,206 +688,6 @@ describe('SelectionView - URL and Name Matching', () => {
       });
     });
 
-    it('should call navigator.clipboard.writeText when username button is clicked', async () => {
-      render(
-        <SelectionView
-          onRegister={jest.fn()}
-          initialRecords={testRecords}
-          allRecords={testRecords}
-        />
-      );
-
-      await waitFor(() => {
-        expect(screen.getByText('Test Site')).toBeInTheDocument();
-      });
-
-      const usernameButton = screen.getByText('ユーザー名');
-      fireEvent.click(usernameButton);
-
-      await waitFor(() => {
-        expect(mockClipboard.writeText).toHaveBeenCalledWith('testuser');
-      });
-    });
-
-    it('should call navigator.clipboard.writeText when password button is clicked', async () => {
-      render(
-        <SelectionView
-          onRegister={jest.fn()}
-          initialRecords={testRecords}
-          allRecords={testRecords}
-        />
-      );
-
-      await waitFor(() => {
-        expect(screen.getByText('Test Site')).toBeInTheDocument();
-      });
-
-      const passwordButton = screen.getByText('パスワード');
-      fireEvent.click(passwordButton);
-
-      await waitFor(() => {
-        expect(mockClipboard.writeText).toHaveBeenCalledWith('testpass');
-      });
-    });
-
-    it('should call navigator.clipboard.writeText when OTP button is clicked', async () => {
-      render(
-        <SelectionView
-          onRegister={jest.fn()}
-          initialRecords={testRecords}
-          allRecords={testRecords}
-        />
-      );
-
-      await waitFor(() => {
-        expect(screen.getByText('Test Site')).toBeInTheDocument();
-      });
-
-      const allButtons = screen.getAllByRole('button');
-      const otpButton = allButtons.find((button) =>
-        button.className.includes('otp-button')
-      );
-      expect(otpButton).toBeTruthy();
-
-      fireEvent.click(otpButton!);
-
-      // Should call clipboard API when OTP button is clicked
-      await waitFor(() => {
-        expect(mockClipboard.writeText).toHaveBeenCalled();
-      });
-    });
-
-    it('should show feedback when copy operation completes', async () => {
-      jest.useFakeTimers();
-
-      const { unmount } = render(
-        <SelectionView
-          onRegister={jest.fn()}
-          initialRecords={testRecords}
-          allRecords={testRecords}
-        />
-      );
-
-      await waitFor(() => {
-        expect(screen.getByText('Test Site')).toBeInTheDocument();
-      });
-
-      const usernameButton = screen.getByText('ユーザー名');
-      const originalText = usernameButton.textContent;
-
-      // Focus the button before clicking to ensure document.activeElement is set correctly
-      usernameButton.focus();
-      fireEvent.click(usernameButton);
-
-      // Should show success feedback immediately
-      await waitFor(() => {
-        expect(usernameButton.textContent).toBe('コピーしました!');
-      });
-
-      // Advance timers by 1000ms to trigger text restoration
-      act(() => {
-        jest.advanceTimersByTime(1000);
-      });
-
-      // Should restore original text after timeout
-      expect(usernameButton.textContent).toBe(originalText);
-      expect(mockClipboard.writeText).toHaveBeenCalledWith('testuser');
-
-      unmount();
-      jest.useRealTimers();
-    });
-
-    it('should handle copy errors gracefully', async () => {
-      jest.useFakeTimers();
-
-      // Mock clipboard API to reject
-      mockClipboard.writeText.mockRejectedValue(
-        new Error('Clipboard API failed')
-      );
-
-      const consoleSpy = jest
-        .spyOn(console, 'error')
-        .mockImplementation(() => {});
-
-      const { unmount } = render(
-        <SelectionView
-          onRegister={jest.fn()}
-          initialRecords={testRecords}
-          allRecords={testRecords}
-        />
-      );
-
-      await waitFor(() => {
-        expect(screen.getByText('Test Site')).toBeInTheDocument();
-      });
-
-      const usernameButton = screen.getByText('ユーザー名');
-      const originalText = usernameButton.textContent;
-
-      // Focus the button before clicking to ensure document.activeElement is set correctly
-      usernameButton.focus();
-      fireEvent.click(usernameButton);
-
-      // Should show error feedback
-      await waitFor(() => {
-        expect(usernameButton.textContent).toBe('コピー失敗');
-      });
-
-      // Advance timers by 1000ms to trigger text restoration
-      act(() => {
-        jest.advanceTimersByTime(1000);
-      });
-
-      // Should restore original text after timeout
-      expect(usernameButton.textContent).toBe(originalText);
-      expect(consoleSpy).toHaveBeenCalledWith(
-        'Failed to copy to clipboard:',
-        expect.any(Error)
-      );
-
-      consoleSpy.mockRestore();
-      // Reset clipboard mock to success for subsequent tests
-      mockClipboard.writeText.mockResolvedValue(undefined);
-      unmount();
-      jest.useRealTimers();
-    });
-
-    it('should handle clipboard API errors', async () => {
-      // Mock clipboard API to reject
-      mockClipboard.writeText.mockRejectedValue(
-        new Error('Clipboard API failed')
-      );
-
-      const consoleSpy = jest
-        .spyOn(console, 'error')
-        .mockImplementation(() => {});
-
-      render(
-        <SelectionView
-          onRegister={jest.fn()}
-          initialRecords={testRecords}
-          allRecords={testRecords}
-        />
-      );
-
-      await waitFor(() => {
-        expect(screen.getByText('Test Site')).toBeInTheDocument();
-      });
-
-      const usernameButton = screen.getByText('ユーザー名');
-      fireEvent.click(usernameButton);
-
-      // Should log error when clipboard API fails
-      await waitFor(() => {
-        expect(consoleSpy).toHaveBeenCalledWith(
-          'Failed to copy to clipboard:',
-          expect.any(Error)
-        );
-      });
-
-      consoleSpy.mockRestore();
-    });
-
     it('should call onFieldSelect callback when in modal mode instead of copying', async () => {
       const mockOnFieldSelect = jest.fn();
 
@@ -907,39 +713,6 @@ describe('SelectionView - URL and Name Matching', () => {
         'testuser',
         '1'
       );
-      expect(mockClipboard.writeText).not.toHaveBeenCalled();
-    });
-
-    it('should not attempt copy when button is disabled due to empty field', async () => {
-      const emptyFieldRecord: KintoneRecord[] = [
-        {
-          recordId: '1',
-          name: 'Empty Fields',
-          url: 'https://test.example.com',
-          username: '',
-          password: '',
-          otpAuthUri: '',
-          updatedTime: '2023-01-01T00:00:00Z',
-        },
-      ];
-
-      render(
-        <SelectionView
-          onRegister={jest.fn()}
-          initialRecords={emptyFieldRecord}
-          allRecords={emptyFieldRecord}
-        />
-      );
-
-      await waitFor(() => {
-        expect(screen.getByText('Empty Fields')).toBeInTheDocument();
-      });
-
-      const usernameButton = screen.getByText('ユーザー名');
-      expect(usernameButton).toBeDisabled();
-
-      fireEvent.click(usernameButton);
-
       expect(mockClipboard.writeText).not.toHaveBeenCalled();
     });
   });

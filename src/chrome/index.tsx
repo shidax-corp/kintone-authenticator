@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { SelectionView } from './popup/SelectionView';
+import { AuthenticatorWrapper } from '@components/AuthenticatorWrapper';
 import { RegisterForm } from './popup/RegisterForm';
+import GlobalStyle from '@components/GlobalStyle';
 
 type ViewMode = 'selection' | 'register';
 
@@ -25,18 +26,20 @@ const App: React.FC = () => {
   };
 
   return (
-    <div>
+    <>
       {viewMode === 'selection' && (
-        <SelectionView onRegister={() => handleRegister()} />
+        <AuthenticatorWrapper onRegister={() => handleRegister()} />
       )}
       {viewMode === 'register' && (
-        <RegisterForm
-          otpAuthUri={registerOtpUri}
-          onBack={handleBack}
-          onSuccess={handleRegistrationSuccess}
-        />
+        <GlobalStyle>
+          <RegisterForm
+            otpAuthUri={registerOtpUri}
+            onBack={handleBack}
+            onSuccess={handleRegistrationSuccess}
+          />
+        </GlobalStyle>
       )}
-    </div>
+    </>
   );
 };
 

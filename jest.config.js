@@ -7,6 +7,11 @@ export default {
   transform: {
     ...tsJestTransformCfg,
   },
+  moduleNameMapper: {
+    '^@lib/(.*)$': '<rootDir>/src/lib/$1',
+    '^@components/(.*)$': '<rootDir>/src/components/$1',
+  },
+  setupFilesAfterEnv: ['<rootDir>/src/test-setup.js'],
   projects: [
     {
       displayName: 'node',
@@ -19,6 +24,10 @@ export default {
       transform: {
         ...tsJestTransformCfg,
       },
+      moduleNameMapper: {
+        '^@lib/(.*)$': '<rootDir>/src/lib/$1',
+        '^@components/(.*)$': '<rootDir>/src/components/$1',
+      },
     },
     {
       displayName: 'jsdom',
@@ -30,6 +39,11 @@ export default {
       transform: {
         ...tsJestTransformCfg,
       },
+      moduleNameMapper: {
+        '^@lib/(.*)$': '<rootDir>/src/lib/$1',
+        '^@components/(.*)$': '<rootDir>/src/components/$1',
+      },
+      setupFilesAfterEnv: ['<rootDir>/src/test-setup.js'],
     },
   ],
 };
