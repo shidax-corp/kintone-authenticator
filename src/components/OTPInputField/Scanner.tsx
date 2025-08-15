@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { readQRFromCanvas, QRReadError } from '@lib/qr-reader';
 
 export interface ScannerProps {
@@ -29,7 +29,6 @@ export default function Scanner({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const scanIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  const [isScanning, setIsScanning] = useState(false);
 
   const stopScanning = () => {
     if (scanIntervalRef.current) {
@@ -40,7 +39,6 @@ export default function Scanner({
       streamRef.current.getTracks().forEach((track) => track.stop());
       streamRef.current = null;
     }
-    setIsScanning(false);
   };
 
   const startCamera = async () => {
@@ -53,7 +51,6 @@ export default function Scanner({
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         await videoRef.current.play();
-        setIsScanning(true);
         startScanning();
       }
     } catch (error) {
@@ -78,7 +75,7 @@ export default function Scanner({
     const ctx = canvas.getContext('2d', { willReadFrequently: true });
 
     if (!ctx) {
-      onError(new QRReadError('Canvas context の取得に失敗しました'));
+      onError(new QRReadError('カメラの初期化に失敗しました'));
       return;
     }
 
