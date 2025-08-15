@@ -69,21 +69,9 @@ This is a kintone authenticator application similar to Google Authenticator, wit
    - OTPAuth URI のエンコード/デコード (`otpauth-uri.ts`)
    - QRコード読み取り機能 (`qr-reader.ts`)
    - URL検証ユーティリティ (`url.ts`)
+   - See also @docs/lib-catalog.md for details on available libraries.
 
-2. **Components** (`src/components/`) - Contains shared UI components between kintone and Chrome extension, such as:
-   - `AuthenticatorWrapper` - 認証アプリのメインラッパーコンポーネント
-   - `Button` - 汎用ボタンコンポーネント
-   - `CopyField` - クリップボードへのコピー機能付きフィールド
-   - `Field` - 基本的なフィールドコンポーネント
-   - `GlobalStyle` - グローバルスタイル設定
-   - `InputField` - 入力フィールドコンポーネント
-   - `OTPField` - OTP表示用フィールド（コピー機能付き）
-   - `OTPInputField/` - OTP入力関連コンポーネント群
-     - QRコードファイル読み取り
-     - カメラスキャナー
-     - クリップボードからのQRコード読み取り
-   - `PasswordField` - パスワード表示フィールド
-   - `TextField` - テキスト表示フィールド
+2. **Components** (`src/components/`) - Contains shared UI components between kintone and Chrome extension. See also @docs/component-catalog.md for details on available components.
 
 3. **Kintone App** (`src/kintone/`) - A customization for kintone that provides:
    - QR code reading functionality
@@ -98,9 +86,12 @@ This is a kintone authenticator application similar to Google Authenticator, wit
 ### Build System
 
 - Uses esbuild for bundling (`build.mjs`)
-- Two entry points:
+- Five entry points:
   - `src/kintone/index.tsx` → `dist/kintone/kintone-authenticator.js`
   - `src/chrome/index.tsx` → `dist/chrome/index.js`
+  - `src/chrome/background.ts` → `dist/chrome/background.js`
+  - `src/chrome/content.ts` → `dist/chrome/content.js`
+  - `src/chrome/options/index.tsx` → `dist/chrome/options/index.js`
 - Assets are copied from `assets/` to `dist/`
 - Path alias: `@lib/*` maps to `./src/lib/*`
 - Path alias: `@components/*` maps to `./src/components/*`
