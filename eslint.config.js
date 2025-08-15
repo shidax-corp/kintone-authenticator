@@ -30,20 +30,20 @@ export default [
         Image: 'readonly',
         crypto: 'readonly',
         navigator: 'readonly',
-        
-        // Node.js globals  
+
+        // Node.js globals
         process: 'readonly',
         Buffer: 'readonly',
         global: 'readonly',
         require: 'readonly',
         NodeJS: 'readonly',
-        
+
         // Chrome extension globals
         chrome: 'readonly',
-        
+
         // Kintone globals
         kintone: 'readonly',
-        
+
         // React/styled-jsx
         React: 'readonly',
       },
@@ -66,33 +66,7 @@ export default [
       // React Hooks rules
       ...reactHooks.configs.recommended.rules,
 
-      // React settings
-      'react/react-in-jsx-scope': 'off', // Not needed with React 17+ JSX transform
-      'react/prop-types': 'off', // Using TypeScript for prop validation
       'react/no-unknown-property': ['error', { ignore: ['jsx'] }], // Allow styled-jsx
-
-      // Disable rules that conflict with Prettier
-      'no-trailing-spaces': 'off',
-      'comma-dangle': 'off',
-      'semi': 'off',
-      'quotes': 'off',
-      'indent': 'off',
-      '@typescript-eslint/indent': 'off',
-
-      // TypeScript specific adjustments for the existing codebase
-      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
-      '@typescript-eslint/explicit-function-return-type': 'off',
-      '@typescript-eslint/explicit-module-boundary-types': 'off',
-      '@typescript-eslint/no-explicit-any': 'warn', // Warning instead of error for gradual migration
-      '@typescript-eslint/no-unsafe-assignment': 'off',
-      '@typescript-eslint/no-unsafe-member-access': 'off', 
-      '@typescript-eslint/no-unsafe-call': 'off',
-      '@typescript-eslint/no-unsafe-return': 'off',
-      '@typescript-eslint/no-require-imports': 'off', // Allow require in setup files
-
-      // Allow console.log for development
-      'no-console': 'warn',
-      'react/jsx-no-target-blank': 'warn', // Warning instead of error
     },
     settings: {
       react: {
@@ -123,6 +97,9 @@ export default [
       'no-console': 'off',
       // Allow any in test files for mock data
       '@typescript-eslint/no-explicit-any': 'off',
+
+      // Allow require in setup files
+      '@typescript-eslint/no-require-imports': ['error', { allow: ['crypto'] }],
     },
   },
 
