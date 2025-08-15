@@ -42,6 +42,8 @@ export default function GlobalStyle({ tint, children }: GlobalStyleProps) {
           --ka-field-padding: 8px 16px;
 
           color: var(--ka-fg-color);
+          font-family:
+            'メイリオ', 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif;
         }
       `}</style>
     </div>
