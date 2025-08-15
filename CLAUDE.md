@@ -38,12 +38,18 @@ npm run test
 
 This is a kintone authenticator application similar to Google Authenticator, with two main components:
 
-1. **Kintone App** (`src/kintone/`) - A customization for kintone that provides:
+1. **Library** (`src/lib/`) - Contains shared code for:
+   - _TODO: write documentation here_
+
+2. **Components** (`src/components/`) - Contains shared UI components between kintone and Chrome extension, such as:
+   - _TODO: write documentation here_
+
+3. **Kintone App** (`src/kintone/`) - A customization for kintone that provides:
    - QR code reading functionality
    - OTP generation and management
    - Read [kintone requirements](docs/kintone-requirements.md) for more details.
 
-2. **Chrome Extension** (`src/chrome/`) - Provides:
+4. **Chrome Extension** (`src/chrome/`) - Provides:
    - OTP generation capabilities
    - Auto-fill functionality for authentication
    - Read [Chrome extension requirements](docs/chrome-extension-requirements.md) for more details.
@@ -56,20 +62,40 @@ This is a kintone authenticator application similar to Google Authenticator, wit
   - `src/chrome/index.tsx` → `dist/chrome/index.js`
 - Assets are copied from `assets/` to `dist/`
 - Path alias: `@lib/*` maps to `./src/lib/*`
+- Path alias: `@components/*` maps to `./src/components/*`
 - Development server available at http://localhost:8000 with `npm run dev`
 
 ## Development Guidelines
 
-- Write comments in English. Clear and self-explanatory codes are preferred over excessive comments.
+- Write comments and documents in Japanese. Clear and self-explanatory codes are preferred over excessive comments.
 - Write unit tests when adding or modifying features.
 - Check tests covers user's requirements, and it passes all tests.
+- Use `@lib/*` and `@components/*` for importing libraries and components. Do not use relative path imports like `../../lib/` or `../../../components/` for importing files in these two directories
 - Run `npm run format && npm run check && npm run test` before committing.
 - DO NOT use `as unknown` or `as any` in TypeScript. Use proper type definitions.
 
 ## Git guidelines
 
-- For commit message, use the semantic commit messages in English. For example: `feat(kintone): add QR code scanning feature` or `fix(chrome): resolve auto-fill issue #123`.
+- For commit message, use the semantic commit messages in Japanese. For example: `feat(kintone): QRコードを読み取る機能を実装` or `fix(chrome): 自動入力の問題を修正 #123`.
+  - Use the following commit message types:
+    - `feat`: about new features or enhancements
+    - `fix`: fixes for bugs
+    - `docs`: documentation changes
+    - `style`: code style changes (e.g., formatting, missing semicolons, etc.)
+    - `refactor`: code refactoring without changing functionality
+    - `design`: design changes without changing functionality (e.g., UI/UX improvements)
+    - `perf`: performance improvements
+    - `test`: adding or modifying tests
+    - `chore`: other changes that do not fit into the above categories (e.g., build process, CI configuration, etc.)
+  - Use the following prefix scopes:
+    - `xxx(kintone):` for kintone app related changes
+    - `xxx(chrome):` for Chrome extension related changes
+    - `xxx(lib):` for library related changes
+    - `xxx(components):` for shared components related changes
+    - `xxx(docs):` for documentation related changes
+    - `xxx:` for general changes not specific to any component
 - Separate commits for different features or fixes.
 - For issues and PR, use a concise title and a detailed description.
 - Use the label named `AI Created` for issues and PRs created by AI assistants. And set another proper labels if necessary.
+- Write issues and PR descriptions in Japanese, but you can use English for technical terms.
 - Write `(Written by Claude Code)` or `(Written by GitHub Copilot)` in the bottom of the Issue or PR description to indicate AI assistance.
