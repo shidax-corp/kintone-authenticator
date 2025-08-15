@@ -29,7 +29,8 @@ describe('SelectionView - URL and Name Matching', () => {
       url: 'https://github.com/login',
       username: 'user1',
       password: 'pass1',
-      otpAuthUri: 'otpauth://totp/GitHub:user1?secret=JBSWY3DPEHPK3PXP&issuer=GitHub',
+      otpAuthUri:
+        'otpauth://totp/GitHub:user1?secret=JBSWY3DPEHPK3PXP&issuer=GitHub',
       updatedTime: '2023-01-01T00:00:00Z',
     },
     {
@@ -38,7 +39,8 @@ describe('SelectionView - URL and Name Matching', () => {
       url: 'https://github.com/*',
       username: 'user2',
       password: 'pass2',
-      otpAuthUri: 'otpauth://totp/GitHub:user2?secret=GEZDGNBVGY3TQOJQ&issuer=GitHub',
+      otpAuthUri:
+        'otpauth://totp/GitHub:user2?secret=GEZDGNBVGY3TQOJQ&issuer=GitHub',
       updatedTime: '2023-01-02T00:00:00Z',
     },
     {
@@ -47,7 +49,8 @@ describe('SelectionView - URL and Name Matching', () => {
       url: 'https://example.com/login',
       username: 'user3',
       password: 'pass3',
-      otpAuthUri: 'otpauth://totp/Example:user3?secret=MFRGGZDFMZTWQ2LK&issuer=Example',
+      otpAuthUri:
+        'otpauth://totp/Example:user3?secret=MFRGGZDFMZTWQ2LK&issuer=Example',
       updatedTime: '2023-01-03T00:00:00Z',
     },
     {
@@ -56,7 +59,8 @@ describe('SelectionView - URL and Name Matching', () => {
       url: 'https://test.service.com/*',
       username: 'user4',
       password: 'pass4',
-      otpAuthUri: 'otpauth://totp/TestService:user4?secret=NNXWGZDBOQYTOMZR&issuer=TestService',
+      otpAuthUri:
+        'otpauth://totp/TestService:user4?secret=NNXWGZDBOQYTOMZR&issuer=TestService',
       updatedTime: '2023-01-04T00:00:00Z',
     },
     {
@@ -65,7 +69,8 @@ describe('SelectionView - URL and Name Matching', () => {
       url: 'https://subdomain.cybozu.com/k/*',
       username: 'user5',
       password: 'pass5',
-      otpAuthUri: 'otpauth://totp/Kintone:user5?secret=OVZWK4RMEBRW633E&issuer=Kintone',
+      otpAuthUri:
+        'otpauth://totp/Kintone:user5?secret=OVZWK4RMEBRW633E&issuer=Kintone',
       updatedTime: '2023-01-05T00:00:00Z',
     },
   ];
@@ -308,7 +313,8 @@ describe('SelectionView - URL and Name Matching', () => {
           url: '*.example.com',
           username: 'user6',
           password: 'pass6',
-          otpAuthUri: 'otpauth://totp/Example:user6?secret=PJWXQZLDNBSWY3DP&issuer=Example',
+          otpAuthUri:
+            'otpauth://totp/Example:user6?secret=PJWXQZLDNBSWY3DP&issuer=Example',
           updatedTime: '2023-01-06T00:00:00Z',
         },
       ];
@@ -411,7 +417,8 @@ describe('SelectionView - URL and Name Matching', () => {
         url: 'https://example.com',
         username: 'user1',
         password: 'pass1',
-        otpAuthUri: 'otpauth://totp/Example:user1?secret=JBSWY3DPEHPK3PXP&issuer=Example',
+        otpAuthUri:
+          'otpauth://totp/Example:user1?secret=JBSWY3DPEHPK3PXP&issuer=Example',
         updatedTime: '2023-01-01T00:00:00Z',
       },
       {
@@ -420,7 +427,8 @@ describe('SelectionView - URL and Name Matching', () => {
         url: 'https://example2.com',
         username: '',
         password: 'pass2',
-        otpAuthUri: 'otpauth://totp/Example:pass2?secret=GEZDGNBVGY3TQOJQ&issuer=Example',
+        otpAuthUri:
+          'otpauth://totp/Example:pass2?secret=GEZDGNBVGY3TQOJQ&issuer=Example',
         updatedTime: '2023-01-02T00:00:00Z',
       },
       {
@@ -429,7 +437,8 @@ describe('SelectionView - URL and Name Matching', () => {
         url: 'https://example3.com',
         username: 'user3',
         password: '',
-        otpAuthUri: 'otpauth://totp/Example:user3?secret=MFRGGZDFMZTWQ2LK&issuer=Example',
+        otpAuthUri:
+          'otpauth://totp/Example:user3?secret=MFRGGZDFMZTWQ2LK&issuer=Example',
         updatedTime: '2023-01-03T00:00:00Z',
       },
       {
@@ -650,7 +659,8 @@ describe('SelectionView - URL and Name Matching', () => {
         url: 'https://test.example.com',
         username: 'testuser',
         password: 'testpass',
-        otpAuthUri: 'otpauth://totp/Test:testuser?secret=JBSWY3DPEHPK3PXP&issuer=Test',
+        otpAuthUri:
+          'otpauth://totp/Test:testuser?secret=JBSWY3DPEHPK3PXP&issuer=Test',
         updatedTime: '2023-01-01T00:00:00Z',
       },
     ];
