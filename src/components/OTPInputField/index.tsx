@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
-import type { ClipboardEvent } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import { decodeOTPAuthURI } from '@lib/otpauth-uri';
-import { generateTOTP, generateHOTP } from '@lib/gen-otp';
+import { generateTOTP, generateHOTP, prettifyOTP } from '@lib/gen-otp';
 import Field from '@components/Field';
 
 import Scanner from './Scanner';
@@ -32,7 +31,7 @@ export default function OTPInputField({
   const [scanning, setScanning] = useState<boolean>(false);
   const [reading, setReading] = useState<boolean>(false);
 
-  const handleChange = async (uri: string) => {
+  const handleURI = async (uri: string) => {
     try {
       const record = decodeOTPAuthURI(uri);
       if (record.type === 'TOTP') {
@@ -42,12 +41,25 @@ export default function OTPInputField({
         const otp = await generateHOTP(record, record.counter);
         setCode(otp.otp);
       }
-      onChange(uri);
       setError(null);
     } catch (err) {
       console.error('Error processing OTP URI:', err);
-      setError(err instanceof Error ? err.message : '読み取れませんでした');
+      setError('読み取れませんでした');
+      throw err;
     }
+  };
+
+  useEffect(() => {
+    if (value) {
+      handleURI(value).catch((err) => {
+        /* handleURIの中ですでに処理済みなので無視して良い */
+      });
+    }
+  }, [value]);
+
+  const handleChange = async (uri: string) => {
+    await handleURI(uri);
+    onChange(uri);
   };
 
   const readFromClipboard = () => {
@@ -57,7 +69,7 @@ export default function OTPInputField({
   return (
     <Field label={label}>
       <div>
-        <span>{code ? code : '未設定'}</span>
+        <span>{code ? prettifyOTP(code) : '未設定'}</span>
         <button onClick={() => setScanning(true)}>スキャン</button>
         <button onClick={() => setReading(true)}>参照</button>
         <button onClick={() => readFromClipboard()}>貼り付け</button>
@@ -95,10 +107,13 @@ export default function OTPInputField({
           display: flex;
           gap: 8px;
           padding: var(--ka-field-padding);
+          background-color: var(--ka-bg-color);
         }
         span {
           color: var(--ka-fg-light-color);
-          margin-right: 12px;
+          margin-right: 4px;
+          padding-right: 20px;
+          border-right: 1px solid rgba(var(--ka-fg-rgb), 0.4);
         }
         button {
           background: none;
