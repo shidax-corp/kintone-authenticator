@@ -58,20 +58,7 @@ This is a kintone authenticator application similar to Google Authenticator, wit
    - QRコード読み取り機能 (`qr-reader.ts`)
    - URL検証ユーティリティ (`url.ts`)
 
-2. **Components** (`src/components/`) - Contains shared UI components between kintone and Chrome extension, such as:
-   - `AuthenticatorWrapper` - 認証アプリのメインラッパーコンポーネント
-   - `Button` - 汎用ボタンコンポーネント
-   - `CopyField` - クリップボードへのコピー機能付きフィールド
-   - `Field` - 基本的なフィールドコンポーネント
-   - `GlobalStyle` - グローバルスタイル設定
-   - `InputField` - 入力フィールドコンポーネント
-   - `OTPField` - OTP表示用フィールド（コピー機能付き）
-   - `OTPInputField/` - OTP入力関連コンポーネント群
-     - QRコードファイル読み取り
-     - カメラスキャナー
-     - クリップボードからのQRコード読み取り
-   - `PasswordField` - パスワード表示フィールド
-   - `TextField` - テキスト表示フィールド
+2. **Components** (`src/components/`) - Contains shared UI components between kintone and Chrome extension. See also @docs/components-catalog.md for details on available components.
 
 3. **Kintone App** (`src/kintone/`) - A customization for kintone that provides:
    - QR code reading functionality
