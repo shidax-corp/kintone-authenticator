@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { decodeOTPAuthURI } from '../../lib/otpauth-uri';
-import { isOTPAuthURI } from '../../lib/qr-reader';
+
+import { decodeOTPAuthURI, isValidOTPAuthURI } from '@lib/otpauth-uri';
 import InputField from '@components/InputField';
 
 interface RegisterFormProps {
@@ -40,19 +40,22 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
     });
 
     // If OTPAuth URI is provided, extract information
-    if (otpAuthUri && isOTPAuthURI(otpAuthUri)) {
-      try {
-        const parsed = decodeOTPAuthURI(otpAuthUri);
-        setFormData((prev) => ({
-          ...prev,
-          name: prev.name || parsed.issuer || parsed.accountName || '',
-          username: prev.username || parsed.accountName || '',
-        }));
-      } catch (error) {
-        console.error('Failed to parse OTPAuth URI:', error);
-        setError('OTPAuth URIの解析に失敗しました');
+    if (!otpAuthUri) return;
+    isValidOTPAuthURI(otpAuthUri).then((isValid) => {
+      if (isValid) {
+        try {
+          const parsed = decodeOTPAuthURI(otpAuthUri);
+          setFormData((prev) => ({
+            ...prev,
+            name: prev.name || parsed.issuer || parsed.accountName || '',
+            username: prev.username || parsed.accountName || '',
+          }));
+        } catch (error) {
+          console.error('Failed to parse OTPAuth URI:', error);
+          setError('OTPAuth URIの解析に失敗しました');
+        }
       }
-    }
+    });
   }, [otpAuthUri]);
 
   const handleInputChange = (field: keyof typeof formData, value: string) => {
@@ -64,7 +67,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
     setFieldErrors((prev) => ({ ...prev, [field]: '' }));
   };
 
-  const validateForm = (): boolean => {
+  const validateForm = async (): Promise<boolean> => {
     const errors: { [key: string]: string } = {};
 
     if (!formData.name.trim()) {
@@ -79,7 +82,10 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
     if (!formData.password.trim()) {
       errors.password = 'パスワードは必須です';
     }
-    if (formData.otpAuthUri.trim() && !isOTPAuthURI(formData.otpAuthUri)) {
+    if (
+      formData.otpAuthUri.trim() &&
+      !(await isValidOTPAuthURI(formData.otpAuthUri))
+    ) {
       errors.otpAuthUri = '有効なOTPAuth URIではありません';
     }
 
@@ -378,14 +384,15 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
           <div className="help-text">
             QRコードから読み取ったOTPAuth URIを入力してください
           </div>
-          {formData.otpAuthUri && isOTPAuthURI(formData.otpAuthUri) && (
-            <div className="otp-preview">
-              <div className="otp-preview-title">✓ 有効なOTPAuth URI</div>
-              <div className="otp-preview-info">
-                二段階認証のワンタイムパスワードが生成できます
+          {formData.otpAuthUri &&
+            formData.otpAuthUri.startsWith('otpauth://') && (
+              <div className="otp-preview">
+                <div className="otp-preview-title">✓ 有効なOTPAuth URI</div>
+                <div className="otp-preview-info">
+                  二段階認証のワンタイムパスワードが生成できます
+                </div>
               </div>
-            </div>
-          )}
+            )}
         </div>
       </form>
 

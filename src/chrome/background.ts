@@ -1,15 +1,15 @@
+import { readQRFromImage } from '@lib/qr-reader';
+import { generateTOTP } from '@lib/gen-otp';
+import { decodeOTPAuthURI, isValidOTPAuthURI } from '@lib/otpauth-uri';
+
 import { getSettings, isSettingsComplete } from './lib/storage';
 import { KintoneClient } from './lib/kintone-client';
 import { getMatchingRecords } from './lib/url-matcher';
-import { readQRFromImage, isOTPAuthURI } from '../lib/qr-reader';
-import { generateTOTP } from '../lib/gen-otp';
-import { decodeOTPAuthURI } from '../lib/otpauth-uri';
 import type {
   Message,
   ReadQRMessage,
   RegisterOTPMessage,
   GetRecordsMessage,
-  FillInputMessage,
   GetOTPMessage,
 } from './lib/types';
 
@@ -123,7 +123,7 @@ const handleReadQR = async (tabId: number, imageUrl: string) => {
   try {
     const qrData = await readQRFromImage(imageUrl);
 
-    if (isOTPAuthURI(qrData)) {
+    if (await isValidOTPAuthURI(qrData)) {
       chrome.tabs.sendMessage(tabId, {
         type: 'OPEN_REGISTER_FORM',
         data: { otpAuthUri: qrData },

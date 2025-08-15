@@ -1,5 +1,6 @@
 import type { HashAlgorithm } from './hmac';
 import { b32encode, b32decode } from './base32';
+import { generateHOTP, generateTOTP } from './gen-otp';
 
 type OTPAuthRecordBase = {
   issuer: string;
@@ -84,7 +85,7 @@ export const decodeOTPAuthURI = (uri: string): OTPAuthRecord => {
       digits,
       period,
     };
-  } else {
+  } else if (type === 'HOTP') {
     return {
       type: 'HOTP' as const,
       issuer,
@@ -94,5 +95,21 @@ export const decodeOTPAuthURI = (uri: string): OTPAuthRecord => {
       digits,
       counter,
     };
+  } else {
+    throw new Error(`Unsupported OTP type: ${type}`);
   }
+};
+
+export const isValidOTPAuthURI = async (uri: string): Promise<boolean> => {
+  try {
+    const otp = decodeOTPAuthURI(uri);
+    if (otp.type === 'HOTP') {
+      await generateHOTP(otp, otp.counter);
+    } else {
+      await generateTOTP(otp);
+    }
+  } catch {
+    return false;
+  }
+  return true;
 };

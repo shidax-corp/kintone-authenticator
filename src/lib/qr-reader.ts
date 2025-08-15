@@ -103,7 +103,3 @@ export const readQRFromElement = async (
 
   throw new QRReadError('Element type not supported for QR code reading');
 };
-
-export const isOTPAuthURI = (uri: string): boolean => {
-  return uri.startsWith('otpauth://totp/') || uri.startsWith('otpauth://hotp/');
-};
