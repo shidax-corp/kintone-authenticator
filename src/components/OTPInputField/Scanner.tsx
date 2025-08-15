@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useCallback } from 'react';
 import { readQRFromCanvas, QRReadError } from '@lib/qr-reader';
 
 export interface ScannerProps {
@@ -30,7 +30,7 @@ export default function Scanner({
   const streamRef = useRef<MediaStream | null>(null);
   const scanIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  const stopScanning = () => {
+  const stopScanning = useCallback(() => {
     if (scanIntervalRef.current) {
       clearInterval(scanIntervalRef.current);
       scanIntervalRef.current = null;
@@ -39,35 +39,9 @@ export default function Scanner({
       streamRef.current.getTracks().forEach((track) => track.stop());
       streamRef.current = null;
     }
-  };
+  }, []);
 
-  const startCamera = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'environment' },
-      });
-      streamRef.current = stream;
-
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        await videoRef.current.play();
-        startScanning();
-      }
-    } catch (error) {
-      let errorMessage = 'カメラの起動に失敗しました';
-      if (error instanceof DOMException) {
-        if (error.name === 'NotAllowedError') {
-          errorMessage = 'カメラへのアクセスが許可されていません';
-        } else if (error.name === 'NotFoundError') {
-          errorMessage = 'カメラが見つかりません';
-        }
-      }
-      onError(new Error(errorMessage));
-      onClose();
-    }
-  };
-
-  const startScanning = () => {
+  const startScanning = useCallback(() => {
     if (!videoRef.current || !canvasRef.current) return;
 
     const video = videoRef.current;
@@ -92,12 +66,38 @@ export default function Scanner({
             onRead(qrData);
             onClose();
           }
-        } catch (error) {
+        } catch {
           // QRコードが見つからない場合は継続してスキャン
         }
       }
     }, 200);
-  };
+  }, [onError, onRead, onClose, stopScanning]);
+
+  const startCamera = useCallback(async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'environment' },
+      });
+      streamRef.current = stream;
+
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        await videoRef.current.play();
+        startScanning();
+      }
+    } catch (error) {
+      let errorMessage = 'カメラの起動に失敗しました';
+      if (error instanceof DOMException) {
+        if (error.name === 'NotAllowedError') {
+          errorMessage = 'カメラへのアクセスが許可されていません';
+        } else if (error.name === 'NotFoundError') {
+          errorMessage = 'カメラが見つかりません';
+        }
+      }
+      onError(new Error(errorMessage));
+      onClose();
+    }
+  }, [onError, onClose, startScanning]);
 
   useEffect(() => {
     if (open) {
@@ -109,7 +109,7 @@ export default function Scanner({
     return () => {
       stopScanning();
     };
-  }, [open]);
+  }, [open, startCamera, stopScanning]);
 
   return (
     <div className={`outer ${open ? 'open' : ''}`} onClick={() => onClose()}>

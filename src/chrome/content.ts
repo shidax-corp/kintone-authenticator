@@ -1,8 +1,8 @@
 import React from 'react';
 import { isInputField, getFieldType, normalizeURL } from './lib/url-matcher';
-import { readQRFromElement } from '../lib/qr-reader';
 import { renderModalComponent, closeModal } from './lib/content-react-helper';
 import { AuthenticatorWrapper } from './AuthenticatorWrapper';
+import type { KintoneRecord } from './lib/types';
 
 let currentInputElement: HTMLElement | null = null;
 let autoFillExecuted = false;
@@ -19,7 +19,6 @@ const performAutoFill = async () => {
       return;
     }
 
-    const settings = response.data;
     const currentUrl = normalizeURL(window.location.href);
 
     const recordsResponse = await chrome.runtime.sendMessage({
@@ -55,8 +54,8 @@ const performAutoFill = async () => {
       inputField.dispatchEvent(new Event('input', { bubbles: true }));
       inputField.dispatchEvent(new Event('change', { bubbles: true }));
     });
-  } catch (error) {
-    console.error('Auto-fill failed:', error);
+  } catch {
+    // Auto-fill failures are not critical, silently ignore
   }
 };
 
@@ -109,11 +108,9 @@ const showToast = (message: string, type: 'success' | 'error' = 'success') => {
 };
 
 const showFillOptionsModal = async (
-  records: any[],
-  allRecords: any[],
-  currentUrl: string,
-  isGeneral: boolean,
-  title?: string
+  records: KintoneRecord[],
+  allRecords: KintoneRecord[],
+  currentUrl: string
 ) => {
   try {
     // レコードデータをStoreに保存するか、直接propsとして渡す
@@ -135,7 +132,7 @@ const showFillOptionsModal = async (
             showToast('OTPを入力しました');
             closeModal();
           }
-        } catch (error) {
+        } catch {
           showToast('OTPの取得に失敗しました', 'error');
         }
       } else if (currentInputElement) {
@@ -168,8 +165,7 @@ const showFillOptionsModal = async (
     });
 
     renderModalComponent(authenticatorElement);
-  } catch (error) {
-    console.error('Failed to show selection modal:', error);
+  } catch {
     showToast('モーダルの表示に失敗しました', 'error');
   }
 };
@@ -192,9 +188,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       showFillOptionsModal(
         message.data.records,
         message.data.allRecords,
-        message.data.currentUrl,
-        message.data.isGeneral,
-        message.data.title
+        message.data.currentUrl
       );
       break;
 

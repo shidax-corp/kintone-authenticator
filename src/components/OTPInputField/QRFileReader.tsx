@@ -59,10 +59,11 @@ export default function QRFileReader({
   }, [open]);
 
   useEffect(() => {
-    if (ref.current) {
-      ref.current.addEventListener('cancel', onClose);
+    const element = ref.current;
+    if (element) {
+      element.addEventListener('cancel', onClose);
       return () => {
-        ref.current?.removeEventListener('cancel', onClose);
+        element.removeEventListener('cancel', onClose);
       };
     }
   }, [onClose]);

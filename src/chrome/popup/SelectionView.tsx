@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { RecordItem } from './RecordItem';
-import { getSettings, isSettingsComplete } from '../lib/storage';
+import { isSettingsComplete } from '../lib/storage';
 import { matchURL } from '../lib/url-matcher';
 import type { KintoneRecord, ExtensionSettings } from '../lib/types';
 
@@ -35,15 +35,7 @@ export const SelectionView: React.FC<SelectionViewProps> = ({
   const [settings, setSettings] = useState<ExtensionSettings | null>(null);
   const [fetchError, setFetchError] = useState<boolean>(false);
 
-  useEffect(() => {
-    loadInitialData();
-  }, []);
-
-  useEffect(() => {
-    filterRecords();
-  }, [records, searchQuery]);
-
-  const loadInitialData = async () => {
+  const loadInitialData = useCallback(async () => {
     try {
       setFetchError(false);
 
@@ -76,14 +68,13 @@ export const SelectionView: React.FC<SelectionViewProps> = ({
           setRecords([]);
         }
       }
-    } catch (error) {
-      console.error('Failed to load data:', error);
+    } catch {
       setFetchError(true);
       setRecords([]);
     } finally {
       setLoading(false);
     }
-  };
+  }, [initialRecords, allRecords]);
 
   const refreshRecords = async () => {
     setRefreshing(true);
@@ -101,8 +92,7 @@ export const SelectionView: React.FC<SelectionViewProps> = ({
         setFetchError(true);
         setRecords([]);
       }
-    } catch (error) {
-      console.error('Failed to refresh records:', error);
+    } catch {
       setFetchError(true);
       setRecords([]);
     } finally {
@@ -114,7 +104,7 @@ export const SelectionView: React.FC<SelectionViewProps> = ({
     return !!(record.username || record.password || record.otpAuthUri);
   };
 
-  const filterRecords = () => {
+  const filterRecords = useCallback(() => {
     // 検索に使用するレコードを決定（allRecordsが利用可能ならそれを使用、そうでなければrecords）
     const searchableRecords = allRecords || records;
 
@@ -158,7 +148,15 @@ export const SelectionView: React.FC<SelectionViewProps> = ({
     });
 
     setFilteredRecords(filtered);
-  };
+  }, [allRecords, records, searchQuery]);
+
+  useEffect(() => {
+    loadInitialData();
+  }, [loadInitialData]);
+
+  useEffect(() => {
+    filterRecords();
+  }, [records, searchQuery, filterRecords]);
 
   if (loading) {
     return (

@@ -2,6 +2,24 @@ import { KintoneRestAPIClient } from '@kintone/rest-api-client';
 import { getCachedRecords, setCachedRecords } from './storage';
 import type { ExtensionSettings, KintoneRecord } from './types';
 
+interface KintoneFieldValue {
+  value: string;
+}
+
+interface KintoneRecordData {
+  $id: KintoneFieldValue;
+  name?: KintoneFieldValue;
+  url?: KintoneFieldValue;
+  username?: KintoneFieldValue;
+  password?: KintoneFieldValue;
+  otpuri?: KintoneFieldValue;
+  更新日時?: KintoneFieldValue;
+}
+
+interface RecordForParameter {
+  [key: string]: { value: unknown };
+}
+
 export class KintoneClientError extends Error {
   constructor(message: string) {
     super(message);
@@ -24,7 +42,7 @@ export class KintoneClient {
     this.appId = appId;
   }
 
-  private extractRecordData(record: any): KintoneRecord {
+  private extractRecordData(record: KintoneRecordData): KintoneRecord {
     return {
       recordId: record.$id.value,
       name: record.name?.value || '',
@@ -59,7 +77,7 @@ export class KintoneClient {
       });
 
       const records: KintoneRecord[] = response.records.map((record) =>
-        this.extractRecordData(record)
+        this.extractRecordData(record as unknown as KintoneRecordData)
       );
 
       await setCachedRecords(records);
@@ -120,7 +138,7 @@ export class KintoneClient {
     }
   ): Promise<void> {
     try {
-      const record: any = {};
+      const record: RecordForParameter = {};
       if (data.name !== undefined) record.name = { value: data.name };
       if (data.url !== undefined) record.url = { value: data.url };
       if (data.username !== undefined)

@@ -39,7 +39,7 @@ export type MessageType =
 
 export interface Message {
   type: MessageType;
-  data?: any;
+  data?: unknown;
 }
 
 export interface ReadQRMessage extends Message {

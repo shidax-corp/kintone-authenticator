@@ -1,4 +1,4 @@
-import React, { useState, useEffect, ReactNode } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import {
   decodeOTPAuthURI,
@@ -43,8 +43,7 @@ export default function OTPField({
     try {
       info = decodeOTPAuthURI(uri);
       setInfo(info);
-    } catch (e) {
-      console.error('Failed to decode OTP Auth URI:', e);
+    } catch {
       info = null;
     }
     if (!info) {
@@ -63,8 +62,7 @@ export default function OTPField({
               generatedOtp.availableUntil.getTime() - Date.now()
             );
           })
-          .catch((error) => {
-            console.error('Failed to generate TOTP:', error);
+          .catch(() => {
             setError('計算に失敗しました');
             setOtp(null);
           });
@@ -114,8 +112,7 @@ export default function OTPField({
             setSelection();
           }
         })
-        .catch((error) => {
-          console.error('Failed to generate HOTP:', error);
+        .catch(() => {
           setError('計算に失敗しました');
           setOtp(null);
         });

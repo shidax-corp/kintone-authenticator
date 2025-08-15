@@ -58,13 +58,17 @@ export const setCachedRecords = async (
       timestamp: Date.now(),
     };
     await chrome.storage.local.set({ [CACHE_KEY]: cache });
-  } catch {}
+  } catch {
+    // Cache storage failure is not critical, silently ignore
+  }
 };
 
 export const clearCache = async (): Promise<void> => {
   try {
     await chrome.storage.local.remove(CACHE_KEY);
-  } catch {}
+  } catch {
+    // Cache removal failure is not critical, silently ignore
+  }
 };
 
 export const clearAllData = async (): Promise<void> => {
