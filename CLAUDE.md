@@ -59,7 +59,7 @@ This is a kintone authenticator application similar to Google Authenticator, wit
    - URL検証ユーティリティ (`url.ts`)
    - See also @docs/lib-catalog.md for details on available libraries.
 
-2. **Components** (`src/components/`) - Contains shared UI components between kintone and Chrome extension. See also @docs/components-catalog.md for details on available components.
+2. **Components** (`src/components/`) - Contains shared UI components between kintone and Chrome extension. See also @docs/component-catalog.md for details on available components.
 
 3. **Kintone App** (`src/kintone/`) - A customization for kintone that provides:
    - QR code reading functionality
@@ -74,9 +74,12 @@ This is a kintone authenticator application similar to Google Authenticator, wit
 ### Build System
 
 - Uses esbuild for bundling (`build.mjs`)
-- Two entry points:
+- Five entry points:
   - `src/kintone/index.tsx` → `dist/kintone/kintone-authenticator.js`
   - `src/chrome/index.tsx` → `dist/chrome/index.js`
+  - `src/chrome/background.ts` → `dist/chrome/background.js`
+  - `src/chrome/content.ts` → `dist/chrome/content.js`
+  - `src/chrome/options/index.tsx` → `dist/chrome/options/index.js`
 - Assets are copied from `assets/` to `dist/`
 - Path alias: `@lib/*` maps to `./src/lib/*`
 - Path alias: `@components/*` maps to `./src/components/*`
