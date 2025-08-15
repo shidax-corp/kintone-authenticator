@@ -2,7 +2,7 @@ import React from 'react';
 import { isInputField, getFieldType, normalizeURL } from './lib/url-matcher';
 import { readQRFromElement } from '../lib/qr-reader';
 import { renderModalComponent, closeModal } from './lib/content-react-helper';
-import { AuthenticatorWrapper } from '@components/AuthenticatorWrapper';
+import { AuthenticatorWrapper } from './AuthenticatorWrapper';
 
 let currentInputElement: HTMLElement | null = null;
 let autoFillExecuted = false;

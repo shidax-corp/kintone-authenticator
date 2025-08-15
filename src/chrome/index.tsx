@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { AuthenticatorWrapper } from '@components/AuthenticatorWrapper';
+import { AuthenticatorWrapper } from './AuthenticatorWrapper';
 import { RegisterForm } from './popup/RegisterForm';
 import GlobalStyle from '@components/GlobalStyle';
 

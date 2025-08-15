@@ -1,7 +1,7 @@
 import React from 'react';
 import GlobalStyle from '@components/GlobalStyle';
-import { SelectionView } from '../chrome/popup/SelectionView';
-import type { KintoneRecord } from '../chrome/lib/types';
+import { SelectionView } from './popup/SelectionView';
+import type { KintoneRecord } from './lib/types';
 
 interface AuthenticatorWrapperProps {
   onRegister: () => void;
