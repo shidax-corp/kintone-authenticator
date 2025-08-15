@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
 import InputField from '@components/InputField';
+import OTPInputField from '@components/OTPInputField';
 
 export interface FormAppProps {
   record: kintone.types.Fields;
@@ -70,12 +71,10 @@ export default function FormApp({ record }: FormAppProps) {
         onChange={withWriteBack('password', setPassword)}
         type="password"
       />
-      <InputField
-        label="OTP URI"
-        placeholder="otpauth://totp/..."
+      <OTPInputField
+        label="ワンタイムパスワード"
         value={otpuri}
         onChange={withWriteBack('otpuri', setOtpuri)}
-        type="text"
       />
       <style jsx>{`
         div > :global(*) {

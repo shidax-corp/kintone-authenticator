@@ -36,7 +36,7 @@ export default function GlobalStyle({ tint, children }: GlobalStyleProps) {
           --ka-bg-error-rgb: 255, 235, 235;
           --ka-bg-error-color: rgb(var(--ka-bg-error-rgb));
 
-          --ka-primary-rgb: 0, 123, 255;
+          --ka-primary-rgb: 52, 152, 219;
           --ka-primary-color: rgb(var(--ka-primary-rgb));
 
           --ka-field-padding: 8px 16px;
