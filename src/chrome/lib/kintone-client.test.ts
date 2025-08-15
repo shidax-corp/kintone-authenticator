@@ -98,7 +98,7 @@ describe('KintoneClient', () => {
         records: mockKintoneRecords,
       });
 
-      const result = await client.getRecords(true);
+      await client.getRecords(true);
 
       expect(mockKintoneClient.record.getRecords).toHaveBeenCalledWith({
         app: appId,

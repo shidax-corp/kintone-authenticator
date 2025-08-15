@@ -47,8 +47,8 @@ export const RecordItem: React.FC<RecordItemProps> = ({
           otpAuthUri: newURI,
         },
       });
-    } catch (error) {
-      console.error('Failed to update OTP URI:', error);
+    } catch {
+      // OTP URI update failure is not critical
     }
   };
 

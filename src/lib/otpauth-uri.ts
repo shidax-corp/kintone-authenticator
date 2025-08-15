@@ -54,7 +54,7 @@ export const encodeOTPAuthURI = (record: OTPAuthRecord): string => {
 const parseURL = (uri: string): URL => {
   try {
     return new URL(uri);
-  } catch (e) {
+  } catch {
     throw new Error('データ形式が正しくありません');
   }
 };

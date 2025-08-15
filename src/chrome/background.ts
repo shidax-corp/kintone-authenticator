@@ -11,6 +11,8 @@ import type {
   RegisterOTPMessage,
   GetRecordsMessage,
   GetOTPMessage,
+  KintoneRecord,
+  ExtensionSettings,
 } from './lib/types';
 
 const KINTONE_APP_ID = process.env.KINTONE_APP_ID || '1';
@@ -39,8 +41,8 @@ const createContextMenus = async () => {
     });
 
     contextMenusCreated = true;
-  } catch (error) {
-    console.error('Failed to create context menus:', error);
+  } catch {
+    // Context menu creation failures are not critical
   }
 };
 
@@ -48,8 +50,8 @@ const removeContextMenus = async () => {
   try {
     await chrome.contextMenus.removeAll();
     contextMenusCreated = false;
-  } catch (error) {
-    console.error('Failed to remove context menus:', error);
+  } catch {
+    // Context menu creation failures are not critical
   }
 };
 
@@ -109,11 +111,11 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
         await handleFillFromKintone(tab.id, tab.url || '', client);
         break;
     }
-  } catch (error) {
+  } catch {
     chrome.tabs.sendMessage(tab.id, {
       type: 'SHOW_ERROR',
       data: {
-        message: `エラーが発生しました: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        message: 'エラーが発生しました',
       },
     });
   }
@@ -134,7 +136,7 @@ const handleReadQR = async (tabId: number, imageUrl: string) => {
         data: { message: 'QRコードからOTPAuth URIを読み取れませんでした。' },
       });
     }
-  } catch (error) {
+  } catch {
     chrome.tabs.sendMessage(tabId, {
       type: 'SHOW_ERROR',
       data: { message: 'QRコードの読み取りに失敗しました。' },
@@ -160,7 +162,7 @@ const handleFillFromKintone = async (
         isGeneral: false,
       },
     });
-  } catch (error) {
+  } catch {
     chrome.tabs.sendMessage(tabId, {
       type: 'SHOW_ERROR',
       data: { message: 'kintoneからの情報取得に失敗しました。' },
@@ -168,43 +170,7 @@ const handleFillFromKintone = async (
   }
 };
 
-const handleFillOTP = async (
-  tabId: number,
-  url: string,
-  client: KintoneClient
-) => {
-  try {
-    const records = await client.getRecords();
-    const matchingRecords = getMatchingRecords(records, url).filter(
-      (r) => r.otpAuthUri
-    );
-
-    if (matchingRecords.length === 0) {
-      chrome.tabs.sendMessage(tabId, {
-        type: 'SHOW_ERROR',
-        data: { message: 'このサイトに対応するOTPが見つかりません。' },
-      });
-    } else if (matchingRecords.length === 1) {
-      const otp = await generateOTPFromRecord(matchingRecords[0]);
-      chrome.tabs.sendMessage(tabId, {
-        type: 'FILL_OTP',
-        data: { otp: otp.otp },
-      });
-    } else {
-      chrome.tabs.sendMessage(tabId, {
-        type: 'SHOW_OTP_OPTIONS',
-        data: { records: matchingRecords },
-      });
-    }
-  } catch (error) {
-    chrome.tabs.sendMessage(tabId, {
-      type: 'SHOW_ERROR',
-      data: { message: 'OTPの生成に失敗しました。' },
-    });
-  }
-};
-
-const generateOTPFromRecord = async (record: any) => {
+const generateOTPFromRecord = async (record: KintoneRecord) => {
   const otpAuthRecord = decodeOTPAuthURI(record.otpAuthUri);
 
   if (otpAuthRecord.type === 'TOTP') {
@@ -286,7 +252,7 @@ chrome.runtime.onMessage.addListener(
           }
 
           case 'TEST_CONNECTION': {
-            const testSettings = message.data;
+            const testSettings = message.data as ExtensionSettings;
             const testClient = new KintoneClient(testSettings, KINTONE_APP_ID);
             const isConnected = await testClient.testConnection();
             sendResponse({ success: isConnected });

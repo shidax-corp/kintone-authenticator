@@ -28,7 +28,7 @@ Format check:
 npm run check:format
 ```
 
-Run all checks (type + format):
+Run all checks (type + lint + format):
 
 ```bash
 npm run check
@@ -38,6 +38,18 @@ Format code:
 
 ```bash
 npm run format
+```
+
+Lint check:
+
+```bash
+npm run check:lint
+```
+
+Fix lint issues:
+
+```bash
+npm run check:lint:fix
 ```
 
 Run tests:
@@ -92,7 +104,7 @@ This is a kintone authenticator application similar to Google Authenticator, wit
 - Check tests covers user's requirements, and it passes all tests.
 - Use `@lib/*` and `@components/*` for importing libraries and components. Do not use relative path imports like `../../lib/` or `../../../components/` for importing files in these two directories
 - Run `npm run format && npm run check && npm run test` before committing.
-  - `npm run check` runs both type checking and format checking.
+  - `npm run check` runs type checking, lint checking, and format checking.
   - All tests must pass before committing changes.
 - DO NOT use `as unknown` or `as any` in TypeScript. Use proper type definitions.
 

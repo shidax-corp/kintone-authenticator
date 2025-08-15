@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-  render,
-  screen,
-  fireEvent,
-  waitFor,
-  act,
-} from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { SelectionView } from './SelectionView';
 import type { KintoneRecord } from '../lib/types';
@@ -18,7 +12,7 @@ const mockChrome = {
   },
 };
 
-// @ts-ignore
+// @ts-expect-error - Mock chrome API not available in test environment
 global.chrome = mockChrome;
 
 describe('SelectionView - URL and Name Matching', () => {

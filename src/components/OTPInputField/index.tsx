@@ -61,7 +61,7 @@ export default function OTPInputField({
         setCode(''); // コードの表示も消す。
       });
     }
-  }, [value]);
+  }, [value, onChange]);
 
   const onRead = useCallback(
     (data: string) => {

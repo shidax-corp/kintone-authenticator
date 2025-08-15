@@ -50,8 +50,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
             name: prev.name || parsed.issuer || parsed.accountName || '',
             username: prev.username || parsed.accountName || '',
           }));
-        } catch (error) {
-          console.error('Failed to parse OTPAuth URI:', error);
+        } catch {
           setError('OTPAuth URIの解析に失敗しました');
         }
       }

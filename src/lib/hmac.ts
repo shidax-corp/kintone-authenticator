@@ -1,11 +1,5 @@
 export type HashAlgorithm = 'SHA-1' | 'SHA-256' | 'SHA-512';
 
-const hashWidths: { [key in HashAlgorithm]: number } = {
-  'SHA-1': 8,
-  'SHA-256': 32,
-  'SHA-512': 64,
-};
-
 /** Converts a number to a byte array in big-endian format.
  */
 const int2bytes = (num: number, width: number = 8) => {

@@ -31,8 +31,8 @@ export const OptionsForm: React.FC = () => {
       if (existingSettings) {
         setSettings(existingSettings);
       }
-    } catch (error) {
-      console.error('Failed to load settings:', error);
+    } catch {
+      // Settings loading failure is not critical
     } finally {
       setLoading(false);
     }

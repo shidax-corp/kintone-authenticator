@@ -42,7 +42,7 @@ export default function AccountCard({
             href={url.value}
             className="url"
             target="_blank"
-            rel="noopener noreferer"
+            rel="noopener noreferrer"
           >
             {url.value}
           </a>

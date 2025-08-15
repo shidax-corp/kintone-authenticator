@@ -58,7 +58,7 @@ const asyncReadQRFromClipboard = async (): Promise<string> => {
         const dataUrl = await convertBlobToDataURL(blob);
         const result = await readQRFromImage(dataUrl);
         return result;
-      } catch (error) {
+      } catch {
         continue;
       }
     }

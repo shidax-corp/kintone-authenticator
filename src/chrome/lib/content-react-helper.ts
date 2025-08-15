@@ -1,8 +1,8 @@
 import React from 'react';
-import { createRoot } from 'react-dom/client';
+import { createRoot, type Root } from 'react-dom/client';
 
 let currentModalRoot: HTMLElement | null = null;
-let currentReactRoot: any = null;
+let currentReactRoot: Root | null = null;
 
 /**
  * contentスクリプト内でReactコンポーネントをモーダルとして表示する

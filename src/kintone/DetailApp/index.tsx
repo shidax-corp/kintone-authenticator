@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 
 import { isValidURL } from '@lib/url';
 import Field from '@components/Field';
