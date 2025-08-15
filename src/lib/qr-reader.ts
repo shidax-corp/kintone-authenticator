@@ -134,3 +134,64 @@ export const readQRFromFile = async (file: File): Promise<string> => {
     reader.readAsDataURL(file);
   });
 };
+
+export const readQRFromClipboard = async (): Promise<string> => {
+  try {
+    const items = await navigator.clipboard.read();
+
+    for (const item of items) {
+      const imageTypes = item.types.filter((type) => type.startsWith('image/'));
+
+      if (imageTypes.length === 0) {
+        continue;
+      }
+
+      for (const imageType of imageTypes) {
+        try {
+          const blob = await item.getType(imageType);
+
+          return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+
+            reader.onload = async (e) => {
+              try {
+                const dataUrl = e.target?.result;
+                if (typeof dataUrl !== 'string') {
+                  reject(new QRReadError('読み込めませんでした'));
+                  return;
+                }
+
+                const result = await readQRFromImage(dataUrl);
+                resolve(result);
+              } catch (error) {
+                reject(error);
+              }
+            };
+
+            reader.onerror = () => {
+              reject(new QRReadError('読み込めませんでした'));
+            };
+
+            reader.readAsDataURL(blob);
+          });
+        } catch (error) {
+          continue;
+        }
+      }
+    }
+
+    throw new QRReadError('画像がコピーされていません');
+  } catch (error) {
+    if (error instanceof QRReadError) {
+      throw error;
+    }
+
+    if (error instanceof DOMException && error.name === 'NotAllowedError') {
+      throw new QRReadError('クリップボードへのアクセスが許可されていません');
+    }
+
+    throw new QRReadError(
+      `Failed to read from clipboard: ${error instanceof Error ? error.message : 'Unknown error'}`
+    );
+  }
+};

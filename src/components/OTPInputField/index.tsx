@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 
 import { decodeOTPAuthURI } from '@lib/otpauth-uri';
 import { generateTOTP, generateHOTP, prettifyOTP } from '@lib/gen-otp';
+import { readQRFromClipboard } from '@lib/qr-reader';
 import Field from '@components/Field';
 
 import Scanner from './Scanner';
@@ -62,18 +63,30 @@ export default function OTPInputField({
     onChange(uri);
   };
 
-  const readFromClipboard = () => {
-    // TODO: クリップボードからの読み取りを実装する
+  const readFromClipboard = async () => {
+    try {
+      setError(null);
+      const uri = await readQRFromClipboard();
+      await handleChange(uri);
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('読み取れませんでした');
+      }
+    }
   };
 
   return (
     <Field label={label}>
       <div>
-        <span>{code ? prettifyOTP(code) : '未設定'}</span>
+        <span className="preview">{code ? prettifyOTP(code) : '未設定'}</span>
         <button onClick={() => setScanning(true)}>スキャン</button>
         <button onClick={() => setReading(true)}>参照</button>
-        <button onClick={() => readFromClipboard()}>貼り付け</button>
-        {error && <div className="err">{error}</div>}
+        {!!navigator.clipboard?.read && (
+          <button onClick={() => readFromClipboard()}>貼り付け</button>
+        )}
+        {error && <span className="err">{error}</span>}
       </div>
 
       <Scanner
@@ -109,7 +122,7 @@ export default function OTPInputField({
           padding: var(--ka-field-padding);
           background-color: var(--ka-bg-color);
         }
-        span {
+        .preview {
           color: var(--ka-fg-light-color);
           margin-right: 4px;
           padding-right: 20px;
@@ -122,9 +135,13 @@ export default function OTPInputField({
           color: var(--ka-primary-color);
           cursor: pointer;
         }
-        button:hover,
-        button:active {
+        button:hover:not(:disabled),
+        button:active:not(:disabled) {
           color: color-mix(in srgb, var(--ka-primary-color) 80%, #000);
+        }
+        button:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
         }
         .err {
           color: var(--ka-fg-error-color);
