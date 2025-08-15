@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { decodeOTPAuthURI } from '../../lib/otpauth-uri';
 import { isOTPAuthURI } from '../../lib/qr-reader';
+import InputField from '@components/InputField';
 
 interface RegisterFormProps {
   otpAuthUri?: string;
@@ -23,6 +24,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<{ [key: string]: string }>({});
 
   useEffect(() => {
     // Get current tab information to pre-fill form
@@ -59,33 +61,43 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
       [field]: value,
     }));
     setError(null);
+    setFieldErrors((prev) => ({ ...prev, [field]: '' }));
+  };
+
+  const validateForm = (): boolean => {
+    const errors: { [key: string]: string } = {};
+
+    if (!formData.name.trim()) {
+      errors.name = 'サイトの名前は必須です';
+    }
+    if (!formData.url.trim()) {
+      errors.url = 'URLは必須です';
+    }
+    if (!formData.username.trim()) {
+      errors.username = 'ユーザー名は必須です';
+    }
+    if (!formData.password.trim()) {
+      errors.password = 'パスワードは必須です';
+    }
+    if (formData.otpAuthUri.trim() && !isOTPAuthURI(formData.otpAuthUri)) {
+      errors.otpAuthUri = '有効なOTPAuth URIではありません';
+    }
+
+    setFieldErrors(errors);
+    return Object.keys(errors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!validateForm()) {
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
     try {
-      // Validate required fields
-      if (!formData.name.trim()) {
-        throw new Error('サイトの名前は必須です');
-      }
-      if (!formData.url.trim()) {
-        throw new Error('URLは必須です');
-      }
-      if (!formData.username.trim()) {
-        throw new Error('ユーザー名は必須です');
-      }
-      if (!formData.password.trim()) {
-        throw new Error('パスワードは必須です');
-      }
-
-      // Validate OTPAuth URI if provided
-      if (formData.otpAuthUri.trim() && !isOTPAuthURI(formData.otpAuthUri)) {
-        throw new Error('有効なOTPAuth URIではありません');
-      }
-
       const response = await chrome.runtime.sendMessage({
         type: 'REGISTER_OTP',
         data: {
@@ -131,8 +143,8 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
 
         .header {
           padding: 16px;
-          border-bottom: 1px solid #e0e0e0;
-          background: #f8f9fa;
+          border-bottom: 1px solid var(--ka-bg-dark-color);
+          background: var(--ka-bg-tint-color);
           display: flex;
           align-items: center;
           gap: 12px;
@@ -147,16 +159,17 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
           display: flex;
           align-items: center;
           justify-content: center;
+          color: var(--ka-fg-color);
         }
 
         .back-button:hover {
-          background: #e9ecef;
+          background: var(--ka-bg-dark-color);
         }
 
         .header h1 {
           margin: 0;
           font-size: 18px;
-          color: #333;
+          color: var(--ka-fg-color);
         }
 
         .form-container {
@@ -169,60 +182,68 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
           margin-bottom: 16px;
         }
 
-        .form-group label {
+        .textarea-wrapper {
+          margin-bottom: 16px;
+        }
+
+        .textarea-wrapper label {
           display: block;
+          font-size: 80%;
+          color: var(--ka-fg-light-color);
           margin-bottom: 4px;
-          font-weight: 500;
-          color: #333;
-          font-size: 14px;
         }
 
-        .required {
-          color: #e74c3c;
-        }
-
-        .form-group input,
-        .form-group textarea {
+        .textarea-wrapper textarea {
           width: 100%;
-          padding: 8px 12px;
-          border: 1px solid #ddd;
+          padding: 8px;
+          border: 1px solid var(--ka-bg-tint-color);
           border-radius: 4px;
-          font-size: 14px;
-          box-sizing: border-box;
-        }
-
-        .form-group input:focus,
-        .form-group textarea:focus {
-          outline: none;
-          border-color: #3498db;
-        }
-
-        .form-group textarea {
           resize: vertical;
           min-height: 60px;
           font-family: 'Monaco', 'Menlo', monospace;
           font-size: 12px;
+          background-color: var(--ka-bg-input-color);
+          color: var(--ka-fg-color);
+          box-sizing: border-box;
+        }
+
+        .textarea-wrapper textarea:focus {
+          outline: none;
+          border-color: var(--ka-primary-color);
+        }
+
+        .textarea-wrapper textarea.error {
+          border-color: var(--ka-fg-error-color);
         }
 
         .help-text {
           font-size: 12px;
-          color: #666;
+          color: var(--ka-fg-light-color);
           margin-top: 4px;
         }
 
         .error {
-          background: #f8d7da;
-          color: #721c24;
+          background: var(--ka-bg-error-color);
+          color: var(--ka-fg-error-color);
           padding: 12px;
           border-radius: 4px;
           margin-bottom: 16px;
           font-size: 14px;
         }
 
+        .field-error {
+          background-color: var(--ka-bg-error-color);
+          color: var(--ka-fg-error-color);
+          font-size: 0.8em;
+          padding: 4px 8px;
+          margin-top: 4px;
+          border-radius: 4px;
+        }
+
         .footer {
           padding: 16px;
-          border-top: 1px solid #e0e0e0;
-          background: #f8f9fa;
+          border-top: 1px solid var(--ka-bg-dark-color);
+          background: var(--ka-bg-tint-color);
           display: flex;
           gap: 12px;
         }
@@ -252,7 +273,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
         }
 
         .button-primary {
-          background: #3498db;
+          background: var(--ka-primary-color);
           color: white;
         }
 
@@ -262,7 +283,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
 
         .otp-preview {
           background: #e3f2fd;
-          border: 1px solid #2196f3;
+          border: 1px solid var(--ka-primary-color);
           border-radius: 4px;
           padding: 12px;
           margin-top: 8px;
@@ -270,14 +291,14 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
 
         .otp-preview-title {
           font-weight: 500;
-          color: #1976d2;
+          color: var(--ka-primary-color);
           margin-bottom: 8px;
           font-size: 14px;
         }
 
         .otp-preview-info {
           font-size: 12px;
-          color: #666;
+          color: var(--ka-fg-light-color);
           line-height: 1.4;
         }
       `}</style>
@@ -293,63 +314,55 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
         {error && <div className="error">{error}</div>}
 
         <div className="form-group">
-          <label htmlFor="name">
-            サイトの名前 <span className="required">*</span>
-          </label>
-          <input
-            id="name"
+          <InputField
             type="text"
-            value={formData.name}
-            onChange={(e) => handleInputChange('name', e.target.value)}
+            label="サイトの名前"
             placeholder="例: Google"
+            value={formData.name}
+            onChange={(value) => handleInputChange('name', value)}
+            error={fieldErrors.name}
             required
           />
         </div>
 
         <div className="form-group">
-          <label htmlFor="url">
-            URL <span className="required">*</span>
-          </label>
-          <input
-            id="url"
+          <InputField
             type="url"
-            value={formData.url}
-            onChange={(e) => handleInputChange('url', e.target.value)}
+            label="URL"
             placeholder="例: https://accounts.google.com/*"
+            value={formData.url}
+            onChange={(value) => handleInputChange('url', value)}
+            error={fieldErrors.url}
             required
           />
           <div className="help-text">ワイルドカード（*）を使用できます</div>
         </div>
 
         <div className="form-group">
-          <label htmlFor="username">
-            ユーザー名 <span className="required">*</span>
-          </label>
-          <input
-            id="username"
+          <InputField
             type="text"
-            value={formData.username}
-            onChange={(e) => handleInputChange('username', e.target.value)}
+            label="ユーザー名"
             placeholder="ユーザー名またはメールアドレス"
+            value={formData.username}
+            onChange={(value) => handleInputChange('username', value)}
+            error={fieldErrors.username}
             required
           />
         </div>
 
         <div className="form-group">
-          <label htmlFor="password">
-            パスワード <span className="required">*</span>
-          </label>
-          <input
-            id="password"
+          <InputField
             type="password"
-            value={formData.password}
-            onChange={(e) => handleInputChange('password', e.target.value)}
+            label="パスワード"
             placeholder="パスワード"
+            value={formData.password}
+            onChange={(value) => handleInputChange('password', value)}
+            error={fieldErrors.password}
             required
           />
         </div>
 
-        <div className="form-group">
+        <div className="textarea-wrapper">
           <label htmlFor="otpAuthUri">OTPAuth URI（任意）</label>
           <textarea
             id="otpAuthUri"
@@ -357,7 +370,11 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
             onChange={(e) => handleInputChange('otpAuthUri', e.target.value)}
             placeholder="otpauth://totp/..."
             rows={3}
+            className={fieldErrors.otpAuthUri ? 'error' : ''}
           />
+          {fieldErrors.otpAuthUri && (
+            <div className="field-error">{fieldErrors.otpAuthUri}</div>
+          )}
           <div className="help-text">
             QRコードから読み取ったOTPAuth URIを入力してください
           </div>

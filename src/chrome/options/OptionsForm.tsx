@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getSettings, saveSettings, isSettingsComplete } from '../lib/storage';
 import type { ExtensionSettings } from '../lib/types';
+import InputField from '@components/InputField';
 
 interface TestResult {
   success: boolean;
@@ -139,55 +140,37 @@ export const OptionsForm: React.FC = () => {
 
         .form-header h1 {
           margin: 0 0 8px 0;
-          color: #3498db;
+          color: var(--ka-primary-color);
           font-size: 24px;
         }
 
         .form-header p {
           margin: 0;
-          color: #666;
+          color: var(--ka-fg-light-color);
         }
 
         .form-group {
           margin-bottom: 24px;
         }
 
-        .form-group label {
-          display: block;
-          margin-bottom: 8px;
-          font-weight: 500;
-          color: #333;
-        }
-
-        .required {
-          color: #e74c3c;
-        }
-
-        .form-group input[type='text'],
-        .form-group input[type='password'],
-        .form-group input[type='url'] {
-          width: 100%;
-          padding: 12px;
-          border: 2px solid #e0e0e0;
-          border-radius: 6px;
-          font-size: 14px;
-          transition: border-color 0.3s ease;
-        }
-
-        .form-group input:focus {
-          outline: none;
-          border-color: #3498db;
-        }
-
         .checkbox-group {
           display: flex;
           align-items: center;
           gap: 8px;
+          padding: 12px;
+          background-color: var(--ka-bg-tint-color);
+          border-radius: 6px;
         }
 
         .checkbox-group input[type='checkbox'] {
           width: 16px;
           height: 16px;
+        }
+
+        .checkbox-group label {
+          font-weight: 500;
+          color: var(--ka-fg-color);
+          cursor: pointer;
         }
 
         .button-group {
@@ -212,7 +195,7 @@ export const OptionsForm: React.FC = () => {
         }
 
         .button-primary {
-          background-color: #3498db;
+          background-color: var(--ka-primary-color);
           color: white;
         }
 
@@ -243,20 +226,20 @@ export const OptionsForm: React.FC = () => {
         }
 
         .test-result.error {
-          background-color: #f8d7da;
-          color: #721c24;
-          border: 1px solid #f5c6cb;
+          background-color: var(--ka-bg-error-color);
+          color: var(--ka-fg-error-color);
+          border: 1px solid var(--ka-fg-error-color);
         }
 
         .loading {
           text-align: center;
           padding: 64px;
-          color: #666;
+          color: var(--ka-fg-light-color);
         }
 
         .help-text {
           font-size: 12px;
-          color: #666;
+          color: var(--ka-fg-light-color);
           margin-top: 4px;
         }
       `}</style>
@@ -268,50 +251,35 @@ export const OptionsForm: React.FC = () => {
 
       <form onSubmit={handleSubmit}>
         <div className="form-group">
-          <label htmlFor="kintoneBaseUrl">
-            kintoneドメイン <span className="required">*</span>
-          </label>
-          <input
-            id="kintoneBaseUrl"
+          <InputField
             type="url"
-            value={settings.kintoneBaseUrl}
-            onChange={(e) =>
-              handleInputChange('kintoneBaseUrl', e.target.value)
-            }
+            label="kintoneドメイン"
             placeholder="https://example.cybozu.com"
+            value={settings.kintoneBaseUrl}
+            onChange={(value) => handleInputChange('kintoneBaseUrl', value)}
             required
           />
           <div className="help-text">例: https://example.cybozu.com</div>
         </div>
 
         <div className="form-group">
-          <label htmlFor="kintoneUsername">
-            kintoneユーザー名 <span className="required">*</span>
-          </label>
-          <input
-            id="kintoneUsername"
+          <InputField
             type="text"
-            value={settings.kintoneUsername}
-            onChange={(e) =>
-              handleInputChange('kintoneUsername', e.target.value)
-            }
+            label="kintoneユーザー名"
             placeholder="username"
+            value={settings.kintoneUsername}
+            onChange={(value) => handleInputChange('kintoneUsername', value)}
             required
           />
         </div>
 
         <div className="form-group">
-          <label htmlFor="kintonePassword">
-            kintoneパスワード <span className="required">*</span>
-          </label>
-          <input
-            id="kintonePassword"
+          <InputField
             type="password"
-            value={settings.kintonePassword}
-            onChange={(e) =>
-              handleInputChange('kintonePassword', e.target.value)
-            }
+            label="kintoneパスワード"
             placeholder="password"
+            value={settings.kintonePassword}
+            onChange={(value) => handleInputChange('kintonePassword', value)}
             required
           />
         </div>

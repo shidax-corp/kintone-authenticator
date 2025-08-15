@@ -2,7 +2,7 @@ import React from 'react';
 import { isInputField, getFieldType, normalizeURL } from './lib/url-matcher';
 import { readQRFromElement } from '../lib/qr-reader';
 import { renderModalComponent, closeModal } from './lib/content-react-helper';
-import { SelectionView } from './popup/SelectionView';
+import { AuthenticatorWrapper } from '@components/AuthenticatorWrapper';
 
 let currentInputElement: HTMLElement | null = null;
 let autoFillExecuted = false;
@@ -154,8 +154,8 @@ const showFillOptionsModal = async (
     // 現在のURLを初期検索クエリとして使用
     const initialSearchQuery = currentUrl;
 
-    // SelectionViewコンポーネントをレンダリング
-    const selectionViewElement = React.createElement(SelectionView, {
+    // AuthenticatorWrapperコンポーネントをレンダリング
+    const authenticatorElement = React.createElement(AuthenticatorWrapper, {
       onRegister: () => {
         // 登録機能は contentスクリプトでは使用しないため空にする
       },
@@ -167,7 +167,7 @@ const showFillOptionsModal = async (
       initialSearchQuery: initialSearchQuery, // 初期検索クエリを渡す
     });
 
-    renderModalComponent(selectionViewElement);
+    renderModalComponent(authenticatorElement);
   } catch (error) {
     console.error('Failed to show selection modal:', error);
     showToast('モーダルの表示に失敗しました', 'error');
