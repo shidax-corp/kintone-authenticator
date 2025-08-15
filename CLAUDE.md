@@ -22,6 +22,18 @@ Type check:
 npm run check:type
 ```
 
+Format check:
+
+```bash
+npm run check:format
+```
+
+Run all checks (type + format):
+
+```bash
+npm run check
+```
+
 Format code:
 
 ```bash
@@ -39,10 +51,27 @@ npm run test
 This is a kintone authenticator application similar to Google Authenticator, with two main components:
 
 1. **Library** (`src/lib/`) - Contains shared code for:
-   - _TODO: write documentation here_
+   - Base32エンコード/デコード機能 (`base32.ts`)
+   - HMAC計算ユーティリティ (`hmac.ts`)
+   - OTP生成機能 - HOTP/TOTP対応 (`gen-otp.ts`)
+   - OTPAuth URI のエンコード/デコード (`otpauth-uri.ts`)
+   - QRコード読み取り機能 (`qr-reader.ts`)
+   - URL検証ユーティリティ (`url.ts`)
 
 2. **Components** (`src/components/`) - Contains shared UI components between kintone and Chrome extension, such as:
-   - _TODO: write documentation here_
+   - `AuthenticatorWrapper` - 認証アプリのメインラッパーコンポーネント
+   - `Button` - 汎用ボタンコンポーネント
+   - `CopyField` - クリップボードへのコピー機能付きフィールド
+   - `Field` - 基本的なフィールドコンポーネント
+   - `GlobalStyle` - グローバルスタイル設定
+   - `InputField` - 入力フィールドコンポーネント
+   - `OTPField` - OTP表示用フィールド（コピー機能付き）
+   - `OTPInputField/` - OTP入力関連コンポーネント群
+     - QRコードファイル読み取り
+     - カメラスキャナー
+     - クリップボードからのQRコード読み取り
+   - `PasswordField` - パスワード表示フィールド
+   - `TextField` - テキスト表示フィールド
 
 3. **Kintone App** (`src/kintone/`) - A customization for kintone that provides:
    - QR code reading functionality
@@ -72,6 +101,8 @@ This is a kintone authenticator application similar to Google Authenticator, wit
 - Check tests covers user's requirements, and it passes all tests.
 - Use `@lib/*` and `@components/*` for importing libraries and components. Do not use relative path imports like `../../lib/` or `../../../components/` for importing files in these two directories
 - Run `npm run format && npm run check && npm run test` before committing.
+  - `npm run check` runs both type checking and format checking.
+  - All tests must pass before committing changes.
 - DO NOT use `as unknown` or `as any` in TypeScript. Use proper type definitions.
 
 ## Git guidelines
