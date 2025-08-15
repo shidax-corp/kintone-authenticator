@@ -62,6 +62,7 @@ export default function InputField({
       <style jsx>{`
         input {
           width: 100%;
+          box-sizing: border-box;
           background-color: var(--ka-bg-input-color);
           color: var(--ka-fg-color);
           border: 1px solid var(--ka-bg-tint-color);
