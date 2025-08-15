@@ -103,3 +103,34 @@ export const readQRFromElement = async (
 
   throw new QRReadError('Element type not supported for QR code reading');
 };
+
+export const readQRFromFile = async (file: File): Promise<string> => {
+  if (!file.type.startsWith('image/')) {
+    throw new QRReadError('File must be an image');
+  }
+
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onload = async (e) => {
+      try {
+        const dataUrl = e.target?.result;
+        if (typeof dataUrl !== 'string') {
+          reject(new QRReadError('Failed to read file'));
+          return;
+        }
+
+        const result = await readQRFromImage(dataUrl);
+        resolve(result);
+      } catch (error) {
+        reject(error);
+      }
+    };
+
+    reader.onerror = () => {
+      reject(new QRReadError('Failed to read file'));
+    };
+
+    reader.readAsDataURL(file);
+  });
+};

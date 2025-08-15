@@ -1,6 +1,8 @@
 import React, { useRef, useEffect } from 'react';
 import type { ChangeEvent } from 'react';
 
+import { readQRFromFile } from '@lib/qr-reader';
+
 export interface FileReaderProps {
   open?: boolean;
   onFileRead: (content: string) => void;
@@ -25,8 +27,30 @@ export default function FileReader({
 }: FileReaderProps) {
   const ref = useRef<HTMLInputElement>(null);
 
-  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
-    // TODO: ファイルの読み取りとQRコードのデコード処理を実装する。
+  const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+
+    if (!file) {
+      onClose();
+      return;
+    }
+
+    try {
+      const qrContent = await readQRFromFile(file);
+      onFileRead(qrContent);
+    } catch (error) {
+      if (onError && error instanceof Error) {
+        onError(error);
+      } else {
+        onError?.(new Error('Failed to read QR code from file'));
+      }
+    } finally {
+      // Reset the input to allow selecting the same file again
+      if (ref.current) {
+        ref.current.value = '';
+      }
+      onClose();
+    }
   };
 
   useEffect(() => {
