@@ -57,6 +57,7 @@ This is a kintone authenticator application similar to Google Authenticator, wit
    - OTPAuth URI のエンコード/デコード (`otpauth-uri.ts`)
    - QRコード読み取り機能 (`qr-reader.ts`)
    - URL検証ユーティリティ (`url.ts`)
+   - See also @docs/lib-catalog.md for details on available libraries.
 
 2. **Components** (`src/components/`) - Contains shared UI components between kintone and Chrome extension. See also @docs/components-catalog.md for details on available components.
 
