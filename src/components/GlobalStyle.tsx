@@ -39,9 +39,11 @@ export default function GlobalStyle({ tint, children }: GlobalStyleProps) {
           --ka-primary-rgb: 52, 152, 219;
           --ka-primary-color: rgb(var(--ka-primary-rgb));
 
+          --ka-font-size: 14px;
           --ka-field-padding: 8px 16px;
 
           color: var(--ka-fg-color);
+          font-size: var(--ka-font-size);
           font-family:
             'メイリオ', 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif;
         }

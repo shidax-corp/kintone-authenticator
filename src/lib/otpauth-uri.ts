@@ -51,8 +51,16 @@ export const encodeOTPAuthURI = (record: OTPAuthRecord): string => {
   return `otpauth://${record.type.toLowerCase()}/${label}?${params.toString()}`;
 };
 
+const parseURL = (uri: string): URL => {
+  try {
+    return new URL(uri);
+  } catch (e) {
+    throw new Error('データ形式が正しくありません');
+  }
+};
+
 export const decodeOTPAuthURI = (uri: string): OTPAuthRecord => {
-  const url = new URL(uri);
+  const url = parseURL(uri);
   const type = url.hostname.toUpperCase();
   const label = url.pathname.slice(1);
   const [issuerByLabel, accountName] = decodeURIComponent(label).split(':');
@@ -96,7 +104,7 @@ export const decodeOTPAuthURI = (uri: string): OTPAuthRecord => {
       counter,
     };
   } else {
-    throw new Error(`Unsupported OTP type: ${type}`);
+    throw new Error(`${type}形式はサポートされていません`);
   }
 };
 

@@ -2,34 +2,34 @@ import React from 'react';
 
 export interface ScannerProps {
   open?: boolean;
-  onScan: (uri: string) => void;
-  onError?: (error: Error) => void;
+  onRead: (data: string) => void;
+  onError: (error: Error) => void;
   onClose?: () => void;
 }
 
 /**
  * QRコードをスキャンするためのコンポーネント。
- * カメラを使用してQRコードを読み取り、成功した場合は`onScan`コールバックを呼び出す。
+ * カメラを使用してQRコードを読み取り、成功した場合は`onRead`コールバックを呼び出す。
  * 失敗した場合は`onError`コールバックを呼び出す。
  * 画面にはカメラのプレビューが表示される。
  *
  * @param open - モーダルを開くかどうかを示すフラグ。
- * @param onScan - QRコードが正常にスキャンされたときに呼び出されるコールバック関数。
+ * @param onRead - QRコードが正常にスキャンされたときに呼び出されるコールバック関数。
  * @param onError - QRコードのスキャンに失敗したときに呼び出されるコールバック関数。
  * @param onClose - スキャン画面を閉じる操作をしたか、スキャンが完了または失敗したときに呼び出されるコールバック関数。
  */
 export default function Scanner({
   open,
-  onScan,
+  onRead,
   onError,
-  onClose,
+  onClose = () => {},
 }: ScannerProps) {
   // TODO: 実際のQRコードスキャン機能を実装する
 
   return (
-    <div className={`outer ${open ? 'open' : ''}`} onClick={() => onClose?.()}>
+    <div className={`outer ${open ? 'open' : ''}`} onClick={() => onClose()}>
       <div className="inner" onClick={(e) => e.stopPropagation()}>
-        <button onClick={() => onClose?.()}>×</button>
+        <button onClick={onClose}>×</button>
         {/* TODO: ちゃんとアイコンにする */}
 
         <span>QRコードをスキャンしてください</span>
