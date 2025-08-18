@@ -85,7 +85,6 @@ export default function OTPField({
 
   // HOTPクリック後のDOM更新を監視して選択を実行
   useEffect(() => {
-    console.log(otp, toSelectOTP);
     if (toSelectOTP && otp && otp?.otp !== toSelectOTP && ref.current) {
       setSelection();
       setToSelectOTP(null);
