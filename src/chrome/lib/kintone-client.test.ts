@@ -173,6 +173,7 @@ describe('KintoneClient', () => {
           username: { value: 'newuser' },
           password: { value: 'newpass' },
           otpuri: { value: 'otpauth://totp/test' },
+          shareto: { value: [{ code: 'user' }] },
         },
       });
       expect(result).toBe('123');
