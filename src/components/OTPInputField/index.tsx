@@ -13,6 +13,7 @@ export interface OTPInputFieldProps {
   label: string;
   value: string;
   onChange: (value: string, info: OTPAuthRecord | null) => void;
+  disableCamera?: boolean;
 }
 
 /**
@@ -21,12 +22,15 @@ export interface OTPInputFieldProps {
  * カメラからのQRコードスキャン、ファイルからの読み取り、画像のコピー&ペースト、手入力の4種類の方法をサポートする。
  *
  * @param label - フィールドの上に表示するラベル。
+ * @param value - 現在の値。
  * @param onChange - 入力値が変更されたときに呼び出されるコールバック関数。
+ * @param disableCamera - カメラスキャン機能を無効にするかどうか。
  */
 export default function OTPInputField({
   label,
   value,
   onChange,
+  disableCamera = false,
 }: OTPInputFieldProps) {
   const [code, setCode] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
@@ -87,10 +91,19 @@ export default function OTPInputField({
     <Field label={label}>
       <div>
         <span className="preview">{code ? prettifyOTP(code) : '未設定'}</span>
-        <button onClick={() => setScanning(true)}>スキャン</button>
-        <button onClick={() => setReading(true)}>参照</button>
+        {!disableCamera && (
+          <button type="button" onClick={() => setScanning(true)}>
+            スキャン
+          </button>
+        )}
+        <button type="button" onClick={() => setReading(true)}>
+          参照
+        </button>
         {isClipboardAvailable() && (
-          <button onClick={() => readQRFromClipboard({ onRead, onError })}>
+          <button
+            type="button"
+            onClick={() => readQRFromClipboard({ onRead, onError })}
+          >
             貼り付け
           </button>
         )}

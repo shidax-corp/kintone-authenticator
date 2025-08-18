@@ -3,7 +3,13 @@
   "name": "kintone Authenticator",
   "version": "1.0.0",
   "description": "kintoneと連携する認証アプリ。ワンタイムパスワードの生成と自動入力を提供します。",
-  "permissions": ["contextMenus", "storage", "activeTab", "clipboardWrite"],
+  "permissions": [
+    "contextMenus",
+    "storage",
+    "activeTab",
+    "clipboardWrite",
+    "clipboardRead"
+  ],
   "host_permissions": [
     "https://*.cybozu.com/*",
     "https://*.kintone.com/*",
