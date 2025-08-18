@@ -43,7 +43,7 @@ kintone.events.on(
     const root = createRoot(kintone.app.record.getSpaceElement('space')!);
     root.render(
       <GlobalStyle tint>
-        <FormApp record={kintone.app.record.get().record} />
+        <FormApp record={ev.record} />
       </GlobalStyle>
     );
 
