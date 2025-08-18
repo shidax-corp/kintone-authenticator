@@ -6,10 +6,8 @@ import OTPField from '@components/OTPField';
 import PasswordField from '@components/PasswordField';
 import TextField from '@components/TextField';
 
-import type { KintoneRecord } from '../lib/types';
-
 interface RecordItemProps {
-  record: KintoneRecord;
+  record: kintone.types.SavedFields;
   onFieldSelect?: (
     type: 'username' | 'password' | 'otp',
     value: string,
@@ -25,19 +23,19 @@ export const RecordItem: React.FC<RecordItemProps> = ({
 }) => {
   const handleUsernameClick = (value: string) => {
     if (isModal && onFieldSelect) {
-      onFieldSelect('username', value, record.recordId);
+      onFieldSelect('username', value, record.$id.value);
     }
   };
 
   const handlePasswordClick = (value: string) => {
     if (isModal && onFieldSelect) {
-      onFieldSelect('password', value, record.recordId);
+      onFieldSelect('password', value, record.$id.value);
     }
   };
 
   const handleOtpClick = (otp: string) => {
     if (isModal && onFieldSelect) {
-      onFieldSelect('otp', otp, record.recordId);
+      onFieldSelect('otp', otp, record.$id.value);
     }
   };
 
@@ -46,7 +44,7 @@ export const RecordItem: React.FC<RecordItemProps> = ({
       await chrome.runtime.sendMessage({
         type: 'UPDATE_OTP_URI',
         data: {
-          recordId: record.recordId,
+          recordId: record.$id.value,
           otpAuthUri: newURI,
         },
       });
@@ -58,40 +56,44 @@ export const RecordItem: React.FC<RecordItemProps> = ({
   return (
     <li>
       <div>
-        <span className="detail">{record.name}</span>
-        {isValidURL(record.url) ? (
+        <span className="detail">{record.name?.value}</span>
+        {isValidURL(record.url.value) ? (
           <a
-            href={record.url}
+            href={record.url.value}
             className="url"
             target="_blank"
             rel="noopener noreferrer"
           >
-            {record.url}
+            {record.url.value}
           </a>
         ) : (
-          <span className="url">{record.url}</span>
+          <span className="url">{record.url.value}</span>
         )}
       </div>
-      {record.username ? (
+      {record.username?.value ? (
         <TextField
           label="ユーザー名"
-          value={record.username}
+          value={record.username.value}
           onClick={
-            isModal ? () => handleUsernameClick(record.username) : undefined
+            isModal
+              ? () => handleUsernameClick(record.username.value)
+              : undefined
           }
         />
       ) : null}
-      {record.password ? (
+      {record.password?.value ? (
         <PasswordField
-          value={record.password}
+          value={record.password.value}
           onClick={
-            isModal ? () => handlePasswordClick(record.password) : undefined
+            isModal
+              ? () => handlePasswordClick(record.password.value)
+              : undefined
           }
         />
       ) : null}
-      {record.otpAuthUri ? (
+      {record.otpuri?.value ? (
         <OTPField
-          uri={record.otpAuthUri}
+          uri={record.otpuri.value}
           onClick={isModal ? handleOtpClick : undefined}
           onUpdate={handleOtpUpdate}
         />

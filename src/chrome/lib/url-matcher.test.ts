@@ -1,4 +1,3 @@
-import type { KintoneRecord } from './types';
 import {
   escapeRegex,
   getBestMatch,
@@ -12,33 +11,51 @@ import {
 } from './url-matcher';
 
 describe('url-matcher', () => {
-  const mockRecords: KintoneRecord[] = [
+  const mockRecords: kintone.types.SavedFields[] = [
     {
-      recordId: '1',
-      name: 'Specific Site',
-      url: 'https://example.com/login',
-      username: 'user1',
-      password: 'pass1',
-      otpAuthUri: 'uri1',
-      updatedTime: '2023-01-01T00:00:00Z',
+      $id: { value: '1' },
+      $revision: { value: '1' },
+      更新者: { value: { code: 'user', name: 'User' } },
+      作成者: { value: { code: 'user', name: 'User' } },
+      レコード番号: { value: '1' },
+      更新日時: { value: '2023-01-01T00:00:00Z' },
+      作成日時: { value: '2023-01-01T00:00:00Z' },
+      name: { value: 'Specific Site' },
+      url: { value: 'https://example.com/login' },
+      username: { value: 'user1' },
+      password: { value: 'pass1' },
+      otpuri: { value: 'uri1' },
+      shareto: { value: [] },
     },
     {
-      recordId: '2',
-      name: 'Wildcard Site',
-      url: 'https://example.com/*',
-      username: 'user2',
-      password: 'pass2',
-      otpAuthUri: 'uri2',
-      updatedTime: '2023-01-02T00:00:00Z',
+      $id: { value: '2' },
+      $revision: { value: '1' },
+      更新者: { value: { code: 'user', name: 'User' } },
+      作成者: { value: { code: 'user', name: 'User' } },
+      レコード番号: { value: '2' },
+      更新日時: { value: '2023-01-02T00:00:00Z' },
+      作成日時: { value: '2023-01-02T00:00:00Z' },
+      name: { value: 'Wildcard Site' },
+      url: { value: 'https://example.com/*' },
+      username: { value: 'user2' },
+      password: { value: 'pass2' },
+      otpuri: { value: 'uri2' },
+      shareto: { value: [] },
     },
     {
-      recordId: '3',
-      name: 'Another Site',
-      url: 'https://another.com/*',
-      username: 'user3',
-      password: 'pass3',
-      otpAuthUri: 'uri3',
-      updatedTime: '2023-01-03T00:00:00Z',
+      $id: { value: '3' },
+      $revision: { value: '1' },
+      更新者: { value: { code: 'user', name: 'User' } },
+      作成者: { value: { code: 'user', name: 'User' } },
+      レコード番号: { value: '3' },
+      更新日時: { value: '2023-01-03T00:00:00Z' },
+      作成日時: { value: '2023-01-03T00:00:00Z' },
+      name: { value: 'Another Site' },
+      url: { value: 'https://another.com/*' },
+      username: { value: 'user3' },
+      password: { value: 'pass3' },
+      otpuri: { value: 'uri3' },
+      shareto: { value: [] },
     },
   ];
 
@@ -105,7 +122,7 @@ describe('url-matcher', () => {
         'https://example.com/login'
       );
       expect(matches).toHaveLength(2);
-      expect(matches.map((r) => r.recordId)).toEqual(['1', '2']);
+      expect(matches.map((r) => r.$id.value)).toEqual(['1', '2']);
     });
 
     it('should return empty array for no matches', () => {
@@ -120,29 +137,41 @@ describe('url-matcher', () => {
         mockRecords,
         'https://example.com/login'
       );
-      expect(sorted[0].recordId).toBe('1'); // Specific URL comes first
-      expect(sorted[1].recordId).toBe('2'); // Wildcard URL comes second
+      expect(sorted[0].$id.value).toBe('1'); // Specific URL comes first
+      expect(sorted[1].$id.value).toBe('2'); // Wildcard URL comes second
     });
 
     it('should prioritize newer records when URLs have same length', () => {
-      const sameLength = [
+      const sameLength: kintone.types.SavedFields[] = [
         {
-          recordId: '1',
-          name: 'Test 1',
-          url: 'https://example.com/app*',
-          username: 'user1',
-          password: 'pass1',
-          otpAuthUri: 'uri1',
-          updatedTime: '2023-01-01T00:00:00Z',
+          $id: { value: '1' },
+          $revision: { value: '1' },
+          更新者: { value: { code: 'user', name: 'User' } },
+          作成者: { value: { code: 'user', name: 'User' } },
+          レコード番号: { value: '1' },
+          更新日時: { value: '2023-01-01T00:00:00Z' },
+          作成日時: { value: '2023-01-01T00:00:00Z' },
+          name: { value: 'Test 1' },
+          url: { value: 'https://example.com/app*' },
+          username: { value: 'user1' },
+          password: { value: 'pass1' },
+          otpuri: { value: 'uri1' },
+          shareto: { value: [] },
         },
         {
-          recordId: '2',
-          name: 'Test 2',
-          url: 'https://example.com/web*',
-          username: 'user2',
-          password: 'pass2',
-          otpAuthUri: 'uri2',
-          updatedTime: '2023-01-02T00:00:00Z',
+          $id: { value: '2' },
+          $revision: { value: '1' },
+          更新者: { value: { code: 'user', name: 'User' } },
+          作成者: { value: { code: 'user', name: 'User' } },
+          レコード番号: { value: '2' },
+          更新日時: { value: '2023-01-02T00:00:00Z' },
+          作成日時: { value: '2023-01-02T00:00:00Z' },
+          name: { value: 'Test 2' },
+          url: { value: 'https://example.com/web*' },
+          username: { value: 'user2' },
+          password: { value: 'pass2' },
+          otpuri: { value: 'uri2' },
+          shareto: { value: [] },
         },
       ];
 
@@ -151,28 +180,40 @@ describe('url-matcher', () => {
         'https://example.com/app1'
       );
       expect(sorted).toHaveLength(1);
-      expect(sorted[0].recordId).toBe('1');
+      expect(sorted[0].$id.value).toBe('1');
     });
 
     it('should prioritize newer records when both URLs match and have same length', () => {
-      const sameLength = [
+      const sameLength: kintone.types.SavedFields[] = [
         {
-          recordId: '1',
-          name: 'Test 1',
-          url: 'https://site.com/*', // 同じ長さで両方ともマッチ
-          username: 'user1',
-          password: 'pass1',
-          otpAuthUri: 'uri1',
-          updatedTime: '2023-01-01T00:00:00Z',
+          $id: { value: '1' },
+          $revision: { value: '1' },
+          更新者: { value: { code: 'user', name: 'User' } },
+          作成者: { value: { code: 'user', name: 'User' } },
+          レコード番号: { value: '1' },
+          更新日時: { value: '2023-01-01T00:00:00Z' },
+          作成日時: { value: '2023-01-01T00:00:00Z' },
+          name: { value: 'Test 1' },
+          url: { value: 'https://site.com/*' }, // 同じ長さで両方ともマッチ
+          username: { value: 'user1' },
+          password: { value: 'pass1' },
+          otpuri: { value: 'uri1' },
+          shareto: { value: [] },
         },
         {
-          recordId: '2',
-          name: 'Test 2',
-          url: 'https://site.com/*', // 同じ長さで両方ともマッチ
-          username: 'user2',
-          password: 'pass2',
-          otpAuthUri: 'uri2',
-          updatedTime: '2023-01-02T00:00:00Z',
+          $id: { value: '2' },
+          $revision: { value: '1' },
+          更新者: { value: { code: 'user', name: 'User' } },
+          作成者: { value: { code: 'user', name: 'User' } },
+          レコード番号: { value: '2' },
+          更新日時: { value: '2023-01-02T00:00:00Z' },
+          作成日時: { value: '2023-01-02T00:00:00Z' },
+          name: { value: 'Test 2' },
+          url: { value: 'https://site.com/*' }, // 同じ長さで両方ともマッチ
+          username: { value: 'user2' },
+          password: { value: 'pass2' },
+          otpuri: { value: 'uri2' },
+          shareto: { value: [] },
         },
       ];
 
@@ -181,16 +222,16 @@ describe('url-matcher', () => {
         'https://site.com/login'
       );
       expect(sorted).toHaveLength(2);
-      // 新しいレコード（recordId: '2'）が最初に来るべき
-      expect(sorted[0].recordId).toBe('2');
-      expect(sorted[1].recordId).toBe('1');
+      // 新しいレコード（$id: '2'）が最初に来るべき
+      expect(sorted[0].$id.value).toBe('2');
+      expect(sorted[1].$id.value).toBe('1');
     });
   });
 
   describe('getBestMatch', () => {
     it('should return the best matching record', () => {
       const best = getBestMatch(mockRecords, 'https://example.com/login');
-      expect(best?.recordId).toBe('1');
+      expect(best?.$id.value).toBe('1');
     });
 
     it('should return null for no matches', () => {

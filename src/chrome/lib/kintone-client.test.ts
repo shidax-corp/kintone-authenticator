@@ -73,15 +73,21 @@ describe('KintoneClient', () => {
     ];
 
     it('should return cached records when available and useCache is true', async () => {
-      const cachedRecords = [
+      const cachedRecords: kintone.types.SavedFields[] = [
         {
-          recordId: '1',
-          name: 'Cached Site',
-          url: 'https://cached.com',
-          username: 'cached_user',
-          password: 'cached_pass',
-          otpAuthUri: 'cached_uri',
-          updatedTime: '2023-01-01T00:00:00Z',
+          $id: { value: '1' },
+          $revision: { value: '1' },
+          更新者: { value: { code: 'user', name: 'User' } },
+          作成者: { value: { code: 'user', name: 'User' } },
+          レコード番号: { value: '1' },
+          更新日時: { value: '2023-01-01T00:00:00Z' },
+          作成日時: { value: '2023-01-01T00:00:00Z' },
+          name: { value: 'Cached Site' },
+          url: { value: 'https://cached.com' },
+          username: { value: 'cached_user' },
+          password: { value: 'cached_pass' },
+          otpuri: { value: 'cached_uri' },
+          shareto: { value: [] },
         },
       ];
 
@@ -116,15 +122,21 @@ describe('KintoneClient', () => {
     });
 
     it('should fallback to cache on fetch failure', async () => {
-      const cachedRecords = [
+      const cachedRecords: kintone.types.SavedFields[] = [
         {
-          recordId: '1',
-          name: 'Cached Site',
-          url: 'https://cached.com',
-          username: 'cached_user',
-          password: 'cached_pass',
-          otpAuthUri: 'cached_uri',
-          updatedTime: '2023-01-01T00:00:00Z',
+          $id: { value: '1' },
+          $revision: { value: '1' },
+          更新者: { value: { code: 'user', name: 'User' } },
+          作成者: { value: { code: 'user', name: 'User' } },
+          レコード番号: { value: '1' },
+          更新日時: { value: '2023-01-01T00:00:00Z' },
+          作成日時: { value: '2023-01-01T00:00:00Z' },
+          name: { value: 'Cached Site' },
+          url: { value: 'https://cached.com' },
+          username: { value: 'cached_user' },
+          password: { value: 'cached_pass' },
+          otpuri: { value: 'cached_uri' },
+          shareto: { value: [] },
         },
       ];
 

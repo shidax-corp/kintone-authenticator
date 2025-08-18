@@ -1,5 +1,3 @@
-import type { KintoneRecord } from './types';
-
 export const escapeRegex = (str: string): string => {
   return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 };
@@ -20,36 +18,36 @@ export const matchURL = (url: string, pattern: string): boolean => {
 };
 
 export const getMatchingRecords = (
-  records: KintoneRecord[],
+  records: kintone.types.SavedFields[],
   url: string
-): KintoneRecord[] => {
-  return records.filter((record) => matchURL(url, record.url));
+): kintone.types.SavedFields[] => {
+  return records.filter((record) => matchURL(url, record.url.value));
 };
 
 export const sortRecordsByPriority = (
-  records: KintoneRecord[],
+  records: kintone.types.SavedFields[],
   url: string
-): KintoneRecord[] => {
+): kintone.types.SavedFields[] => {
   return records
-    .filter((record) => matchURL(url, record.url))
+    .filter((record) => matchURL(url, record.url.value))
     .sort((a, b) => {
-      const lengthA = a.url.length;
-      const lengthB = b.url.length;
+      const lengthA = a.url.value.length;
+      const lengthB = b.url.value.length;
 
       if (lengthA !== lengthB) {
         return lengthB - lengthA;
       }
 
-      const timeA = new Date(a.updatedTime).getTime();
-      const timeB = new Date(b.updatedTime).getTime();
+      const timeA = new Date(a.更新日時.value).getTime();
+      const timeB = new Date(b.更新日時.value).getTime();
       return timeB - timeA;
     });
 };
 
 export const getBestMatch = (
-  records: KintoneRecord[],
+  records: kintone.types.SavedFields[],
   url: string
-): KintoneRecord | null => {
+): kintone.types.SavedFields | null => {
   const sortedRecords = sortRecordsByPriority(records, url);
   return sortedRecords[0] || null;
 };

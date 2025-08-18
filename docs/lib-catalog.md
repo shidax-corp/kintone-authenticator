@@ -105,7 +105,7 @@ libディレクトリは、kintoneアプリとChrome拡張の両方で使用さ�
 
 **関数**:
 
-- `filterRecords<T extends kintone.types.Fields>(records: T[], query: string): T[]` - 検索クエリに基づいてレコードをフィルタリングする。名前に対しては部分一致、URLに対してはワイルドカード（*）対応の検索を行う。複数のキーワードをスペース区切りで指定可能。
+- `filterRecords<T extends kintone.types.Fields>(records: T[], query: string): T[]` - 検索クエリに基づいてレコードをフィルタリングする。名前に対しては部分一致、URLに対してはワイルドカード（\*）対応の検索を行う。複数のキーワードをスペース区切りで指定可能。
 
 **内部関数**:
 

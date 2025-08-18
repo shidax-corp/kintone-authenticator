@@ -2,7 +2,6 @@ import React from 'react';
 
 import GlobalStyle from '@components/GlobalStyle';
 
-import type { KintoneRecord } from './lib/types';
 import { SelectionView } from './popup/SelectionView';
 
 interface AuthenticatorWrapperProps {
@@ -14,8 +13,8 @@ interface AuthenticatorWrapperProps {
     value: string,
     recordId?: string
   ) => void;
-  initialRecords?: KintoneRecord[];
-  allRecords?: KintoneRecord[];
+  initialRecords?: kintone.types.SavedFields[];
+  allRecords?: kintone.types.SavedFields[];
   initialSearchQuery?: string;
 }
 

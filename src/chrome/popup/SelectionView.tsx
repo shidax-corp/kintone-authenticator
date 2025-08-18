@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 
 import { isSettingsComplete } from '../lib/storage';
-import type { ExtensionSettings, KintoneRecord } from '../lib/types';
+import type { ExtensionSettings } from '../lib/types';
 import { matchURL } from '../lib/url-matcher';
 import { RecordItem } from './RecordItem';
 
@@ -14,8 +14,8 @@ interface SelectionViewProps {
     value: string,
     recordId?: string
   ) => void;
-  initialRecords?: KintoneRecord[];
-  allRecords?: KintoneRecord[];
+  initialRecords?: kintone.types.SavedFields[];
+  allRecords?: kintone.types.SavedFields[];
   initialSearchQuery?: string;
 }
 
@@ -28,8 +28,10 @@ export const SelectionView: React.FC<SelectionViewProps> = ({
   allRecords,
   initialSearchQuery = '',
 }) => {
-  const [records, setRecords] = useState<KintoneRecord[]>([]);
-  const [filteredRecords, setFilteredRecords] = useState<KintoneRecord[]>([]);
+  const [records, setRecords] = useState<kintone.types.SavedFields[]>([]);
+  const [filteredRecords, setFilteredRecords] = useState<
+    kintone.types.SavedFields[]
+  >([]);
   const [searchQuery, setSearchQuery] = useState(initialSearchQuery);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -101,8 +103,12 @@ export const SelectionView: React.FC<SelectionViewProps> = ({
     }
   };
 
-  const hasAnyValidField = (record: KintoneRecord): boolean => {
-    return !!(record.username || record.password || record.otpAuthUri);
+  const hasAnyValidField = (record: kintone.types.SavedFields): boolean => {
+    return !!(
+      record.username?.value ||
+      record.password?.value ||
+      record.otpuri?.value
+    );
   };
 
   const filterRecords = useCallback(() => {
@@ -127,21 +133,22 @@ export const SelectionView: React.FC<SelectionViewProps> = ({
 
         // URL matching
         let urlMatch = false;
-        if (record.url.includes('*')) {
+        if (record.url?.value?.includes('*')) {
           // Wildcard matching if record URL has asterisk
-          urlMatch = matchURL(query, record.url);
+          urlMatch = matchURL(query, record.url.value);
 
           // If query doesn't look like a full URL, also try text matching
           if (!urlMatch && !query.includes('://')) {
-            urlMatch = record.url.toLowerCase().includes(lowerQuery);
+            urlMatch = record.url.value.toLowerCase().includes(lowerQuery);
           }
-        } else {
+        } else if (record.url?.value) {
           // Text matching for non-wildcard URLs
-          urlMatch = record.url.toLowerCase().includes(lowerQuery);
+          urlMatch = record.url.value.toLowerCase().includes(lowerQuery);
         }
 
         // Name matching (always text-based)
-        const nameMatch = record.name.toLowerCase().includes(lowerQuery);
+        const nameMatch =
+          record.name?.value?.toLowerCase().includes(lowerQuery) || false;
 
         // Either URL or name should match
         return urlMatch || nameMatch;
@@ -319,7 +326,7 @@ export const SelectionView: React.FC<SelectionViewProps> = ({
           <ul className="records-list">
             {filteredRecords.map((record) => (
               <RecordItem
-                key={record.recordId}
+                key={record.$id.value}
                 record={record}
                 onFieldSelect={onFieldSelect}
                 isModal={isModal}

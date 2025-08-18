@@ -2,7 +2,6 @@ import React from 'react';
 
 import { AuthenticatorWrapper } from './AuthenticatorWrapper';
 import { closeModal, renderModalComponent } from './lib/content-react-helper';
-import type { KintoneRecord } from './lib/types';
 import { getFieldType, isInputField, normalizeURL } from './lib/url-matcher';
 
 let currentInputElement: HTMLElement | null = null;
@@ -109,8 +108,8 @@ const showToast = (message: string, type: 'success' | 'error' = 'success') => {
 };
 
 const showFillOptionsModal = async (
-  records: KintoneRecord[],
-  allRecords: KintoneRecord[],
+  records: kintone.types.SavedFields[],
+  allRecords: kintone.types.SavedFields[],
   currentUrl: string
 ) => {
   try {

@@ -5,37 +5,14 @@ export interface ExtensionSettings {
   autoFillEnabled: boolean;
 }
 
-export interface KintoneRecord {
-  recordId: string;
-  name: string;
-  url: string;
-  username: string;
-  password: string;
-  otpAuthUri: string;
-  updatedTime: string;
-}
-
-export interface CacheEntry<T> {
-  data: T;
-  timestamp: number;
-}
-
-export interface OTPData {
-  otp: string;
-  remainingTime: number;
-}
-
 export type MessageType =
   | 'READ_QR'
   | 'REGISTER_OTP'
   | 'GET_RECORDS'
-  | 'FILL_INPUT'
   | 'GET_OTP'
-  | 'COPY_TO_CLIPBOARD'
   | 'GET_SETTINGS'
   | 'SAVE_SETTINGS'
-  | 'TEST_CONNECTION'
-  | 'SHOW_FILL_OPTIONS';
+  | 'TEST_CONNECTION';
 
 export interface Message {
   type: MessageType;
@@ -68,14 +45,6 @@ export interface GetRecordsMessage extends Message {
   };
 }
 
-export interface FillInputMessage extends Message {
-  type: 'FILL_INPUT';
-  data: {
-    value: string;
-    fieldType: 'username' | 'password' | 'otp';
-  };
-}
-
 export interface GetOTPMessage extends Message {
   type: 'GET_OTP';
   data: {
@@ -83,25 +52,7 @@ export interface GetOTPMessage extends Message {
   };
 }
 
-export interface CopyToClipboardMessage extends Message {
-  type: 'COPY_TO_CLIPBOARD';
-  data: {
-    text: string;
-  };
-}
-
 export interface TestConnectionMessage extends Message {
   type: 'TEST_CONNECTION';
   data: ExtensionSettings;
-}
-
-export interface ShowFillOptionsMessage extends Message {
-  type: 'SHOW_FILL_OPTIONS';
-  data: {
-    records: KintoneRecord[];
-    allRecords: KintoneRecord[];
-    currentUrl: string;
-    isGeneral: boolean;
-    title?: string;
-  };
 }

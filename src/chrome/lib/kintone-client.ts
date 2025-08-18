@@ -1,25 +1,7 @@
 import { KintoneRestAPIClient } from '@kintone/rest-api-client';
 
 import { getCachedRecords, setCachedRecords } from './storage';
-import type { ExtensionSettings, KintoneRecord } from './types';
-
-interface KintoneFieldValue {
-  value: string;
-}
-
-interface KintoneRecordData {
-  $id: KintoneFieldValue;
-  name?: KintoneFieldValue;
-  url?: KintoneFieldValue;
-  username?: KintoneFieldValue;
-  password?: KintoneFieldValue;
-  otpuri?: KintoneFieldValue;
-  更新日時?: KintoneFieldValue;
-}
-
-interface RecordForParameter {
-  [key: string]: { value: unknown };
-}
+import type { ExtensionSettings } from './types';
 
 export class KintoneClientError extends Error {
   constructor(message: string) {
@@ -45,19 +27,7 @@ export class KintoneClient {
     this.settings = settings;
   }
 
-  private extractRecordData(record: KintoneRecordData): KintoneRecord {
-    return {
-      recordId: record.$id.value,
-      name: record.name?.value || '',
-      url: record.url?.value || '',
-      username: record.username?.value || '',
-      password: record.password?.value || '',
-      otpAuthUri: record.otpuri?.value || '',
-      updatedTime: record.更新日時?.value || new Date().toISOString(),
-    };
-  }
-
-  async getRecords(useCache = true): Promise<KintoneRecord[]> {
+  async getRecords(useCache = true): Promise<kintone.types.SavedFields[]> {
     try {
       if (useCache) {
         const cached = await getCachedRecords();
@@ -79,9 +49,8 @@ export class KintoneClient {
         ],
       });
 
-      const records: KintoneRecord[] = response.records.map((record) =>
-        this.extractRecordData(record as unknown as KintoneRecordData)
-      );
+      const records =
+        response.records as unknown as kintone.types.SavedFields[];
 
       await setCachedRecords(records);
       return records;
@@ -142,7 +111,7 @@ export class KintoneClient {
     }
   ): Promise<void> {
     try {
-      const record: RecordForParameter = {};
+      const record: Record<string, { value: unknown }> = {};
       if (data.name !== undefined) record.name = { value: data.name };
       if (data.url !== undefined) record.url = { value: data.url };
       if (data.username !== undefined)

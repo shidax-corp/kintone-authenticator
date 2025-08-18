@@ -7,7 +7,7 @@ import {
   saveSettings,
   setCachedRecords,
 } from './storage';
-import type { ExtensionSettings, KintoneRecord } from './types';
+import type { ExtensionSettings } from './types';
 
 const mockChrome = {
   storage: {
@@ -130,15 +130,21 @@ describe('storage', () => {
 
   describe('getCachedRecords', () => {
     it('should return cached records if not stale', async () => {
-      const records: KintoneRecord[] = [
+      const records: kintone.types.SavedFields[] = [
         {
-          recordId: '1',
-          name: 'Test Site',
-          url: 'https://example.com',
-          username: 'user',
-          password: 'password123',
-          otpAuthUri: 'encrypted_uri',
-          updatedTime: new Date().toISOString(),
+          $id: { value: '1' },
+          $revision: { value: '1' },
+          更新者: { value: { code: 'user', name: 'User' } },
+          作成者: { value: { code: 'user', name: 'User' } },
+          レコード番号: { value: '1' },
+          更新日時: { value: new Date().toISOString() },
+          作成日時: { value: new Date().toISOString() },
+          name: { value: 'Test Site' },
+          url: { value: 'https://example.com' },
+          username: { value: 'user' },
+          password: { value: 'password123' },
+          otpuri: { value: 'encrypted_uri' },
+          shareto: { value: [] },
         },
       ];
 
@@ -156,7 +162,7 @@ describe('storage', () => {
     });
 
     it('should return null for stale cache', async () => {
-      const records: KintoneRecord[] = [];
+      const records: kintone.types.SavedFields[] = [];
       const cache = {
         data: records,
         timestamp: Date.now() - 6 * 60 * 1000, // 6 minutes ago (stale)
@@ -180,15 +186,21 @@ describe('storage', () => {
 
   describe('setCachedRecords', () => {
     it('should cache records with timestamp', async () => {
-      const records: KintoneRecord[] = [
+      const records: kintone.types.SavedFields[] = [
         {
-          recordId: '1',
-          name: 'Test Site',
-          url: 'https://example.com',
-          username: 'user',
-          password: 'password123',
-          otpAuthUri: 'encrypted_uri',
-          updatedTime: new Date().toISOString(),
+          $id: { value: '1' },
+          $revision: { value: '1' },
+          更新者: { value: { code: 'user', name: 'User' } },
+          作成者: { value: { code: 'user', name: 'User' } },
+          レコード番号: { value: '1' },
+          更新日時: { value: new Date().toISOString() },
+          作成日時: { value: new Date().toISOString() },
+          name: { value: 'Test Site' },
+          url: { value: 'https://example.com' },
+          username: { value: 'user' },
+          password: { value: 'password123' },
+          otpuri: { value: 'encrypted_uri' },
+          shareto: { value: [] },
         },
       ];
 

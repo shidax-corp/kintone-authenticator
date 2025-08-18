@@ -1,4 +1,9 @@
-import type { CacheEntry, ExtensionSettings, KintoneRecord } from './types';
+import type { ExtensionSettings } from './types';
+
+interface CacheEntry<T> {
+  data: T;
+  timestamp: number;
+}
 
 const SETTINGS_KEY = 'kintone_authenticator_settings';
 const CACHE_KEY = 'kintone_authenticator_cache';
@@ -35,10 +40,12 @@ export const isSettingsComplete = (
   );
 };
 
-export const getCachedRecords = async (): Promise<KintoneRecord[] | null> => {
+export const getCachedRecords = async (): Promise<
+  kintone.types.SavedFields[] | null
+> => {
   try {
     const result = await chrome.storage.local.get(CACHE_KEY);
-    const cache: CacheEntry<KintoneRecord[]> = result[CACHE_KEY];
+    const cache: CacheEntry<kintone.types.SavedFields[]> = result[CACHE_KEY];
 
     if (!cache) return null;
 
@@ -50,10 +57,10 @@ export const getCachedRecords = async (): Promise<KintoneRecord[] | null> => {
 };
 
 export const setCachedRecords = async (
-  records: KintoneRecord[]
+  records: kintone.types.SavedFields[]
 ): Promise<void> => {
   try {
-    const cache: CacheEntry<KintoneRecord[]> = {
+    const cache: CacheEntry<kintone.types.SavedFields[]> = {
       data: records,
       timestamp: Date.now(),
     };

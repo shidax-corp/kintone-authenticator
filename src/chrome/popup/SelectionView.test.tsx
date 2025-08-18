@@ -3,7 +3,6 @@ import React from 'react';
 import '@testing-library/jest-dom';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 
-import type { KintoneRecord } from '../lib/types';
 import { SelectionView } from './SelectionView';
 
 // Mock chrome runtime
@@ -18,56 +17,96 @@ const mockChrome = {
 global.chrome = mockChrome;
 
 describe('SelectionView - URL and Name Matching', () => {
-  const mockRecords: KintoneRecord[] = [
+  const mockRecords: kintone.types.SavedFields[] = [
     {
-      recordId: '1',
-      name: 'GitHub Main',
-      url: 'https://github.com/login',
-      username: 'user1',
-      password: 'pass1',
-      otpAuthUri:
-        'otpauth://totp/GitHub:user1?secret=JBSWY3DPEHPK3PXP&issuer=GitHub',
-      updatedTime: '2023-01-01T00:00:00Z',
+      $id: { value: '1' },
+      $revision: { value: '1' },
+      更新者: { value: { code: 'user', name: 'User' } },
+      作成者: { value: { code: 'user', name: 'User' } },
+      レコード番号: { value: '1' },
+      更新日時: { value: '2023-01-01T00:00:00Z' },
+      作成日時: { value: '2023-01-01T00:00:00Z' },
+      name: { value: 'GitHub Main' },
+      url: { value: 'https://github.com/login' },
+      username: { value: 'user1' },
+      password: { value: 'pass1' },
+      otpuri: {
+        value:
+          'otpauth://totp/GitHub:user1?secret=JBSWY3DPEHPK3PXP&issuer=GitHub',
+      },
+      shareto: { value: [] },
     },
     {
-      recordId: '2',
-      name: 'GitHub Wildcard',
-      url: 'https://github.com/*',
-      username: 'user2',
-      password: 'pass2',
-      otpAuthUri:
-        'otpauth://totp/GitHub:user2?secret=GEZDGNBVGY3TQOJQ&issuer=GitHub',
-      updatedTime: '2023-01-02T00:00:00Z',
+      $id: { value: '2' },
+      $revision: { value: '1' },
+      更新者: { value: { code: 'user', name: 'User' } },
+      作成者: { value: { code: 'user', name: 'User' } },
+      レコード番号: { value: '2' },
+      更新日時: { value: '2023-01-02T00:00:00Z' },
+      作成日時: { value: '2023-01-02T00:00:00Z' },
+      name: { value: 'GitHub Wildcard' },
+      url: { value: 'https://github.com/*' },
+      username: { value: 'user2' },
+      password: { value: 'pass2' },
+      otpuri: {
+        value:
+          'otpauth://totp/GitHub:user2?secret=GEZDGNBVGY3TQOJQ&issuer=GitHub',
+      },
+      shareto: { value: [] },
     },
     {
-      recordId: '3',
-      name: 'Example Site',
-      url: 'https://example.com/login',
-      username: 'user3',
-      password: 'pass3',
-      otpAuthUri:
-        'otpauth://totp/Example:user3?secret=MFRGGZDFMZTWQ2LK&issuer=Example',
-      updatedTime: '2023-01-03T00:00:00Z',
+      $id: { value: '3' },
+      $revision: { value: '1' },
+      更新者: { value: { code: 'user', name: 'User' } },
+      作成者: { value: { code: 'user', name: 'User' } },
+      レコード番号: { value: '3' },
+      更新日時: { value: '2023-01-03T00:00:00Z' },
+      作成日時: { value: '2023-01-03T00:00:00Z' },
+      name: { value: 'Example Site' },
+      url: { value: 'https://example.com/login' },
+      username: { value: 'user3' },
+      password: { value: 'pass3' },
+      otpuri: {
+        value:
+          'otpauth://totp/Example:user3?secret=MFRGGZDFMZTWQ2LK&issuer=Example',
+      },
+      shareto: { value: [] },
     },
     {
-      recordId: '4',
-      name: 'Test Service',
-      url: 'https://test.service.com/*',
-      username: 'user4',
-      password: 'pass4',
-      otpAuthUri:
-        'otpauth://totp/TestService:user4?secret=NNXWGZDBOQYTOMZR&issuer=TestService',
-      updatedTime: '2023-01-04T00:00:00Z',
+      $id: { value: '4' },
+      $revision: { value: '1' },
+      更新者: { value: { code: 'user', name: 'User' } },
+      作成者: { value: { code: 'user', name: 'User' } },
+      レコード番号: { value: '4' },
+      更新日時: { value: '2023-01-04T00:00:00Z' },
+      作成日時: { value: '2023-01-04T00:00:00Z' },
+      name: { value: 'Test Service' },
+      url: { value: 'https://test.service.com/*' },
+      username: { value: 'user4' },
+      password: { value: 'pass4' },
+      otpuri: {
+        value:
+          'otpauth://totp/TestService:user4?secret=NNXWGZDBOQYTOMZR&issuer=TestService',
+      },
+      shareto: { value: [] },
     },
     {
-      recordId: '5',
-      name: 'Kintone App',
-      url: 'https://subdomain.cybozu.com/k/*',
-      username: 'user5',
-      password: 'pass5',
-      otpAuthUri:
-        'otpauth://totp/Kintone:user5?secret=OVZWK4RMEBRW633E&issuer=Kintone',
-      updatedTime: '2023-01-05T00:00:00Z',
+      $id: { value: '5' },
+      $revision: { value: '1' },
+      更新者: { value: { code: 'user', name: 'User' } },
+      作成者: { value: { code: 'user', name: 'User' } },
+      レコード番号: { value: '5' },
+      更新日時: { value: '2023-01-05T00:00:00Z' },
+      作成日時: { value: '2023-01-05T00:00:00Z' },
+      name: { value: 'Kintone App' },
+      url: { value: 'https://subdomain.cybozu.com/k/*' },
+      username: { value: 'user5' },
+      password: { value: 'pass5' },
+      otpuri: {
+        value:
+          'otpauth://totp/Kintone:user5?secret=OVZWK4RMEBRW633E&issuer=Kintone',
+      },
+      shareto: { value: [] },
     },
   ];
 
@@ -304,14 +343,22 @@ describe('SelectionView - URL and Name Matching', () => {
       const recordsWithDomainWildcard = [
         ...mockRecords,
         {
-          recordId: '6',
-          name: 'Example Wildcard',
-          url: '*.example.com',
-          username: 'user6',
-          password: 'pass6',
-          otpAuthUri:
-            'otpauth://totp/Example:user6?secret=PJWXQZLDNBSWY3DP&issuer=Example',
-          updatedTime: '2023-01-06T00:00:00Z',
+          $id: { value: '6' },
+          $revision: { value: '1' },
+          更新者: { value: { code: 'user', name: 'User' } },
+          作成者: { value: { code: 'user', name: 'User' } },
+          レコード番号: { value: '6' },
+          更新日時: { value: '2023-01-06T00:00:00Z' },
+          作成日時: { value: '2023-01-06T00:00:00Z' },
+          name: { value: 'Example Wildcard' },
+          url: { value: '*.example.com' },
+          username: { value: 'user6' },
+          password: { value: 'pass6' },
+          otpuri: {
+            value:
+              'otpauth://totp/Example:user6?secret=PJWXQZLDNBSWY3DP&issuer=Example',
+          },
+          shareto: { value: [] },
         },
       ];
 
@@ -406,63 +453,107 @@ describe('SelectionView - URL and Name Matching', () => {
   });
 
   describe('Conditional Field Rendering for Empty Values', () => {
-    const mockRecordsWithEmptyFields: KintoneRecord[] = [
+    const mockRecordsWithEmptyFields: kintone.types.SavedFields[] = [
       {
-        recordId: '1',
-        name: 'Complete Record',
-        url: 'https://example.com',
-        username: 'user1',
-        password: 'pass1',
-        otpAuthUri:
-          'otpauth://totp/Example:user1?secret=JBSWY3DPEHPK3PXP&issuer=Example',
-        updatedTime: '2023-01-01T00:00:00Z',
+        $id: { value: '1' },
+        $revision: { value: '1' },
+        更新者: { value: { code: 'user', name: 'User' } },
+        作成者: { value: { code: 'user', name: 'User' } },
+        レコード番号: { value: '1' },
+        更新日時: { value: '2023-01-01T00:00:00Z' },
+        作成日時: { value: '2023-01-01T00:00:00Z' },
+        name: { value: 'Complete Record' },
+        url: { value: 'https://example.com' },
+        username: { value: 'user1' },
+        password: { value: 'pass1' },
+        otpuri: {
+          value:
+            'otpauth://totp/Example:user1?secret=JBSWY3DPEHPK3PXP&issuer=Example',
+        },
+        shareto: { value: [] },
       },
       {
-        recordId: '2',
-        name: 'Empty Username',
-        url: 'https://example2.com',
-        username: '',
-        password: 'pass2',
-        otpAuthUri:
-          'otpauth://totp/Example:pass2?secret=GEZDGNBVGY3TQOJQ&issuer=Example',
-        updatedTime: '2023-01-02T00:00:00Z',
+        $id: { value: '2' },
+        $revision: { value: '1' },
+        更新者: { value: { code: 'user', name: 'User' } },
+        作成者: { value: { code: 'user', name: 'User' } },
+        レコード番号: { value: '2' },
+        更新日時: { value: '2023-01-02T00:00:00Z' },
+        作成日時: { value: '2023-01-02T00:00:00Z' },
+        name: { value: 'Empty Username' },
+        url: { value: 'https://example2.com' },
+        username: { value: '' },
+        password: { value: 'pass2' },
+        otpuri: {
+          value:
+            'otpauth://totp/Example:pass2?secret=GEZDGNBVGY3TQOJQ&issuer=Example',
+        },
+        shareto: { value: [] },
       },
       {
-        recordId: '3',
-        name: 'Empty Password',
-        url: 'https://example3.com',
-        username: 'user3',
-        password: '',
-        otpAuthUri:
-          'otpauth://totp/Example:user3?secret=MFRGGZDFMZTWQ2LK&issuer=Example',
-        updatedTime: '2023-01-03T00:00:00Z',
+        $id: { value: '3' },
+        $revision: { value: '1' },
+        更新者: { value: { code: 'user', name: 'User' } },
+        作成者: { value: { code: 'user', name: 'User' } },
+        レコード番号: { value: '3' },
+        更新日時: { value: '2023-01-03T00:00:00Z' },
+        作成日時: { value: '2023-01-03T00:00:00Z' },
+        name: { value: 'Empty Password' },
+        url: { value: 'https://example3.com' },
+        username: { value: 'user3' },
+        password: { value: '' },
+        otpuri: {
+          value:
+            'otpauth://totp/Example:user3?secret=MFRGGZDFMZTWQ2LK&issuer=Example',
+        },
+        shareto: { value: [] },
       },
       {
-        recordId: '4',
-        name: 'Empty OTP',
-        url: 'https://example4.com',
-        username: 'user4',
-        password: 'pass4',
-        otpAuthUri: '',
-        updatedTime: '2023-01-04T00:00:00Z',
+        $id: { value: '4' },
+        $revision: { value: '1' },
+        更新者: { value: { code: 'user', name: 'User' } },
+        作成者: { value: { code: 'user', name: 'User' } },
+        レコード番号: { value: '4' },
+        更新日時: { value: '2023-01-04T00:00:00Z' },
+        作成日時: { value: '2023-01-04T00:00:00Z' },
+        name: { value: 'Empty OTP' },
+        url: { value: 'https://example4.com' },
+        username: { value: 'user4' },
+        password: { value: 'pass4' },
+        otpuri: { value: '' },
+        shareto: { value: [] },
       },
       {
-        recordId: '5',
-        name: 'All Empty',
-        url: 'https://example5.com',
-        username: '',
-        password: '',
-        otpAuthUri: '',
-        updatedTime: '2023-01-05T00:00:00Z',
+        $id: { value: '5' },
+        $revision: { value: '1' },
+        更新者: { value: { code: 'user', name: 'User' } },
+        作成者: { value: { code: 'user', name: 'User' } },
+        レコード番号: { value: '5' },
+        更新日時: { value: '2023-01-05T00:00:00Z' },
+        作成日時: { value: '2023-01-05T00:00:00Z' },
+        name: { value: 'All Empty' },
+        url: { value: 'https://example5.com' },
+        username: { value: '' },
+        password: { value: '' },
+        otpuri: { value: '' },
+        shareto: { value: [] },
       },
       {
-        recordId: '6',
-        name: 'HOTP Record',
-        url: 'https://example6.com',
-        username: 'user6',
-        password: 'pass6',
-        otpAuthUri: 'otpauth://hotp/test6?secret=ABCDEFGHIJKLMNOP&counter=1',
-        updatedTime: '2023-01-06T00:00:00Z',
+        $id: { value: '6' },
+        $revision: { value: '1' },
+        更新者: { value: { code: 'user', name: 'User' } },
+        作成者: { value: { code: 'user', name: 'User' } },
+        レコード番号: { value: '6' },
+        更新日時: { value: '2023-01-06T00:00:00Z' },
+        作成日時: { value: '2023-01-06T00:00:00Z' },
+        name: { value: 'HOTP Record' },
+        url: { value: 'https://example6.com' },
+        username: { value: 'user6' },
+        password: { value: 'pass6' },
+        otpuri: {
+          value: 'otpauth://hotp/test6?secret=ABCDEFGHIJKLMNOP&counter=1',
+        },
+        shareto: { value: [] },
       },
     ];
 
@@ -648,16 +739,24 @@ describe('SelectionView - URL and Name Matching', () => {
   });
 
   describe('Copy Functionality', () => {
-    const testRecords: KintoneRecord[] = [
+    const testRecords: kintone.types.SavedFields[] = [
       {
-        recordId: '1',
-        name: 'Test Site',
-        url: 'https://test.example.com',
-        username: 'testuser',
-        password: 'testpass',
-        otpAuthUri:
-          'otpauth://totp/Test:testuser?secret=JBSWY3DPEHPK3PXP&issuer=Test',
-        updatedTime: '2023-01-01T00:00:00Z',
+        $id: { value: '1' },
+        $revision: { value: '1' },
+        更新者: { value: { code: 'user', name: 'User' } },
+        作成者: { value: { code: 'user', name: 'User' } },
+        レコード番号: { value: '1' },
+        更新日時: { value: '2023-01-01T00:00:00Z' },
+        作成日時: { value: '2023-01-01T00:00:00Z' },
+        name: { value: 'Test Site' },
+        url: { value: 'https://test.example.com' },
+        username: { value: 'testuser' },
+        password: { value: 'testpass' },
+        otpuri: {
+          value:
+            'otpauth://totp/Test:testuser?secret=JBSWY3DPEHPK3PXP&issuer=Test',
+        },
+        shareto: { value: [] },
       },
     ];
 

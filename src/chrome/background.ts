@@ -8,7 +8,6 @@ import type {
   ExtensionSettings,
   GetOTPMessage,
   GetRecordsMessage,
-  KintoneRecord,
   Message,
   ReadQRMessage,
   RegisterOTPMessage,
@@ -170,8 +169,8 @@ const handleFillFromKintone = async (
   }
 };
 
-const generateOTPFromRecord = async (record: KintoneRecord) => {
-  const otpAuthRecord = decodeOTPAuthURI(record.otpAuthUri);
+const generateOTPFromRecord = async (record: kintone.types.SavedFields) => {
+  const otpAuthRecord = decodeOTPAuthURI(record.otpuri.value);
 
   if (otpAuthRecord.type === 'TOTP') {
     return await generateTOTP({
@@ -229,9 +228,9 @@ chrome.runtime.onMessage.addListener(
             const client = await getClient();
             const { recordId } = (message as GetOTPMessage).data;
             const records = await client.getRecords();
-            const record = records.find((r) => r.recordId === recordId);
+            const record = records.find((r) => r.$id.value === recordId);
 
-            if (!record || !record.otpAuthUri) {
+            if (!record || !record.otpuri?.value) {
               throw new Error('Record not found or no OTP configured');
             }
 
