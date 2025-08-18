@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { decodeOTPAuthURI, isValidOTPAuthURI } from '@lib/otpauth-uri';
+
 import InputField from '@components/InputField';
 
 interface RegisterFormProps {

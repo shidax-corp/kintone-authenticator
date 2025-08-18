@@ -1,6 +1,6 @@
-import type { HashAlgorithm } from './hmac';
-import { b32encode, b32decode } from './base32';
+import { b32decode, b32encode } from './base32';
 import { generateHOTP, generateTOTP } from './gen-otp';
+import type { HashAlgorithm } from './hmac';
 
 type OTPAuthRecordBase = {
   issuer: string;

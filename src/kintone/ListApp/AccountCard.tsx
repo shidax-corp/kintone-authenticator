@@ -1,9 +1,10 @@
 import React from 'react';
 
 import { isValidURL } from '@lib/url';
-import TextField from '@components/TextField';
-import PasswordField from '@components/PasswordField';
+
 import OTPField from '@components/OTPField';
+import PasswordField from '@components/PasswordField';
+import TextField from '@components/TextField';
 
 export interface AccountCardProps {
   appId: number;

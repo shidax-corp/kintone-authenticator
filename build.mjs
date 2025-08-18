@@ -1,7 +1,7 @@
-import * as path from 'path';
 import * as esbuild from 'esbuild';
-import { copy } from 'esbuild-plugin-copy';
 import babel from 'esbuild-plugin-babel';
+import { copy } from 'esbuild-plugin-copy';
+import * as path from 'path';
 
 const NODE_ENV = process.env.NODE_ENV || 'production';
 const isDev = NODE_ENV === 'development';

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import InputField from '@components/InputField';
 import OTPInputField from '@components/OTPInputField';

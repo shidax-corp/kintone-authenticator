@@ -1,8 +1,10 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+
 import '@testing-library/jest-dom';
-import { SelectionView } from './SelectionView';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+
 import type { KintoneRecord } from '../lib/types';
+import { SelectionView } from './SelectionView';
 
 // Mock chrome runtime
 const mockChrome = {

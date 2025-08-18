@@ -1,11 +1,11 @@
 import {
-  getSettings,
-  saveSettings,
-  isSettingsComplete,
-  getCachedRecords,
-  setCachedRecords,
-  clearCache,
   clearAllData,
+  clearCache,
+  getCachedRecords,
+  getSettings,
+  isSettingsComplete,
+  saveSettings,
+  setCachedRecords,
 } from './storage';
 import type { ExtensionSettings, KintoneRecord } from './types';
 

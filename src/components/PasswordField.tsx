@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
-import Field from '@components/Field';
 import CopyField from '@components/CopyField';
+import Field from '@components/Field';
 
 export interface PasswordFieldProps {
   value: string;

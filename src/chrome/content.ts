@@ -1,8 +1,9 @@
 import React from 'react';
-import { isInputField, getFieldType, normalizeURL } from './lib/url-matcher';
-import { renderModalComponent, closeModal } from './lib/content-react-helper';
+
 import { AuthenticatorWrapper } from './AuthenticatorWrapper';
+import { closeModal, renderModalComponent } from './lib/content-react-helper';
 import type { KintoneRecord } from './lib/types';
+import { getFieldType, isInputField, normalizeURL } from './lib/url-matcher';
 
 let currentInputElement: HTMLElement | null = null;
 let autoFillExecuted = false;

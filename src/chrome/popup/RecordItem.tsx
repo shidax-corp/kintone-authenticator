@@ -1,8 +1,11 @@
 import React from 'react';
-import TextField from '@components/TextField';
-import PasswordField from '@components/PasswordField';
-import OTPField from '@components/OTPField';
+
 import { isValidURL } from '@lib/url';
+
+import OTPField from '@components/OTPField';
+import PasswordField from '@components/PasswordField';
+import TextField from '@components/TextField';
+
 import type { KintoneRecord } from '../lib/types';
 
 interface RecordItemProps {

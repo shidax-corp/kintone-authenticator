@@ -1,4 +1,4 @@
-import { b32encode, b32decode } from './base32';
+import { b32decode, b32encode } from './base32';
 
 describe('base32', () => {
   describe('b32encode', () => {

@@ -3,9 +3,9 @@ import { createRoot } from 'react-dom/client';
 
 import GlobalStyle from '@components/GlobalStyle';
 
-import ListApp from './ListApp';
 import DetailApp from './DetailApp';
 import FormApp from './FormApp';
+import ListApp from './ListApp';
 
 kintone.events.on(
   ['app.record.index.show', 'mobile.app.record.index.show'],

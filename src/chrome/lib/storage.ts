@@ -1,4 +1,4 @@
-import type { ExtensionSettings, KintoneRecord, CacheEntry } from './types';
+import type { CacheEntry, ExtensionSettings, KintoneRecord } from './types';
 
 const SETTINGS_KEY = 'kintone_authenticator_settings';
 const CACHE_KEY = 'kintone_authenticator_cache';

@@ -1,4 +1,5 @@
 import { KintoneRestAPIClient } from '@kintone/rest-api-client';
+
 import { getCachedRecords, setCachedRecords } from './storage';
 import type { ExtensionSettings, KintoneRecord } from './types';
 

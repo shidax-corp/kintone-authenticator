@@ -1,15 +1,15 @@
+import type { KintoneRecord } from './types';
 import {
   escapeRegex,
-  wildcardToRegex,
-  matchURL,
-  getMatchingRecords,
-  sortRecordsByPriority,
   getBestMatch,
-  normalizeURL,
-  isInputField,
   getFieldType,
+  getMatchingRecords,
+  isInputField,
+  matchURL,
+  normalizeURL,
+  sortRecordsByPriority,
+  wildcardToRegex,
 } from './url-matcher';
-import type { KintoneRecord } from './types';
 
 describe('url-matcher', () => {
   const mockRecords: KintoneRecord[] = [

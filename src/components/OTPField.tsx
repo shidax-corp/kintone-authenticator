@@ -1,17 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
-import {
-  decodeOTPAuthURI,
-  encodeOTPAuthURI,
-  OTPAuthRecord,
-} from '@lib/otpauth-uri';
 import type { OTP } from '@lib/gen-otp';
 import { generateHOTP, generateTOTP, prettifyOTP } from '@lib/gen-otp';
-import Field from '@components/Field';
+import {
+  OTPAuthRecord,
+  decodeOTPAuthURI,
+  encodeOTPAuthURI,
+} from '@lib/otpauth-uri';
+
 import CopyField, {
-  copyToClipboard,
   COPIED_MESSAGE_DURATION,
+  copyToClipboard,
 } from '@components/CopyField';
+import Field from '@components/Field';
 
 export interface OTPProps {
   uri: string;

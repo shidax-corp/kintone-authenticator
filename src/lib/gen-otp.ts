@@ -2,7 +2,6 @@
  *
  * https://qiita.com/kerupani129/items/4780fb1eea160c7a00bd
  */
-
 import type { HashAlgorithm } from './hmac';
 import { hmac } from './hmac';
 

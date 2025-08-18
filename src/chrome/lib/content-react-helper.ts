@@ -1,5 +1,5 @@
 import React from 'react';
-import { createRoot, type Root } from 'react-dom/client';
+import { type Root, createRoot } from 'react-dom/client';
 
 let currentModalRoot: HTMLElement | null = null;
 let currentReactRoot: Root | null = null;

@@ -1,11 +1,12 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
+import { generateHOTP, generateTOTP, prettifyOTP } from '@lib/gen-otp';
 import { decodeOTPAuthURI } from '@lib/otpauth-uri';
-import { generateTOTP, generateHOTP, prettifyOTP } from '@lib/gen-otp';
+
 import Field from '@components/Field';
 
-import Scanner from './Scanner';
 import QRFileReader from './QRFileReader';
+import Scanner from './Scanner';
 import { isClipboardAvailable, readQRFromClipboard } from './clipboard';
 
 export interface OTPInputFieldProps {

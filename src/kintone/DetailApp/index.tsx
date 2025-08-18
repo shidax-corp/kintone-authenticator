@@ -1,10 +1,11 @@
 import React, { useEffect } from 'react';
 
 import { isValidURL } from '@lib/url';
+
 import Field from '@components/Field';
-import TextField from '@components/TextField';
-import PasswordField from '@components/PasswordField';
 import OTPField from '@components/OTPField';
+import PasswordField from '@components/PasswordField';
+import TextField from '@components/TextField';
 
 export interface DetailAppProps {
   record: kintone.types.SavedFields;

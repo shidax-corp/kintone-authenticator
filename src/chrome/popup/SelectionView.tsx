@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { RecordItem } from './RecordItem';
+import React, { useCallback, useEffect, useState } from 'react';
+
 import { isSettingsComplete } from '../lib/storage';
+import type { ExtensionSettings, KintoneRecord } from '../lib/types';
 import { matchURL } from '../lib/url-matcher';
-import type { KintoneRecord, ExtensionSettings } from '../lib/types';
+import { RecordItem } from './RecordItem';
 
 interface SelectionViewProps {
   onRegister: () => void;

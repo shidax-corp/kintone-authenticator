@@ -1,19 +1,19 @@
-import { readQRFromImage } from '@lib/qr-reader';
 import { generateTOTP } from '@lib/gen-otp';
 import { decodeOTPAuthURI, isValidOTPAuthURI } from '@lib/otpauth-uri';
+import { readQRFromImage } from '@lib/qr-reader';
 
-import { getSettings, isSettingsComplete } from './lib/storage';
 import { KintoneClient } from './lib/kintone-client';
-import { getMatchingRecords } from './lib/url-matcher';
+import { getSettings, isSettingsComplete } from './lib/storage';
 import type {
+  ExtensionSettings,
+  GetOTPMessage,
+  GetRecordsMessage,
+  KintoneRecord,
   Message,
   ReadQRMessage,
   RegisterOTPMessage,
-  GetRecordsMessage,
-  GetOTPMessage,
-  KintoneRecord,
-  ExtensionSettings,
 } from './lib/types';
+import { getMatchingRecords } from './lib/url-matcher';
 
 const KINTONE_APP_ID = process.env.KINTONE_APP_ID || '1';
 

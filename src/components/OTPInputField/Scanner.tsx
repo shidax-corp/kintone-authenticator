@@ -1,5 +1,6 @@
-import React, { useRef, useEffect, useCallback } from 'react';
-import { readQRFromCanvas, QRReadError } from '@lib/qr-reader';
+import React, { useCallback, useEffect, useRef } from 'react';
+
+import { QRReadError, readQRFromCanvas } from '@lib/qr-reader';
 
 export interface ScannerProps {
   open?: boolean;

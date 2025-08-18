@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { createRoot } from 'react-dom/client';
+
+import GlobalStyle from '@components/GlobalStyle';
+
 import { AuthenticatorWrapper } from './AuthenticatorWrapper';
 import { RegisterForm } from './popup/RegisterForm';
-import GlobalStyle from '@components/GlobalStyle';
 
 type ViewMode = 'selection' | 'register';
 

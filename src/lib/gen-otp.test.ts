@@ -1,6 +1,6 @@
-import type { HashAlgorithm } from './hmac';
 import type { HOTPRequest } from './gen-otp';
 import { generateHOTP, generateTOTP, prettifyOTP } from './gen-otp';
+import type { HashAlgorithm } from './hmac';
 
 describe('gen-otp', () => {
   describe('generateHOTP', () => {

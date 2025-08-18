@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { getSettings, saveSettings, isSettingsComplete } from '../lib/storage';
-import type { ExtensionSettings } from '../lib/types';
+import React, { useEffect, useState } from 'react';
+
 import InputField from '@components/InputField';
+
+import { getSettings, isSettingsComplete, saveSettings } from '../lib/storage';
+import type { ExtensionSettings } from '../lib/types';
 
 interface TestResult {
   success: boolean;
