@@ -31,6 +31,7 @@ export class KintoneClientError extends Error {
 export class KintoneClient {
   private client: KintoneRestAPIClient;
   private appId: string;
+  private settings: ExtensionSettings;
 
   constructor(settings: ExtensionSettings, appId: string) {
     this.client = new KintoneRestAPIClient({
@@ -41,6 +42,7 @@ export class KintoneClient {
       },
     });
     this.appId = appId;
+    this.settings = settings;
   }
 
   private extractRecordData(record: KintoneRecordData): KintoneRecord {
@@ -111,6 +113,7 @@ export class KintoneClient {
         username: { value: data.username },
         password: { value: data.password },
         otpuri: { value: data.otpAuthUri || '' },
+        shareto: { value: [{ code: this.settings.kintoneUsername }] },
       };
 
       const response = await this.client.record.addRecord({
