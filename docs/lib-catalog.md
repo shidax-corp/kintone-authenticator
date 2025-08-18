@@ -14,10 +14,6 @@ libディレクトリは、kintoneアプリとChrome拡張の両方で使用さ�
 - `b32encode(data: ArrayLike<number>): string` - データをBase32文字列にエンコードする。パディング文字を含む。
 - `b32decode(str: string): Uint8Array` - Base32文字列をバイトアレイにデコードする。パディング文字は自動的に除去される。
 
-**定数**:
-
-- `BASE32_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567'` - 使用されるBase32アルファベット
-
 ## gen-otp
 
 **インポート**: `import { generateHOTP, generateTOTP, prettifyOTP } from '@lib/gen-otp'`
@@ -35,7 +31,7 @@ libディレクトリは、kintoneアプリとChrome拡張の両方で使用さ�
 **関数**:
 
 - `generateHOTP(request: HOTPRequest, counter: number): Promise<HOTP>` - カウンタベースのOTPを生成する。
-- `generateTOTP(request: TOTPRequest, currentTime?: number): Promise<TOTP>` - 時刻ベースのOTPを生成する。currentTimeが未指定の場合は現在時刻を使用。
+- `generateTOTP(request: TOTPRequest, currentTime: number | null = null): Promise<TOTP>` - 時刻ベースのOTPを生成する。currentTimeがnullまたは未指定の場合は現在時刻を使用。
 - `prettifyOTP(otp: string): string` - OTPを見やすい形式（スペース区切り）にフォーマットする。5〜12桁の長さに対応。
 
 ## hmac
@@ -51,10 +47,6 @@ libディレクトリは、kintoneアプリとChrome拡張の両方で使用さ�
 **関数**:
 
 - `hmac(key: Uint8Array, data: Uint8Array | number, algorithm: HashAlgorithm): Promise<Uint8Array>` - HMAC署名を計算する。dataが数値の場合は8バイトのビッグエンディアン形式に変換される。
-
-**内部関数**:
-
-- `int2bytes(num: number, width: number = 8)` - 数値をビッグエンディアンのバイト配列に変換する。
 
 ## otpauth-uri
 
@@ -99,19 +91,14 @@ libディレクトリは、kintoneアプリとChrome拡張の両方で使用さ�
 
 ## search
 
-**インポート**: `import { filterRecords } from '@lib/search'`
+**インポート**: `import { filterRecords, matchURL } from '@lib/search'`
 
 **説明**: kintoneレコードの検索・フィルタリング機能を提供するライブラリ。名前による部分一致検索とURLのワイルドカード検索をサポートする。
 
 **関数**:
 
 - `filterRecords<T extends kintone.types.Fields>(records: T[], query: string): T[]` - 検索クエリに基づいてレコードをフィルタリングする。名前に対しては部分一致、URLに対してはワイルドカード（\*）対応の検索を行う。複数のキーワードをスペース区切りで指定可能。
-
-**内部関数**:
-
-- `escapeRegex(str: string): string` - 正規表現の特殊文字をエスケープする。
-- `wildcardToRegex(pattern: string): RegExp` - ワイルドカードパターンを正規表現に変換する。
-- `matchURL(url: string, pattern: string): boolean` - URLがワイルドカードパターンにマッチするかチェックする。
+- `matchURL(urlPattern: string, query: string): boolean` - URLパターンがクエリにマッチするかどうかを判定する。ワイルドカード（\*）を含むパターンマッチングや、http/httpsで始まるクエリの前方一致をサポート。
 
 ## url
 

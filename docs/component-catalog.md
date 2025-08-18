@@ -69,7 +69,7 @@ componentsディレクトリは、kintoneアプリとChrome拡張の両方で使
 
 **Props**:
 
-- `type: 'text' | 'url' | 'password'` - 入力フィールドのタイプ。
+- `type: 'text' | 'url' | 'password' | 'search'` - 入力フィールドのタイプ。
 - `label: string` - フィールドの上に表示するラベル。
 - `placeholder?: string` - 入力フィールドのプレースホルダーテキスト。
 - `value: string` - 入力フィールドの現在の値。
@@ -88,10 +88,6 @@ componentsディレクトリは、kintoneアプリとChrome拡張の両方で使
 - `uri: string` - OTP Auth URI。
 - `onClick?: (otp: string) => void` - OTPがクリックされたときのコールバック関数。デフォルトではOTPをコピーする。
 - `onUpdate?: (newURI: string) => void` - HOTPのカウンターが更新されたときに呼び出されるコールバック関数。引数には新しいURIが渡される。
-
-**内部コンポーネント**:
-
-- `Timer` - TOTP用のタイマー表示コンポーネント
 
 ## OTPInputField
 
