@@ -97,6 +97,22 @@ libディレクトリは、kintoneアプリとChrome拡張の両方で使用さ�
 - SVGElement - SVGをBlobに変換して読み取り
 - その他の要素 - background-imageスタイルから読み取り
 
+## search
+
+**インポート**: `import { filterRecords } from '@lib/search'`
+
+**説明**: kintoneレコードの検索・フィルタリング機能を提供するライブラリ。名前による部分一致検索とURLのワイルドカード検索をサポートする。
+
+**関数**:
+
+- `filterRecords<T extends kintone.types.Fields>(records: T[], query: string): T[]` - 検索クエリに基づいてレコードをフィルタリングする。名前に対しては部分一致、URLに対してはワイルドカード（*）対応の検索を行う。複数のキーワードをスペース区切りで指定可能。
+
+**内部関数**:
+
+- `escapeRegex(str: string): string` - 正規表現の特殊文字をエスケープする。
+- `wildcardToRegex(pattern: string): RegExp` - ワイルドカードパターンを正規表現に変換する。
+- `matchURL(url: string, pattern: string): boolean` - URLがワイルドカードパターンにマッチするかチェックする。
+
 ## url
 
 **インポート**: `import { isValidURL, isValidURLPattern } from '@lib/url'`

@@ -103,7 +103,8 @@ componentsディレクトリは、kintoneアプリとChrome拡張の両方で使
 
 - `label: string` - フィールドの上に表示するラベル。
 - `value: string` - 現在の値。
-- `onChange: (value: string) => void` - 入力値が変更されたときに呼び出されるコールバック関数。
+- `onChange: (value: string, info: OTPAuthRecord | null) => void` - 入力値が変更されたときに呼び出されるコールバック関数。第二引数にはデコードされたOTP認証情報が渡される。
+- `disableCamera?: boolean` - カメラスキャン機能を無効にするかどうか。デフォルトは false。
 
 ## PasswordField
 
@@ -115,6 +116,18 @@ componentsディレクトリは、kintoneアプリとChrome拡張の両方で使
 
 - `value: string` - 表示するパスワードの値。
 - `onClick?: () => void` - パスワードがクリックされたときのコールバック関数。デフォルトではパスワードをコピーする。
+
+## SearchField
+
+**インポート**: `import SearchField from '@components/SearchField'`
+
+**説明**: 検索用の入力フィールドを表示するコンポーネント。
+
+**Props**:
+
+- `value: string` - 入力フィールドの現在の値。
+- `placeholder?: string` - 入力フィールドのプレースホルダーテキスト。省略すると "名前またはURLで検索" になる。
+- `onChange: (value: string) => void` - 入力値が変更されたときに呼び出されるコールバック関数。
 
 ## TextField
 
