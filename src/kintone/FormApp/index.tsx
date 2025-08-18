@@ -30,7 +30,7 @@ export default function FormApp({ record }: FormAppProps) {
       setter(value);
       kintone.app.record.set({
         record: {
-          ...record,
+          ...kintone.app.record.get().record,
           [field]: {
             value: value,
             type: record[field].type,
