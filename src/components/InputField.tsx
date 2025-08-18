@@ -3,7 +3,7 @@ import React from 'react';
 import Field from '@components/Field';
 
 export interface InputFieldProps {
-  type: 'text' | 'url' | 'password';
+  type: 'text' | 'url' | 'password' | 'search';
   label: string;
   placeholder?: string;
   value: string;
@@ -66,7 +66,7 @@ export default function InputField({
           background-color: var(--ka-bg-input-color);
           color: var(--ka-fg-color);
           border: 1px solid var(--ka-bg-tint-color);
-          padding: 0.5em;
+          padding: 0.5em 1em;
           font-size: 1em;
         }
         input:invalid,

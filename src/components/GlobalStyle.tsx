@@ -27,7 +27,7 @@ export default function GlobalStyle({ tint, children }: GlobalStyleProps) {
 
           --ka-bg-rgb: ${tint ? '245, 245, 245' : '255, 255, 255'};
           --ka-bg-color: rgb(var(--ka-bg-rgb));
-          --ka-bg-input-rgb: ${tint ? '255, 255, 255' : '238, 238, 238'};
+          --ka-bg-input-rgb: ${tint ? '255, 255, 255' : '250, 250, 250'};
           --ka-bg-input-color: rgb(var(--ka-bg-input-rgb));
           --ka-bg-tint-rgb: ${tint ? '238, 238, 238' : '250, 250, 250'};
           --ka-bg-tint-color: rgb(var(--ka-bg-tint-rgb));
