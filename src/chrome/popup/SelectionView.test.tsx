@@ -158,7 +158,7 @@ describe('SelectionView - URL and Name Matching', () => {
       });
 
       // Search for specific URL that matches wildcard record URL
-      const searchInput = screen.getByPlaceholderText('名前やURLで検索...');
+      const searchInput = screen.getByPlaceholderText('名前またはURLで検索');
       fireEvent.change(searchInput, {
         target: { value: 'https://github.com/api' },
       });
@@ -180,7 +180,7 @@ describe('SelectionView - URL and Name Matching', () => {
       });
 
       // Search for subdomain that matches wildcard record
-      const searchInput = screen.getByPlaceholderText('名前やURLで検索...');
+      const searchInput = screen.getByPlaceholderText('名前またはURLで検索');
       fireEvent.change(searchInput, {
         target: { value: 'https://subdomain.cybozu.com/k/app' },
       });
@@ -202,7 +202,7 @@ describe('SelectionView - URL and Name Matching', () => {
       });
 
       // Search for exact URL
-      const searchInput = screen.getByPlaceholderText('名前やURLで検索...');
+      const searchInput = screen.getByPlaceholderText('名前またはURLで検索');
       fireEvent.change(searchInput, {
         target: { value: 'https://github.com/login' },
       });
@@ -224,7 +224,7 @@ describe('SelectionView - URL and Name Matching', () => {
       });
 
       // Search with different case
-      const searchInput = screen.getByPlaceholderText('名前やURLで検索...');
+      const searchInput = screen.getByPlaceholderText('名前またはURLで検索');
       fireEvent.change(searchInput, {
         target: { value: 'HTTPS://GITHUB.COM/API' },
       });
@@ -246,7 +246,7 @@ describe('SelectionView - URL and Name Matching', () => {
       });
 
       // Search by name
-      const searchInput = screen.getByPlaceholderText('名前やURLで検索...');
+      const searchInput = screen.getByPlaceholderText('名前またはURLで検索');
       fireEvent.change(searchInput, { target: { value: 'GitHub' } });
 
       await waitFor(() => {
@@ -266,7 +266,7 @@ describe('SelectionView - URL and Name Matching', () => {
       });
 
       // Search by URL text (without wildcard)
-      const searchInput = screen.getByPlaceholderText('名前やURLで検索...');
+      const searchInput = screen.getByPlaceholderText('名前またはURLで検索');
       fireEvent.change(searchInput, { target: { value: 'cybozu' } });
 
       await waitFor(() => {
@@ -285,7 +285,7 @@ describe('SelectionView - URL and Name Matching', () => {
       });
 
       // Search with different case
-      const searchInput = screen.getByPlaceholderText('名前やURLで検索...');
+      const searchInput = screen.getByPlaceholderText('名前またはURLで検索');
       fireEvent.change(searchInput, { target: { value: 'github' } });
 
       await waitFor(() => {
@@ -305,7 +305,7 @@ describe('SelectionView - URL and Name Matching', () => {
       });
 
       // Search with URL text and name text
-      const searchInput = screen.getByPlaceholderText('名前やURLで検索...');
+      const searchInput = screen.getByPlaceholderText('名前またはURLで検索');
       fireEvent.change(searchInput, { target: { value: 'github main' } });
 
       await waitFor(() => {
@@ -324,7 +324,7 @@ describe('SelectionView - URL and Name Matching', () => {
       });
 
       // Search with URL that matches wildcard + additional text
-      const searchInput = screen.getByPlaceholderText('名前やURLで検索...');
+      const searchInput = screen.getByPlaceholderText('名前またはURLで検索');
       fireEvent.change(searchInput, {
         target: { value: 'https://github.com/api wildcard' },
       });
@@ -372,7 +372,7 @@ describe('SelectionView - URL and Name Matching', () => {
       });
 
       // Search with subdomain that should match *.example.com
-      const searchInput = screen.getByPlaceholderText('名前やURLで検索...');
+      const searchInput = screen.getByPlaceholderText('名前またはURLで検索');
       fireEvent.change(searchInput, { target: { value: 'a.example.com' } });
 
       await waitFor(() => {
@@ -394,7 +394,7 @@ describe('SelectionView - URL and Name Matching', () => {
       });
 
       // Clear search
-      const searchInput = screen.getByPlaceholderText('名前やURLで検索...');
+      const searchInput = screen.getByPlaceholderText('名前またはURLで検索');
       fireEvent.change(searchInput, { target: { value: '' } });
 
       await waitFor(() => {
@@ -415,7 +415,7 @@ describe('SelectionView - URL and Name Matching', () => {
       });
 
       // Search for non-existent pattern
-      const searchInput = screen.getByPlaceholderText('名前やURLで検索...');
+      const searchInput = screen.getByPlaceholderText('名前またはURLで検索');
       fireEvent.change(searchInput, {
         target: { value: 'https://nonexistent.com/*' },
       });
@@ -438,7 +438,7 @@ describe('SelectionView - URL and Name Matching', () => {
       });
 
       // Search with text that could cause regex issues when used with wildcard URLs
-      const searchInput = screen.getByPlaceholderText('名前やURLで検索...');
+      const searchInput = screen.getByPlaceholderText('名前またはURLで検索');
       fireEvent.change(searchInput, { target: { value: '[test.pattern' } });
 
       await waitFor(() => {

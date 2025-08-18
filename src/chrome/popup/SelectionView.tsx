@@ -1,8 +1,11 @@
 import React, { useCallback, useEffect, useState } from 'react';
 
+import { filterRecords } from '@lib/search';
+
+import SearchField from '@components/SearchField';
+
 import { isSettingsComplete } from '../lib/storage';
 import type { ExtensionSettings } from '../lib/types';
-import { matchURL } from '../lib/url-matcher';
 import { RecordItem } from './RecordItem';
 
 interface SelectionViewProps {
@@ -111,7 +114,7 @@ export const SelectionView: React.FC<SelectionViewProps> = ({
     );
   };
 
-  const filterRecords = useCallback(() => {
+  const filterRecordsCallback = useCallback(() => {
     // 検索に使用するレコードを決定（allRecordsが利用可能ならそれを使用、そうでなければrecords）
     const searchableRecords = allRecords || records;
 
@@ -123,38 +126,8 @@ export const SelectionView: React.FC<SelectionViewProps> = ({
       return;
     }
 
-    const queries = searchQuery
-      .toLowerCase()
-      .split(' ')
-      .filter((q) => q.length > 0);
-    const filtered = recordsWithValidFields.filter((record) => {
-      return queries.every((query) => {
-        const lowerQuery = query.toLowerCase();
-
-        // URL matching
-        let urlMatch = false;
-        if (record.url?.value?.includes('*')) {
-          // Wildcard matching if record URL has asterisk
-          urlMatch = matchURL(query, record.url.value);
-
-          // If query doesn't look like a full URL, also try text matching
-          if (!urlMatch && !query.includes('://')) {
-            urlMatch = record.url.value.toLowerCase().includes(lowerQuery);
-          }
-        } else if (record.url?.value) {
-          // Text matching for non-wildcard URLs
-          urlMatch = record.url.value.toLowerCase().includes(lowerQuery);
-        }
-
-        // Name matching (always text-based)
-        const nameMatch =
-          record.name?.value?.toLowerCase().includes(lowerQuery) || false;
-
-        // Either URL or name should match
-        return urlMatch || nameMatch;
-      });
-    });
-
+    // @lib/searchのfilterRecordsを使用して検索処理
+    const filtered = filterRecords(recordsWithValidFields, searchQuery);
     setFilteredRecords(filtered);
   }, [allRecords, records, searchQuery]);
 
@@ -163,8 +136,8 @@ export const SelectionView: React.FC<SelectionViewProps> = ({
   }, [loadInitialData]);
 
   useEffect(() => {
-    filterRecords();
-  }, [records, searchQuery, filterRecords]);
+    filterRecordsCallback();
+  }, [records, searchQuery, filterRecordsCallback]);
 
   if (loading) {
     return (
@@ -281,13 +254,7 @@ export const SelectionView: React.FC<SelectionViewProps> = ({
           )}
         </div>
         <div className="search-container">
-          <input
-            type="text"
-            className="search-input"
-            placeholder="名前やURLで検索..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
+          <SearchField value={searchQuery} onChange={setSearchQuery} />
           <button
             className="refresh-button"
             onClick={refreshRecords}
@@ -390,21 +357,6 @@ export const SelectionView: React.FC<SelectionViewProps> = ({
           display: flex;
           gap: 8px;
           align-items: center;
-        }
-
-        .search-input {
-          flex: 1;
-          padding: 8px 12px;
-          border: 1px solid var(--ka-bg-dark-color);
-          border-radius: 4px;
-          font-size: 14px;
-          background: var(--ka-bg-input-color);
-          color: var(--ka-fg-color);
-        }
-
-        .search-input:focus {
-          outline: none;
-          border-color: var(--ka-primary-color);
         }
 
         .refresh-button {
