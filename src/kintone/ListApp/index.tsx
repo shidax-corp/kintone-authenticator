@@ -39,7 +39,7 @@ export default function ListApp({
         if (count === null) {
           elm.textContent = elm.dataset.originalCount || '';
         } else {
-          elm.textContent = `${count}件ヒット`;
+          elm.textContent = `${count}件`;
         }
       }
     }
