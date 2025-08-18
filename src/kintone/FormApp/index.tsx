@@ -69,7 +69,7 @@ export default function FormApp({ record }: FormAppProps) {
         placeholder=""
         value={password}
         onChange={withWriteBack('password', setPassword)}
-        type="password"
+        type="text"
       />
       <OTPInputField
         label="ワンタイムパスワード"
