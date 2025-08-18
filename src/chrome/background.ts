@@ -189,13 +189,13 @@ chrome.runtime.onMessage.addListener(
   (message: Message, sender, sendResponse) => {
     (async () => {
       try {
-        const settings = await getSettings();
-        if (!isSettingsComplete(settings)) {
-          sendResponse({ error: 'Settings not complete' });
-          return;
-        }
-
-        const client = new KintoneClient(settings, KINTONE_APP_ID);
+        const getClient = async () => {
+          const settings = await getSettings();
+          if (!isSettingsComplete(settings)) {
+            throw new Error('Settings not complete');
+          }
+          return new KintoneClient(settings, KINTONE_APP_ID);
+        };
 
         switch (message.type) {
           case 'READ_QR': {
@@ -206,6 +206,7 @@ chrome.runtime.onMessage.addListener(
           }
 
           case 'REGISTER_OTP': {
+            const client = await getClient();
             const recordData = (message as RegisterOTPMessage).data;
             const recordId = await client.createRecord(recordData);
             sendResponse({ success: true, data: { recordId } });
@@ -213,6 +214,7 @@ chrome.runtime.onMessage.addListener(
           }
 
           case 'GET_RECORDS': {
+            const client = await getClient();
             const { url, forceRefresh } =
               (message as GetRecordsMessage).data || {};
             const records = await client.getRecords(!forceRefresh);
@@ -224,6 +226,7 @@ chrome.runtime.onMessage.addListener(
           }
 
           case 'GET_OTP': {
+            const client = await getClient();
             const { recordId } = (message as GetOTPMessage).data;
             const records = await client.getRecords();
             const record = records.find((r) => r.recordId === recordId);
@@ -238,6 +241,7 @@ chrome.runtime.onMessage.addListener(
           }
 
           case 'GET_SETTINGS': {
+            const settings = await getSettings();
             sendResponse({ success: true, data: settings });
             break;
           }
