@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 
 import { generateHOTP, generateTOTP, prettifyOTP } from '@lib/gen-otp';
-import { decodeOTPAuthURI } from '@lib/otpauth-uri';
+import { type OTPAuthRecord, decodeOTPAuthURI } from '@lib/otpauth-uri';
 
 import Field from '@components/Field';
 
@@ -12,7 +12,7 @@ import { isClipboardAvailable, readQRFromClipboard } from './clipboard';
 export interface OTPInputFieldProps {
   label: string;
   value: string;
-  onChange: (value: string) => void;
+  onChange: (value: string, info: OTPAuthRecord | null) => void;
 }
 
 /**
@@ -44,6 +44,7 @@ export default function OTPInputField({
         setCode(otp.otp);
       }
       setError(null);
+      return record;
     } catch (err) {
       if (err instanceof Error) {
         setError(err.message);
@@ -58,7 +59,7 @@ export default function OTPInputField({
   useEffect(() => {
     if (value) {
       readURI(value).catch(() => {
-        onChange(''); // 無効なOTP Auth URIが設定されている場合は、空文字列にリセットする。
+        onChange('', null); // 無効なOTP Auth URIが設定されている場合は、空文字列にリセットする。
         setCode(''); // コードの表示も消す。
       });
     }
@@ -67,8 +68,9 @@ export default function OTPInputField({
   const onRead = useCallback(
     (data: string) => {
       setError(null);
+
       readURI(data)
-        .then(() => onChange(data))
+        .then((info: OTPAuthRecord) => onChange(data, info))
         .catch(() => {
           // エラーは既にsetErrorで設定されているので、ここでは何もしない。
           // すでにセットされている値は触らないでおく。

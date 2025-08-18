@@ -62,8 +62,10 @@ const parseURL = (uri: string): URL => {
 export const decodeOTPAuthURI = (uri: string): OTPAuthRecord => {
   const url = parseURL(uri);
   const type = url.hostname.toUpperCase();
-  const label = url.pathname.slice(1);
-  const [issuerByLabel, accountName] = decodeURIComponent(label).split(':');
+  const label = decodeURIComponent(url.pathname.slice(1));
+  const [issuerByLabel, accountName] = label.includes(':')
+    ? label.split(':', 2)
+    : ['', label];
 
   const secret = b32decode(url.searchParams.get('secret') || '');
   const issuerByParams = decodeURIComponent(

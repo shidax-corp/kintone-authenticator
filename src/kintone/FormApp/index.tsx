@@ -74,7 +74,16 @@ export default function FormApp({ record }: FormAppProps) {
       <OTPInputField
         label="ワンタイムパスワード"
         value={otpuri}
-        onChange={withWriteBack('otpuri', setOtpuri)}
+        onChange={(value, info) => {
+          withWriteBack('otpuri', setOtpuri)(value);
+
+          if (!name && info?.issuer) {
+            withWriteBack('name', setName)(info.issuer);
+          }
+          if (!username && info?.accountName) {
+            withWriteBack('username', setUsername)(info.accountName);
+          }
+        }}
       />
       <style jsx>{`
         div > :global(*) {
