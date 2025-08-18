@@ -6,6 +6,13 @@
  * クエリが `http://` または `https://` で始まる場合、URLパターンの先頭部分がクエリと一致すれば `true` を返す。この場合、URLパターンとクエリのどちらが長くても、与えられた範囲で一致していれば `true` になる。
  */
 export const matchURL = (urlPattern: string, query: string): boolean => {
+  if (!urlPattern) {
+    return false;
+  }
+  if (!query) {
+    return true;
+  }
+
   if (urlPattern.includes(query)) {
     return true;
   }
@@ -19,10 +26,6 @@ export const matchURL = (urlPattern: string, query: string): boolean => {
 
   if (query.match(/^https?:\/\/../)) {
     let [proto, rest] = urlPattern.split(/(?<=:\/\/.)/, 2);
-    while (proto.endsWith('*')) {
-      proto += rest[0];
-      rest = rest.slice(1);
-    }
     const frontMatch =
       '^' +
       escape(proto).replace(/\*/g, '.*') +
