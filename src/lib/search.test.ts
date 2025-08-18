@@ -14,6 +14,7 @@ describe('filterRecords', () => {
     R('Alice', 'https://example.com/alice'),
     R('Bob', 'https://bob.example.com/bob'),
     R('Charlie', 'https://charlie.example.com/bob/charlie'),
+    R('David', 'https://*.example.com/david'),
   ];
 
   const tests = [
@@ -37,7 +38,7 @@ describe('filterRecords', () => {
       expected: [R('Bob', 'https://bob.example.com/bob')],
     },
     {
-      query: 'https://*.example.com/bob',
+      query: '.example.com/bob',
       expected: [
         R('Bob', 'https://bob.example.com/bob'),
         R('Charlie', 'https://charlie.example.com/bob/charlie'),
@@ -53,6 +54,14 @@ describe('filterRecords', () => {
         R('Bob', 'https://bob.example.com/bob'),
         R('Charlie', 'https://charlie.example.com/bob/charlie'),
       ],
+    },
+    {
+      query: 'https://foobar.example.com',
+      expected: [R('David', 'https://*.example.com/david')],
+    },
+    {
+      query: 'https://foobar.example.com/david?abc=123',
+      expected: [R('David', 'https://*.example.com/david')],
     },
     {
       query: '',
