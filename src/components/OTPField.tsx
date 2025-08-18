@@ -37,7 +37,7 @@ export default function OTPField({
   const [otp, setOtp] = useState<OTP | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
-  const [shouldSelectHOTP, setShouldSelectHOTP] = useState(false);
+  const [toSelectOTP, setToSelectOTP] = useState<string | null>(null); // HOTPを再生成したときに選択するためのフラグ。この値と異なる値に変更された場合にOTPを選択する。
   const ref = React.useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -73,19 +73,6 @@ export default function OTPField({
     }
   }, [uri]);
 
-  // HOTPクリック後のDOM更新を監視して選択を実行
-  useEffect(() => {
-    if (shouldSelectHOTP && otp && ref.current) {
-      const range = document.createRange();
-      range.selectNodeContents(ref.current);
-
-      window.getSelection()?.removeAllRanges();
-      window.getSelection()?.addRange(range);
-
-      setShouldSelectHOTP(false);
-    }
-  }, [otp, shouldSelectHOTP]);
-
   const setSelection = () => {
     if (!ref.current) return;
 
@@ -95,6 +82,15 @@ export default function OTPField({
     window.getSelection()?.removeAllRanges();
     window.getSelection()?.addRange(range);
   };
+
+  // HOTPクリック後のDOM更新を監視して選択を実行
+  useEffect(() => {
+    console.log(otp, toSelectOTP);
+    if (toSelectOTP && otp && otp?.otp !== toSelectOTP && ref.current) {
+      setSelection();
+      setToSelectOTP(null);
+    }
+  }, [otp, toSelectOTP]);
 
   const handleCallback = (otp: string) => {
     if (onClick) {
@@ -113,7 +109,9 @@ export default function OTPField({
       handleCallback(otp.otp);
     } else if (info?.type === 'HOTP') {
       // HOTPの場合は非同期処理後に選択する必要があるのでフラグを立てる
-      setShouldSelectHOTP(true);
+      // 今のOTPから変わったことを検知できるように、ここで今の値を保持しておく。
+      // 現時点で空欄の場合は何にせよ選択してほしいので、適当な値（anyway)を設定する。
+      setToSelectOTP(otp?.otp ?? 'anyway');
 
       generateHOTP(info, info.counter)
         .then((generatedOtp) => {
@@ -132,7 +130,7 @@ export default function OTPField({
         .catch(() => {
           setError('計算に失敗しました');
           setOtp(null);
-          setShouldSelectHOTP(false);
+          setToSelectOTP(null);
         });
     }
   };
