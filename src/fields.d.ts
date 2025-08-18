@@ -5,6 +5,8 @@ declare namespace kintone.types {
     password: kintone.fieldTypes.SingleLineText;
     name: kintone.fieldTypes.SingleLineText;
     username: kintone.fieldTypes.SingleLineText;
+
+    shareto: kintone.fieldTypes.UserSelect;
   }
   interface SavedFields extends Fields {
     $id: kintone.fieldTypes.Id;
