@@ -63,12 +63,14 @@ const options = {
       },
     }),
     copy({
+      resolveFrom: 'cwd',
       assets: [
         {
-          from: [path.resolve(import.meta.dirname, 'assets', '**', '*')],
-          to: [path.resolve(import.meta.dirname, 'dist')],
+          from: ['./assets/**/*'],
+          to: ['./dist'],
         },
       ],
+      watch: serve,
     }),
   ],
 };
