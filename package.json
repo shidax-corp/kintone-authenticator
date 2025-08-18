@@ -16,9 +16,9 @@
   "scripts": {
     "build": "node --env-file=.env build.mjs",
     "dev": "dotenv -v NODE_ENV=development -- node build.mjs --serve",
-    "deploy:kintone": "dotenv -c development -- sh -c 'cd dist/kintone && kintone-customize-uploader --base-url=${KINTONE_BASE_URL} --username=${KINTONE_USERNAME} --password=${KINTONE_PASSWORD} dest/customize-manifest.json'",
+    "deploy:kintone": "dotenv -c development -- sh -c \"cd dist/kintone && kintone-customize-uploader --base-url=${KINTONE_BASE_URL} --username=${KINTONE_USERNAME} --password=${KINTONE_PASSWORD} dest/customize-manifest.json\"",
     "gen:dts": "dotenv -c development -- sh -c 'kintone-dts-gen --base-url ${KINTONE_BASE_URL} --app-id ${KINTONE_APP_ID} --username ${KINTONE_USERNAME} --password ${KINTONE_PASSWORD} --output src/fields.d.ts'",
-    "check": "npm run check:type && npm run check:lint && npm run check:format",
+    "check": "run-s check:type check:lint check:format",
     "check:type": "tsc --noEmit",
     "check:format": "prettier --check .",
     "check:lint": "eslint src --ext .ts,.tsx,.js,.jsx",
@@ -59,6 +59,7 @@
     "jest": "^30.0.5",
     "jest-environment-jsdom": "^30.0.5",
     "jsdom": "^26.1.0",
+    "npm-run-all": "^4.1.5",
     "prettier": "^3.6.2",
     "ts-jest": "^29.4.1",
     "typescript": "^5.9.2"
