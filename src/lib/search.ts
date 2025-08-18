@@ -26,6 +26,10 @@ export const matchURL = (urlPattern: string, query: string): boolean => {
 
   if (query.match(/^https?:\/\/../)) {
     let [proto, rest] = urlPattern.split(/(?<=:\/\/.)/, 2);
+    while (proto.endsWith('*')) {
+      proto += rest[0];
+      rest = rest.slice(1);
+    }
     const frontMatch =
       '^' +
       escape(proto).replace(/\*/g, '.*') +
