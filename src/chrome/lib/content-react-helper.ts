@@ -30,6 +30,7 @@ export const renderModalComponent = (component: React.ReactElement): void => {
   // モーダルコンテンツ用の要素を作成
   const modalContent = document.createElement('div');
   modalContent.style.cssText = `
+    background: white;
     border-radius: 8px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
     max-height: 90vh;
