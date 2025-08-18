@@ -57,7 +57,7 @@ export const RecordItem: React.FC<RecordItemProps> = ({
     <li>
       <div>
         <span className="detail">{record.name?.value}</span>
-        {isValidURL(record.url.value) ? (
+        {record.url?.value && isValidURL(record.url.value) ? (
           <a
             href={record.url.value}
             className="url"
@@ -67,7 +67,7 @@ export const RecordItem: React.FC<RecordItemProps> = ({
             {record.url.value}
           </a>
         ) : (
-          <span className="url">{record.url.value}</span>
+          <span className="url">{record.url?.value}</span>
         )}
       </div>
       {record.username?.value ? (
@@ -75,7 +75,7 @@ export const RecordItem: React.FC<RecordItemProps> = ({
           label="ユーザー名"
           value={record.username.value}
           onClick={
-            isModal
+            isModal && record.username?.value
               ? () => handleUsernameClick(record.username.value)
               : undefined
           }
@@ -85,7 +85,7 @@ export const RecordItem: React.FC<RecordItemProps> = ({
         <PasswordField
           value={record.password.value}
           onClick={
-            isModal
+            isModal && record.password?.value
               ? () => handlePasswordClick(record.password.value)
               : undefined
           }
