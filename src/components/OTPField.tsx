@@ -37,6 +37,7 @@ export default function OTPField({
   const [otp, setOtp] = useState<OTP | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [shouldSelectHOTP, setShouldSelectHOTP] = useState(false);
   const ref = React.useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -72,8 +73,20 @@ export default function OTPField({
     }
   }, [uri]);
 
+  // HOTPクリック後のDOM更新を監視して選択を実行
+  useEffect(() => {
+    if (shouldSelectHOTP && otp && ref.current) {
+      const range = document.createRange();
+      range.selectNodeContents(ref.current);
+
+      window.getSelection()?.removeAllRanges();
+      window.getSelection()?.addRange(range);
+
+      setShouldSelectHOTP(false);
+    }
+  }, [otp, shouldSelectHOTP]);
+
   const setSelection = () => {
-    // TODO: クリックした直後にDOMが変わってしまうせいでうまく動かなそう。
     if (!ref.current) return;
 
     const range = document.createRange();
@@ -96,8 +109,12 @@ export default function OTPField({
 
   const onClickHandler = () => {
     if (info?.type === 'TOTP' && otp?.otp) {
+      setSelection();
       handleCallback(otp.otp);
     } else if (info?.type === 'HOTP') {
+      // HOTPの場合は非同期処理後に選択する必要があるのでフラグを立てる
+      setShouldSelectHOTP(true);
+
       generateHOTP(info, info.counter)
         .then((generatedOtp) => {
           setOtp(generatedOtp);
@@ -110,12 +127,12 @@ export default function OTPField({
             });
             onUpdate(newURI);
             setUri(newURI);
-            setSelection();
           }
         })
         .catch(() => {
           setError('計算に失敗しました');
           setOtp(null);
+          setShouldSelectHOTP(false);
         });
     }
   };
