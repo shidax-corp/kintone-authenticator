@@ -1,4 +1,4 @@
-// Service Worker用のQRコード読み取り実装
+// Background Service Worker環境でのQRコード読み取り実装
 // Offscreen Document APIを使用してDOM操作を行う
 import { QRReadError } from '@lib/qr-reader';
 
