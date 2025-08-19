@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { AuthenticatorModalApp } from './AuthenticatorModalApp';
 import { AuthenticatorWrapper } from './AuthenticatorWrapper';
 import { closeModal, renderModalComponent } from './lib/content-react-helper';
 import { getFieldType, isInputField, normalizeURL } from './lib/url-matcher';
@@ -170,6 +171,62 @@ const showFillOptionsModal = async (
   }
 };
 
+const showRegisterFormModal = async (otpAuthUri: string) => {
+  try {
+    const handleFieldSelect = async (
+      type: 'username' | 'password' | 'otp',
+      value: string,
+      recordId?: string
+    ) => {
+      if (type === 'otp' && recordId) {
+        // OTPの場合は動的に生成
+        try {
+          const response = await chrome.runtime.sendMessage({
+            type: 'GET_OTP',
+            data: { recordId },
+          });
+
+          if (response.success && currentInputElement) {
+            fillInputField(currentInputElement, response.data.otp);
+            showToast('OTPを入力しました');
+            closeModal();
+          }
+        } catch {
+          showToast('OTPの取得に失敗しました', 'error');
+        }
+      } else if (currentInputElement) {
+        fillInputField(currentInputElement, value);
+        showToast(
+          `${type === 'username' ? 'ユーザー名' : 'パスワード'}を入力しました`
+        );
+        closeModal();
+      }
+    };
+
+    const handleClose = () => {
+      closeModal();
+    };
+
+    // content script環境で現在のページ情報を取得
+    const currentPageTitle = document.title;
+    const currentPageUrl = window.location.href;
+
+    // AuthenticatorModalAppコンポーネントを登録フォーム表示モードでレンダリング
+    const modalAppElement = React.createElement(AuthenticatorModalApp, {
+      onClose: handleClose,
+      onFieldSelect: handleFieldSelect,
+      initialViewMode: 'register',
+      initialOtpAuthUri: otpAuthUri,
+      initialPageTitle: currentPageTitle,
+      initialPageUrl: currentPageUrl,
+    });
+
+    renderModalComponent(modalAppElement);
+  } catch {
+    showToast('登録フォームの表示に失敗しました', 'error');
+  }
+};
+
 document.addEventListener('contextmenu', (e) => {
   const target = e.target as HTMLElement;
 
@@ -200,10 +257,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       break;
 
     case 'OPEN_REGISTER_FORM':
-      chrome.runtime.sendMessage({
-        type: 'OPEN_POPUP',
-        data: { action: 'register', otpAuthUri: message.data.otpAuthUri },
-      });
+      showRegisterFormModal(message.data.otpAuthUri);
       break;
   }
 

@@ -40,6 +40,12 @@ const options = {
       'options',
       'index.tsx'
     ),
+    'chrome/offscreen': path.resolve(
+      import.meta.dirname,
+      'src',
+      'chrome',
+      'offscreen.ts'
+    ),
   },
   bundle: true,
   outdir: path.resolve(import.meta.dirname, 'dist'),

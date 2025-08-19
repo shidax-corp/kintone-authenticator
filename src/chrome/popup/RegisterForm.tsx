@@ -12,17 +12,21 @@ import OTPInputField from '@components/OTPInputField';
 interface RegisterFormProps {
   otpAuthUri?: string;
   onBack: () => void;
-  onSuccess: () => void;
+  onSuccess: (recordId?: string) => void;
+  initialPageTitle?: string;
+  initialPageUrl?: string;
 }
 
 export const RegisterForm: React.FC<RegisterFormProps> = ({
   otpAuthUri,
   onBack,
   onSuccess,
+  initialPageTitle,
+  initialPageUrl,
 }) => {
   const [formData, setFormData] = useState({
-    name: '',
-    url: '',
+    name: initialPageTitle || '',
+    url: initialPageUrl || '',
     username: '',
     password: '',
     otpAuthUri: otpAuthUri || '',
@@ -33,17 +37,19 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
   const [fieldErrors, setFieldErrors] = useState<{ [key: string]: string }>({});
 
   useEffect(() => {
-    // Get current tab information to pre-fill form
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      const currentTab = tabs[0];
-      if (currentTab && currentTab.url && currentTab.title) {
-        setFormData((prev) => ({
-          ...prev,
-          name: prev.name || currentTab.title || '',
-          url: prev.url || currentTab.url || '',
-        }));
-      }
-    });
+    // Get current tab information to pre-fill form (only in extension context)
+    if (typeof chrome !== 'undefined' && chrome.tabs && chrome.tabs.query) {
+      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        const currentTab = tabs[0];
+        if (currentTab && currentTab.url && currentTab.title) {
+          setFormData((prev) => ({
+            ...prev,
+            name: prev.name || currentTab.title || '',
+            url: prev.url || currentTab.url || '',
+          }));
+        }
+      });
+    }
 
     // If OTPAuth URI is provided, extract information
     if (!otpAuthUri) return;
@@ -61,7 +67,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
         }
       }
     });
-  }, [otpAuthUri]);
+  }, [otpAuthUri, initialPageTitle, initialPageUrl]);
 
   const handleInputChange = (field: keyof typeof formData, value: string) => {
     setFormData((prev) => ({
@@ -124,7 +130,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
       });
 
       if (response.success) {
-        onSuccess();
+        onSuccess(response.data?.recordId);
       } else {
         setError(response.error || '登録に失敗しました');
       }

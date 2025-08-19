@@ -30,6 +30,9 @@ export default [
         Image: 'readonly',
         crypto: 'readonly',
         navigator: 'readonly',
+        fetch: 'readonly',
+        URL: 'readonly',
+        Blob: 'readonly',
 
         // Node.js globals
         process: 'readonly',
