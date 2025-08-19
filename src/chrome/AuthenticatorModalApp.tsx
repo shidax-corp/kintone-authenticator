@@ -88,10 +88,7 @@ export const AuthenticatorModalApp: React.FC<AuthenticatorModalAppProps> = ({
             if (toast.parentNode) {
               toast.parentNode.removeChild(toast);
             }
-          showToast(
-            `OTPが登録され、クリップボードにコピーされました: ${response.data.otp}`,
-            '#4caf50'
-          );
+          }, 5000);
         } else {
           throw new Error('OTP生成に失敗しました');
         }
