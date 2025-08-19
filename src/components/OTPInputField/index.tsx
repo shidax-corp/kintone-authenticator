@@ -130,7 +130,7 @@ export default function OTPInputField({
           align-items: center;
           gap: 8px;
           padding: var(--ka-field-padding);
-          background-color: var(--ka-bg-color);
+          background-color: var(--ka-bg-input-color);
         }
         .preview {
           color: var(--ka-fg-light-color);
