@@ -2,8 +2,12 @@ import React, { useEffect, useState } from 'react';
 
 import InputField from '@components/InputField';
 
-import { getSettings, isSettingsComplete, saveSettings } from '../lib/storage';
-import type { ExtensionSettings } from '../lib/types';
+import {
+  getSettings,
+  isSettingsComplete,
+  saveSettings,
+} from '../lib/core/storage';
+import type { ExtensionSettings } from '../lib/core/types';
 
 interface TestResult {
   success: boolean;

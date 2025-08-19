@@ -2,7 +2,7 @@ import React from 'react';
 
 import GlobalStyle from '@components/GlobalStyle';
 
-import { SelectionView } from './popup/SelectionView';
+import { SelectionView } from '../popup/SelectionView';
 
 interface AuthenticatorWrapperProps {
   onRegister: () => void;

@@ -4,9 +4,9 @@ import { filterRecords } from '@lib/search';
 
 import SearchField from '@components/SearchField';
 
-import { isSettingsComplete } from '../lib/storage';
-import type { ExtensionSettings } from '../lib/types';
-import { RecordItem } from '../popup/RecordItem';
+import { RecordItem } from '../../popup/RecordItem';
+import { isSettingsComplete } from '../core/storage';
+import type { ExtensionSettings } from '../core/types';
 import ModalBase from './ModalBase';
 
 interface SelectorModalProps {

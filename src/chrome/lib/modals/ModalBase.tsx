@@ -11,10 +11,7 @@ interface ModalBaseProps {
  * モーダルの基本コンポーネント
  * 背景を暗くし、コンテンツを中央に配置する
  */
-const ModalBase: React.FC<ModalBaseProps> = ({
-  onClose,
-  children,
-}) => {
+const ModalBase: React.FC<ModalBaseProps> = ({ onClose, children }) => {
   // ESCキーでモーダルを閉じる
   useEffect(() => {
     if (!onClose) return;

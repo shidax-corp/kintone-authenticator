@@ -4,8 +4,8 @@ import { filterRecords } from '@lib/search';
 
 import SearchField from '@components/SearchField';
 
-import { isSettingsComplete } from '../lib/storage';
-import type { ExtensionSettings } from '../lib/types';
+import { isSettingsComplete } from '../lib/core/storage';
+import type { ExtensionSettings } from '../lib/core/types';
 import { RecordItem } from './RecordItem';
 
 interface SelectionViewProps {
