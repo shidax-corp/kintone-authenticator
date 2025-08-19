@@ -1,9 +1,9 @@
 import React from 'react';
 
-import { AuthenticatorModalApp } from './AuthenticatorModalApp';
-import { AuthenticatorWrapper } from './AuthenticatorWrapper';
 import { closeModal, renderModalComponent } from './lib/content-react-helper';
 import { getFieldType, isInputField, normalizeURL } from './lib/url-matcher';
+import { RegisterModal } from './modals/RegisterModal';
+import { SelectorModal } from './modals/SelectorModal';
 
 let currentInputElement: HTMLElement | null = null;
 let autoFillExecuted = false;
@@ -152,12 +152,8 @@ const showFillOptionsModal = async (
     // 現在のURLを初期検索クエリとして使用
     const initialSearchQuery = currentUrl;
 
-    // AuthenticatorWrapperコンポーネントをレンダリング
-    const authenticatorElement = React.createElement(AuthenticatorWrapper, {
-      onRegister: () => {
-        // 登録機能は contentスクリプトでは使用しないため空にする
-      },
-      isModal: true,
+    // SelectorModalコンポーネントをレンダリング
+    const selectorElement = React.createElement(SelectorModal, {
       onClose: handleClose,
       onFieldSelect: handleFieldSelect,
       initialRecords: records, // マッチしたレコードデータを渡す
@@ -165,7 +161,7 @@ const showFillOptionsModal = async (
       initialSearchQuery: initialSearchQuery, // 初期検索クエリを渡す
     });
 
-    renderModalComponent(authenticatorElement);
+    renderModalComponent(selectorElement);
   } catch {
     showToast('モーダルの表示に失敗しました', 'error');
   }
@@ -173,36 +169,6 @@ const showFillOptionsModal = async (
 
 const showRegisterFormModal = async (otpAuthUri: string) => {
   try {
-    const handleFieldSelect = async (
-      type: 'username' | 'password' | 'otp',
-      value: string,
-      recordId?: string
-    ) => {
-      if (type === 'otp' && recordId) {
-        // OTPの場合は動的に生成
-        try {
-          const response = await chrome.runtime.sendMessage({
-            type: 'GET_OTP',
-            data: { recordId },
-          });
-
-          if (response.success && currentInputElement) {
-            fillInputField(currentInputElement, response.data.otp);
-            showToast('OTPを入力しました');
-            closeModal();
-          }
-        } catch {
-          showToast('OTPの取得に失敗しました', 'error');
-        }
-      } else if (currentInputElement) {
-        fillInputField(currentInputElement, value);
-        showToast(
-          `${type === 'username' ? 'ユーザー名' : 'パスワード'}を入力しました`
-        );
-        closeModal();
-      }
-    };
-
     const handleClose = () => {
       closeModal();
     };
@@ -211,17 +177,15 @@ const showRegisterFormModal = async (otpAuthUri: string) => {
     const currentPageTitle = document.title;
     const currentPageUrl = window.location.href;
 
-    // AuthenticatorModalAppコンポーネントを登録フォーム表示モードでレンダリング
-    const modalAppElement = React.createElement(AuthenticatorModalApp, {
+    // RegisterModalコンポーネントをレンダリング
+    const registerElement = React.createElement(RegisterModal, {
       onClose: handleClose,
-      onFieldSelect: handleFieldSelect,
-      initialViewMode: 'register',
-      initialOtpAuthUri: otpAuthUri,
+      otpAuthUri: otpAuthUri,
       initialPageTitle: currentPageTitle,
       initialPageUrl: currentPageUrl,
     });
 
-    renderModalComponent(modalAppElement);
+    renderModalComponent(registerElement);
   } catch {
     showToast('登録フォームの表示に失敗しました', 'error');
   }
