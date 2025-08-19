@@ -5,7 +5,6 @@ import GlobalStyle from '@components/GlobalStyle';
 interface ModalBaseProps {
   onClose?: () => void;
   children: React.ReactNode;
-  showCloseButton?: boolean;
 }
 
 /**
@@ -15,7 +14,6 @@ interface ModalBaseProps {
 const ModalBase: React.FC<ModalBaseProps> = ({
   onClose,
   children,
-  showCloseButton = false,
 }) => {
   // ESCキーでモーダルを閉じる
   useEffect(() => {
@@ -42,7 +40,7 @@ const ModalBase: React.FC<ModalBaseProps> = ({
     <GlobalStyle>
       <div className="modal-overlay" onClick={handleOverlayClick}>
         <div className="modal-content">
-          {showCloseButton && onClose && (
+          {onClose && (
             <button
               className="modal-close-button"
               onClick={onClose}
