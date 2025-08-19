@@ -84,15 +84,58 @@ This is a kintone authenticator application similar to Google Authenticator, wit
    - Auto-fill functionality for authentication
    - Read [Chrome extension requirements](docs/chrome-extension-requirements.md) for more details.
 
+   ### Chrome Extension Directory Structure
+
+   The `src/chrome/` directory follows this structure:
+
+   - **`lib/`** - Shared functionality used across multiple Chrome extension components
+   - **`background/`** - Background service related files
+     - `index.ts` - Entry point
+     - Background-specific functionality (e.g., kintone-client.ts, qr-reader.ts)
+   - **`contents/`** - Content scripts that run on web pages
+     - `index.tsx` - Entry point
+     - Content script-specific functionality (e.g., modal-renderer.ts, ModalBase.tsx)
+   - **`popup/`** - Popup UI related files
+     - `index.tsx` - Entry point
+     - Popup-specific components
+   - **`options/`** - Options page related files
+     - `index.tsx` - Entry point
+     - Options page-specific components
+   - **`offscreen/`** - Offscreen document related files
+     - `index.ts` - Entry point
+
+   #### Chrome Extension Architecture Rules
+
+   1. **Cross-Directory Reference Restrictions**
+      - Direct references between directories (e.g., `contents/`, `background/`, `popup/`) are prohibited
+      - Example: `contents/` → `background/` reference is NOT allowed
+      - Allowed reference directories:
+        - `src/lib/` - General-purpose libraries
+        - `src/components/` - Shared UI components
+        - `src/chrome/lib/` - Chrome extension shared functionality
+
+   2. **Function Placement Principles**
+      - Functions used in multiple directories → Place in `src/chrome/lib/`
+      - Functions used only in a specific directory → Place within that directory
+      - Examples:
+        - `RecordItem.tsx` is used in both popup and contents → `src/chrome/lib/`
+        - `kintone-client.ts` is used only in background → `src/chrome/background/`
+
+   3. **File Naming Conventions**
+      - Entry points must be named `index.ts` or `index.tsx`
+      - Use descriptive names that clearly indicate functionality (e.g., `modal-renderer.ts`, `url-matcher.ts`)
+      - Avoid misleading names (e.g., `qr-reader-service-worker.ts` → `qr-reader.ts`)
+
 ### Build System
 
 - Uses esbuild for bundling (`build.mjs`)
-- Five entry points:
+- Six entry points:
   - `src/kintone/index.tsx` → `dist/kintone/kintone-authenticator.js`
-  - `src/chrome/index.tsx` → `dist/chrome/index.js`
-  - `src/chrome/background.ts` → `dist/chrome/background.js`
-  - `src/chrome/content.ts` → `dist/chrome/content.js`
+  - `src/chrome/popup/index.tsx` → `dist/chrome/index.js`
+  - `src/chrome/background/index.ts` → `dist/chrome/background.js`
+  - `src/chrome/contents/index.tsx` → `dist/chrome/content.js`
   - `src/chrome/options/index.tsx` → `dist/chrome/options/index.js`
+  - `src/chrome/offscreen/index.ts` → `dist/chrome/offscreen.js`
 - Assets are copied from `assets/` to `dist/`
 - Path alias: `@lib/*` maps to `./src/lib/*`
 - Path alias: `@components/*` maps to `./src/components/*`
