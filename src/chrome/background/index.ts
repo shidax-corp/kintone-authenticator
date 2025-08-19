@@ -1,6 +1,5 @@
 import { generateTOTP } from '@lib/gen-otp';
 import { decodeOTPAuthURI, isValidOTPAuthURI } from '@lib/otpauth-uri';
-import { readQRFromImageInServiceWorker } from './qr-reader';
 
 import { getSettings, isSettingsComplete } from '../lib/storage';
 import type {
@@ -13,6 +12,7 @@ import type {
 } from '../lib/types';
 import { getMatchingRecords } from '../lib/url-matcher';
 import { KintoneClient } from './kintone-client';
+import { readQRFromImageInServiceWorker } from './qr-reader';
 
 const KINTONE_APP_ID = process.env.KINTONE_APP_ID || '1';
 

@@ -1,9 +1,9 @@
 import React from 'react';
 
 import { getFieldType, isInputField, normalizeURL } from '../lib/url-matcher';
+import { RegisterModal } from './RegisterModal';
+import { SelectorModal } from './SelectorModal';
 import { closeModal, renderModalComponent } from './modal-renderer';
-import { RegisterModal } from './modals/RegisterModal';
-import { SelectorModal } from './modals/SelectorModal';
 
 let currentInputElement: HTMLElement | null = null;
 let autoFillExecuted = false;
