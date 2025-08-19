@@ -47,6 +47,10 @@ export default function GlobalStyle({ tint, children }: GlobalStyleProps) {
           font-family:
             'メイリオ', 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif;
         }
+
+        & :global(*) {
+          color-scheme: light;
+        }
       `}</style>
     </div>
   );

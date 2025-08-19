@@ -1,13 +1,14 @@
-import { render } from '@testing-library/react';
-import '@testing-library/jest-dom';
 import React from 'react';
+
+import '@testing-library/jest-dom';
+import { render } from '@testing-library/react';
 
 import GlobalStyle from './GlobalStyle';
 
 describe('GlobalStyle', () => {
   it('applies color-scheme: light to prevent dark theme styling issues', () => {
     const TestComponent = () => <div>Test content</div>;
-    
+
     const { container } = render(
       <GlobalStyle>
         <TestComponent />
@@ -20,8 +21,10 @@ describe('GlobalStyle', () => {
   });
 
   it('renders children correctly', () => {
-    const TestComponent = () => <div data-testid="test-content">Test content</div>;
-    
+    const TestComponent = () => (
+      <div data-testid="test-content">Test content</div>
+    );
+
     const { getByTestId } = render(
       <GlobalStyle>
         <TestComponent />
@@ -33,7 +36,7 @@ describe('GlobalStyle', () => {
 
   it('applies tint styles when tint prop is true', () => {
     const TestComponent = () => <div>Test content</div>;
-    
+
     const { container } = render(
       <GlobalStyle tint>
         <TestComponent />
@@ -46,7 +49,7 @@ describe('GlobalStyle', () => {
 
   it('applies normal styles when tint prop is false', () => {
     const TestComponent = () => <div>Test content</div>;
-    
+
     const { container } = render(
       <GlobalStyle tint={false}>
         <TestComponent />
