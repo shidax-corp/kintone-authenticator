@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { getFieldType, isInputField, normalizeURL } from '../lib/url-matcher';
-import { closeModal, renderModalComponent } from './content-react-helper';
+import { closeModal, renderModalComponent } from './modal-renderer';
 import { RegisterModal } from './modals/RegisterModal';
 import { SelectorModal } from './modals/SelectorModal';
 
