@@ -1,7 +1,7 @@
 import { KintoneRestAPIClient } from '@kintone/rest-api-client';
 
-import { getCachedRecords, setCachedRecords } from './storage';
-import type { ExtensionSettings } from './types';
+import { getCachedRecords, setCachedRecords } from '../lib/core/storage';
+import type { ExtensionSettings } from '../lib/core/types';
 
 export class KintoneClientError extends Error {
   constructor(message: string) {

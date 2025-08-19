@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client';
 
 import GlobalStyle from '@components/GlobalStyle';
 
-import { AuthenticatorWrapper } from '../lib/AuthenticatorWrapper';
+import { AuthenticatorWrapper } from './AuthenticatorWrapper';
 import { RegisterForm } from './RegisterForm';
 
 type ViewMode = 'selection' | 'register';
