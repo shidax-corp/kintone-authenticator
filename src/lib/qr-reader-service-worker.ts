@@ -25,7 +25,7 @@ async function ensureOffscreenDocument(): Promise<void> {
   creatingOffscreen = chrome.offscreen
     .createDocument({
       url: 'offscreen.html',
-      reasons: ['DOM_PARSER' as chrome.offscreen.Reason],
+      reasons: ['DOM_PARSER'],
       justification: 'QRコードの読み取りのため画像処理が必要',
     })
     .finally(() => {
