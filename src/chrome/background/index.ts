@@ -1,6 +1,6 @@
 import { generateTOTP } from '@lib/gen-otp';
 import { decodeOTPAuthURI, isValidOTPAuthURI } from '@lib/otpauth-uri';
-import { readQRFromImageInServiceWorker } from '@lib/qr-reader-service-worker';
+import { readQRFromImageInServiceWorker } from './qr-reader-service-worker';
 
 import { getSettings, isSettingsComplete } from '../lib/storage';
 import type {
