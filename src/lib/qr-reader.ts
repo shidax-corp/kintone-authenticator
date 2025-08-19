@@ -8,15 +8,27 @@ export class QRReadError extends Error {
 }
 
 export const readQRFromImage = async (imageUrl: string): Promise<string> => {
+  // DOM環境での実行（Content Script、Popup、Optionsページなど）
+  console.log('[QR Reader] Reading QR from image URL:', imageUrl);
+
   const img = new Image();
   img.crossOrigin = 'anonymous';
+  let objectUrl: string | null = null;
 
   return new Promise((resolve, reject) => {
     img.onload = () => {
+      console.log(
+        '[QR Reader] Image loaded, dimensions:',
+        img.width,
+        'x',
+        img.height
+      );
+
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
 
       if (!ctx) {
+        if (objectUrl) URL.revokeObjectURL(objectUrl);
         reject(new QRReadError('読み取りに失敗しました'));
         return;
       }
@@ -28,18 +40,50 @@ export const readQRFromImage = async (imageUrl: string): Promise<string> => {
       const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
       const code = jsQR(imageData.data, imageData.width, imageData.height);
 
+      // Clean up object URL if it was created
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+
       if (code) {
+        console.log('[QR Reader] QR code found:', code.data);
         resolve(code.data);
       } else {
+        console.error('[QR Reader] No QR code found in image');
         reject(new QRReadError('画像内にQRコードが見つかりませんでした'));
       }
     };
 
-    img.onerror = () => {
+    img.onerror = (e) => {
+      console.error('[QR Reader] Image load error:', e);
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
       reject(new QRReadError('画像の読み込みに失敗しました'));
     };
 
-    img.src = imageUrl;
+    // data URLの場合はそのまま使用、それ以外はfetchで取得
+    if (imageUrl.startsWith('data:')) {
+      img.src = imageUrl;
+    } else {
+      // HTTPやHTTPSのURLの場合はfetch経由で取得
+      fetch(imageUrl)
+        .then((response) => {
+          if (!response.ok) {
+            throw new QRReadError(
+              `画像の取得に失敗しました (HTTP ${response.status})`
+            );
+          }
+          return response.blob();
+        })
+        .then((blob) => {
+          objectUrl = URL.createObjectURL(blob);
+          img.src = objectUrl;
+        })
+        .catch((error) => {
+          reject(
+            error instanceof QRReadError
+              ? error
+              : new QRReadError(String(error))
+          );
+        });
+    }
   });
 };
 

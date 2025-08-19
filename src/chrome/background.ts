@@ -1,6 +1,6 @@
 import { generateTOTP } from '@lib/gen-otp';
 import { decodeOTPAuthURI, isValidOTPAuthURI } from '@lib/otpauth-uri';
-import { readQRFromImage } from '@lib/qr-reader';
+import { readQRFromImageInServiceWorker } from '@lib/qr-reader-service-worker';
 
 import { KintoneClient } from './lib/kintone-client';
 import { getSettings, isSettingsComplete } from './lib/storage';
@@ -122,7 +122,7 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
 
 const handleReadQR = async (tabId: number, imageUrl: string) => {
   try {
-    const qrData = await readQRFromImage(imageUrl);
+    const qrData = await readQRFromImageInServiceWorker(imageUrl);
 
     if (await isValidOTPAuthURI(qrData)) {
       chrome.tabs.sendMessage(tabId, {
@@ -199,7 +199,7 @@ chrome.runtime.onMessage.addListener(
         switch (message.type) {
           case 'READ_QR': {
             const { imageUrl } = (message as ReadQRMessage).data;
-            const qrData = await readQRFromImage(imageUrl);
+            const qrData = await readQRFromImageInServiceWorker(imageUrl);
             sendResponse({ success: true, data: qrData });
             break;
           }
