@@ -252,7 +252,7 @@ export const SelectorModal: React.FC<SelectorModalProps> = ({
       <div className="selector-modal">
         <div className="header">
           <div className="header-title">
-            <h1>kintoneから入力する</h1>
+            <h1>kintoneから入力</h1>
             <button className="close-button" onClick={onClose} title="閉じる">
               ✕
             </button>
