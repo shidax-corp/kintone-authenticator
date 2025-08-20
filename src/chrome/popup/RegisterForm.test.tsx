@@ -1,7 +1,7 @@
 import React from 'react';
 
 import '@testing-library/jest-dom';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 
 import { RegisterForm } from './RegisterForm';
 
@@ -60,7 +60,7 @@ describe('RegisterForm', () => {
     render(<RegisterForm {...mockProps} />);
 
     const urlInput = await screen.findByDisplayValue(
-      'https://accounts.google.com/',
+      'https://accounts.google.com/'
     );
 
     expect(urlInput).toBeInTheDocument();
@@ -97,12 +97,12 @@ describe('RegisterForm', () => {
       <RegisterForm
         {...mockProps}
         initialPageUrl="https://example.com/custom"
-      />,
+      />
     );
 
     // initialPageUrlが指定されている場合、chrome.tabs.queryの結果は使われない
     const urlInput = await screen.findByDisplayValue(
-      'https://example.com/custom',
+      'https://example.com/custom'
     );
 
     expect(urlInput).toBeInTheDocument();

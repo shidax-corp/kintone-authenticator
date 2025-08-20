@@ -59,7 +59,7 @@ describe('RegisterModal', () => {
     render(<RegisterModal {...mockProps} />);
 
     const urlInput = await screen.findByDisplayValue(
-      'https://accounts.google.com/',
+      'https://accounts.google.com/'
     );
 
     expect(urlInput).toBeInTheDocument();
