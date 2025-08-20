@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 
 import { getSettings, isSettingsComplete } from './storage';
 import type { ExtensionSettings } from './types';
@@ -8,9 +8,30 @@ interface SettingsRequiredProps {
   className?: string;
 }
 
+interface SettingsContextValue {
+  settings: ExtensionSettings | null;
+  loading: boolean;
+  isComplete: boolean;
+}
+
+const SettingsContext = createContext<SettingsContextValue | null>(null);
+
+/**
+ * 設定の状態を取得するためのhook
+ * SettingsRequiredコンポーネント内でのみ使用可能
+ */
+export const useSettings = (): SettingsContextValue => {
+  const context = useContext(SettingsContext);
+  if (!context) {
+    throw new Error('useSettings must be used within SettingsRequired');
+  }
+  return context;
+};
+
 /**
  * 設定済みかどうか確認してから子コンポーネントを表示するラッパーコンポーネント
  * 設定が未完了の場合は「設定が必要です」画面を表示
+ * 設定の状態はReact Contextを通じて子コンポーネントから取得可能
  */
 export const SettingsRequired: React.FC<SettingsRequiredProps> = ({
   children,
@@ -34,6 +55,13 @@ export const SettingsRequired: React.FC<SettingsRequiredProps> = ({
 
     loadSettings();
   }, []);
+
+  const isComplete = settings ? isSettingsComplete(settings) : false;
+  const contextValue: SettingsContextValue = {
+    settings,
+    loading,
+    isComplete,
+  };
 
   if (loading) {
     return (
@@ -77,7 +105,7 @@ export const SettingsRequired: React.FC<SettingsRequiredProps> = ({
     );
   }
 
-  if (!settings || !isSettingsComplete(settings)) {
+  if (!isComplete) {
     return (
       <div className={`settings-required-wrapper ${className}`}>
         <div className="setup-required">
@@ -134,7 +162,11 @@ export const SettingsRequired: React.FC<SettingsRequiredProps> = ({
     );
   }
 
-  return <>{children}</>;
+  return (
+    <SettingsContext.Provider value={contextValue}>
+      {children}
+    </SettingsContext.Provider>
+  );
 };
 
 export default SettingsRequired;
