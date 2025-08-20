@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { getFieldType, isInputField, normalizeURL } from '../lib/form-utils';
+import { getPageSiteName } from '../lib/page-info';
 import { RegisterModal } from './RegisterModal';
 import { SelectorModal } from './SelectorModal';
 import { closeModal, renderModalComponent } from './modal-renderer';
@@ -174,7 +175,7 @@ const showRegisterFormModal = async (otpAuthUri: string) => {
     };
 
     // content script環境で現在のページ情報を取得
-    const currentPageTitle = document.title;
+    const currentPageTitle = getPageSiteName();
     const currentPageUrl = window.location.href;
 
     // RegisterModalコンポーネントをレンダリング
