@@ -3,8 +3,8 @@ import React from 'react';
 import '@testing-library/jest-dom';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 
-import { getSettings } from './storage';
 import SettingsRequired from './SettingsRequired';
+import { getSettings, isSettingsComplete } from './storage';
 import type { ExtensionSettings } from './types';
 
 // Mock the storage module
@@ -12,6 +12,11 @@ jest.mock('./storage', () => ({
   getSettings: jest.fn(),
   isSettingsComplete: jest.fn(),
 }));
+
+const mockGetSettings = getSettings as jest.MockedFunction<typeof getSettings>;
+const mockIsSettingsComplete = isSettingsComplete as jest.MockedFunction<
+  typeof isSettingsComplete
+>;
 
 // Mock Chrome runtime API
 const mockChrome = {
@@ -21,14 +26,6 @@ const mockChrome = {
 };
 
 (global as any).chrome = mockChrome;
-
-const mockGetSettings = getSettings as jest.MockedFunction<typeof getSettings>;
-
-// Import isSettingsComplete after mocking
-const { isSettingsComplete } = require('./storage');
-const mockIsSettingsComplete = isSettingsComplete as jest.MockedFunction<
-  typeof isSettingsComplete
->;
 
 describe('SettingsRequired', () => {
   beforeEach(() => {

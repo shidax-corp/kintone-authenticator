@@ -138,7 +138,11 @@ export const SelectionView: React.FC<SelectionViewProps> = ({
             <div className="header-title">
               <h1>kintone Authenticator</h1>
               {isModal && onClose && (
-                <button className="close-button" onClick={onClose} title="閉じる">
+                <button
+                  className="close-button"
+                  onClick={onClose}
+                  title="閉じる"
+                >
                   ✕
                 </button>
               )}

@@ -3,6 +3,7 @@ import React from 'react';
 import '@testing-library/jest-dom';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 
+import { getSettings, isSettingsComplete } from '../lib/storage';
 import { SelectionView } from './SelectionView';
 
 // Mock the storage module
@@ -10,6 +11,11 @@ jest.mock('../lib/storage', () => ({
   getSettings: jest.fn(),
   isSettingsComplete: jest.fn(),
 }));
+
+const mockGetSettings = getSettings as jest.MockedFunction<typeof getSettings>;
+const mockIsSettingsComplete = isSettingsComplete as jest.MockedFunction<
+  typeof isSettingsComplete
+>;
 
 // Mock chrome runtime
 const mockChrome = {
@@ -23,12 +29,9 @@ const mockChrome = {
 global.chrome = mockChrome;
 
 describe('SelectionView - URL and Name Matching', () => {
-  const mockGetSettings = require('../lib/storage').getSettings;
-  const mockIsSettingsComplete = require('../lib/storage').isSettingsComplete;
-
   beforeEach(() => {
     jest.clearAllMocks();
-    
+
     // Mock complete settings to show the content
     mockGetSettings.mockResolvedValue({
       kintoneBaseUrl: 'https://example.cybozu.com',
