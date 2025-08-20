@@ -51,7 +51,7 @@ const NotificationProvider: React.FC<NotificationProviderProps> = ({
 
   const showToast = useCallback(
     (type: NotificationType, message: string) => {
-      const id = `notification-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      const id = `notification-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
       const notification: Notification = {
         id,
         type,
