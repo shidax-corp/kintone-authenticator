@@ -10,7 +10,9 @@ describe('notification system', () => {
   });
 
   afterEach(() => {
-    jest.runOnlyPendingTimers();
+    act(() => {
+      jest.runOnlyPendingTimers();
+    });
     jest.useRealTimers();
   });
 
@@ -69,7 +71,11 @@ describe('notification system', () => {
       });
 
       // エラーなく呼び出せることを確認
-      expect(() => showToast('info', 'テストメッセージ')).not.toThrow();
+      expect(() => {
+        act(() => {
+          showToast('info', 'テストメッセージ');
+        });
+      }).not.toThrow();
     });
   });
 });
