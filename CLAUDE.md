@@ -87,7 +87,6 @@ This is a kintone authenticator application similar to Google Authenticator, wit
    ### Chrome Extension Directory Structure
 
    The `src/chrome/` directory follows this structure:
-
    - **`lib/`** - Shared functionality used across multiple Chrome extension components
    - **`background/`** - Background service related files
      - `index.ts` - Entry point
@@ -105,7 +104,6 @@ This is a kintone authenticator application similar to Google Authenticator, wit
      - `index.ts` - Entry point
 
    #### Chrome Extension Architecture Rules
-
    1. **Cross-Directory Reference Restrictions**
       - Direct references between directories (e.g., `contents/`, `background/`, `popup/`) are prohibited
       - Example: `contents/` → `background/` reference is NOT allowed
