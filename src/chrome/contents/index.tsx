@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { getFieldType, isInputField, normalizeURL } from '../lib/url-matcher';
+import { getFieldType, isInputField, normalizeURL } from '../lib/form-utils';
 import { RegisterModal } from './RegisterModal';
 import { SelectorModal } from './SelectorModal';
 import { closeModal, renderModalComponent } from './modal-renderer';

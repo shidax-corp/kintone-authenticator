@@ -1,6 +1,7 @@
 import { generateTOTP } from '@lib/gen-otp';
 import { decodeOTPAuthURI, isValidOTPAuthURI } from '@lib/otpauth-uri';
 
+import { getMatchingRecords } from '../lib/record-matcher';
 import { getSettings, isSettingsComplete } from '../lib/storage';
 import type {
   ExtensionSettings,
@@ -10,7 +11,6 @@ import type {
   ReadQRMessage,
   RegisterOTPMessage,
 } from '../lib/types';
-import { getMatchingRecords } from '../lib/url-matcher';
 import { KintoneClient } from './kintone-client';
 import { readQRFromImageInServiceWorker } from './qr-reader';
 
