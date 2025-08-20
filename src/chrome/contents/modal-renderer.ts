@@ -47,13 +47,15 @@ export const renderModalComponent = (component: React.ReactElement): void => {
  * 現在表示中のモーダルを閉じる
  */
 export const closeModal = (): void => {
-  if (currentModalRoot && currentModalRoot.parentNode) {
-    currentModalRoot.parentNode.removeChild(currentModalRoot);
-    currentModalRoot = null;
-  }
-
+  // Reactコンポーネントを先にunmountしてクリーンアップを適切に実行
   if (currentReactRoot) {
     currentReactRoot.unmount();
     currentReactRoot = null;
+  }
+
+  // その後にDOM要素を削除
+  if (currentModalRoot && currentModalRoot.parentNode) {
+    currentModalRoot.parentNode.removeChild(currentModalRoot);
+    currentModalRoot = null;
   }
 };
