@@ -1,6 +1,7 @@
+import React from 'react';
+
 import '@testing-library/jest-dom';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import React from 'react';
 
 import RegisterModal from './RegisterModal';
 
@@ -14,7 +15,7 @@ const mockChrome = {
   },
 };
 
-// @ts-ignore
+// @ts-expect-error - Global chrome object for testing
 global.chrome = mockChrome;
 
 // navigator.clipboard のモック
@@ -65,9 +66,8 @@ describe('RegisterModal', () => {
     );
 
     // Fill out the form
-    const nameInput = screen.getByDisplayValue('Test Site');
-    const urlInput = screen.getByDisplayValue('https://example.com');
-    const usernameInput = screen.getByPlaceholderText('ユーザー名またはメールアドレス');
+    const usernameInput =
+      screen.getByPlaceholderText('ユーザー名またはメールアドレス');
     const passwordInput = screen.getByPlaceholderText('パスワード');
 
     fireEvent.change(usernameInput, { target: { value: 'testuser' } });
@@ -113,7 +113,8 @@ describe('RegisterModal', () => {
     );
 
     // Fill out the form
-    const usernameInput = screen.getByPlaceholderText('ユーザー名またはメールアドレス');
+    const usernameInput =
+      screen.getByPlaceholderText('ユーザー名またはメールアドレス');
     const passwordInput = screen.getByPlaceholderText('パスワード');
 
     fireEvent.change(usernameInput, { target: { value: 'testuser' } });
