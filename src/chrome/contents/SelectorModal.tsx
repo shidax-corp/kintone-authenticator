@@ -251,12 +251,7 @@ export const SelectorModal: React.FC<SelectorModalProps> = ({
     <ModalBase onClose={onClose}>
       <div className="selector-modal">
         <div className="header">
-          <div className="header-title">
-            <h1>kintoneから入力</h1>
-            <button className="close-button" onClick={onClose} title="閉じる">
-              ✕
-            </button>
-          </div>
+          <h1>kintoneから入力</h1>
           <div className="search-container">
             <SearchField value={searchQuery} onChange={setSearchQuery} />
             <button
@@ -323,31 +318,9 @@ export const SelectorModal: React.FC<SelectorModalProps> = ({
             background: var(--ka-bg-tint-color);
           }
 
-          .header-title {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-          }
-
           .header h1 {
-            margin: 0;
+            margin: 0 0 12px 0;
             font-size: 18px;
-            color: var(--ka-fg-color);
-          }
-
-          .close-button {
-            background: none;
-            border: none;
-            font-size: 20px;
-            color: var(--ka-fg-light-color);
-            cursor: pointer;
-            padding: 4px;
-            border-radius: 4px;
-          }
-
-          .close-button:hover {
-            background: var(--ka-bg-dark-color);
             color: var(--ka-fg-color);
           }
 

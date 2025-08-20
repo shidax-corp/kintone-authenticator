@@ -217,29 +217,11 @@ export const RegisterModal: React.FC<RegisterModalProps> = ({
             padding: 16px;
             border-bottom: 1px solid var(--ka-bg-dark-color);
             background: var(--ka-bg-tint-color);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
           }
 
           .header h1 {
             margin: 0;
             font-size: 18px;
-            color: var(--ka-fg-color);
-          }
-
-          .close-button {
-            background: none;
-            border: none;
-            font-size: 20px;
-            color: var(--ka-fg-light-color);
-            cursor: pointer;
-            padding: 4px;
-            border-radius: 4px;
-          }
-
-          .close-button:hover {
-            background: var(--ka-bg-dark-color);
             color: var(--ka-fg-color);
           }
 
@@ -321,9 +303,6 @@ export const RegisterModal: React.FC<RegisterModalProps> = ({
 
         <div className="header">
           <h1>ワンタイムパスワードを登録</h1>
-          <button className="close-button" onClick={onClose} title="閉じる">
-            ✕
-          </button>
         </div>
 
         <form onSubmit={handleSubmit} className="form-container">
