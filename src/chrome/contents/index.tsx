@@ -1,13 +1,6 @@
 import React from 'react';
-import { createRoot } from 'react-dom/client';
 
-import {
-  NotificationCenter,
-  NotificationProvider,
-  setGlobalShowToast,
-  showToast,
-  useNotification,
-} from '../lib/notification';
+import setupNotificationCenter from '../lib/notification';
 import { getFieldType, isInputField, normalizeURL } from '../lib/url-matcher';
 import { RegisterModal } from './RegisterModal';
 import { SelectorModal } from './SelectorModal';
@@ -83,37 +76,7 @@ const fillInputField = (element: HTMLElement, value: string) => {
 };
 
 // 通知システムを初期化
-const initializeNotificationSystem = () => {
-  const notificationRoot = document.createElement('div');
-  notificationRoot.id = 'kintone-auth-notification-root';
-  document.body.appendChild(notificationRoot);
-
-  const NotificationApp = () => {
-    const { showToast: contextShowToast } = useNotification();
-
-    React.useEffect(() => {
-      setGlobalShowToast((type, message) => {
-        contextShowToast(type, message);
-      });
-    }, [contextShowToast]);
-
-    return <NotificationCenter />;
-  };
-
-  const root = createRoot(notificationRoot);
-  root.render(
-    <NotificationProvider>
-      <NotificationApp />
-    </NotificationProvider>
-  );
-};
-
-// ページ読み込み時に通知システムを初期化
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initializeNotificationSystem);
-} else {
-  initializeNotificationSystem();
-}
+const { showToast } = setupNotificationCenter();
 
 const showFillOptionsModal = async (
   records: kintone.types.SavedFields[],
@@ -191,6 +154,7 @@ const showRegisterFormModal = async (otpAuthUri: string) => {
       otpAuthUri: otpAuthUri,
       initialPageTitle: currentPageTitle,
       initialPageUrl: currentPageUrl,
+      showToast: showToast,
     });
 
     renderModalComponent(registerElement);

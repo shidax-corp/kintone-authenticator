@@ -9,7 +9,7 @@ import {
 import InputField from '@components/InputField';
 import OTPInputField from '@components/OTPInputField';
 
-import { showToast } from '../lib/notification';
+import type { NotificationType } from '../lib/notification';
 import ModalBase from './ModalBase';
 
 interface RegisterModalProps {
@@ -17,6 +17,7 @@ interface RegisterModalProps {
   otpAuthUri?: string;
   initialPageTitle?: string;
   initialPageUrl?: string;
+  showToast: (type: NotificationType, message: string) => void;
 }
 
 /**
@@ -28,6 +29,7 @@ export const RegisterModal: React.FC<RegisterModalProps> = ({
   otpAuthUri,
   initialPageTitle,
   initialPageUrl,
+  showToast,
 }) => {
   const [formData, setFormData] = useState({
     name: initialPageTitle || '',

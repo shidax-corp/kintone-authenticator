@@ -5,10 +5,11 @@ import React, {
   useContext,
   useState,
 } from 'react';
+import { createRoot } from 'react-dom/client';
 
 export type NotificationType = 'success' | 'error' | 'info';
 
-export interface Notification {
+interface Notification {
   id: string;
   type: NotificationType;
   message: string;
@@ -23,7 +24,7 @@ interface NotificationContextType {
 
 const NotificationContext = createContext<NotificationContextType | null>(null);
 
-export const useNotification = () => {
+const useNotification = () => {
   const context = useContext(NotificationContext);
   if (!context) {
     throw new Error(
@@ -37,7 +38,7 @@ interface NotificationProviderProps {
   children: ReactNode;
 }
 
-export const NotificationProvider: React.FC<NotificationProviderProps> = ({
+const NotificationProvider: React.FC<NotificationProviderProps> = ({
   children,
 }) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -81,7 +82,7 @@ interface NotificationCenterProps {
   className?: string;
 }
 
-export const NotificationCenter: React.FC<NotificationCenterProps> = ({
+const NotificationCenter: React.FC<NotificationCenterProps> = ({
   className,
 }) => {
   const { notifications, removeNotification } = useNotification();
@@ -150,23 +151,70 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
   );
 };
 
-// Utility function for use outside of React components
-let globalShowToast:
-  | ((type: NotificationType, message: string) => void)
-  | null = null;
+// 内部でshowToastを管理するためのコンポーネント
+const NotificationApp: React.FC<{
+  onReady: (
+    showToast: (type: NotificationType, message: string) => void
+  ) => void;
+}> = ({ onReady }) => {
+  const { showToast } = useNotification();
 
-export const setGlobalShowToast = (
-  showToastFn: (type: NotificationType, message: string) => void
-) => {
-  globalShowToast = showToastFn;
+  React.useEffect(() => {
+    onReady(showToast);
+  }, [showToast, onReady]);
+
+  return <NotificationCenter />;
 };
 
-export const showToast = (type: NotificationType, message: string) => {
-  if (globalShowToast) {
-    globalShowToast(type, message);
-  } else {
-    console.warn('showToast called before NotificationProvider is ready');
-  }
-};
+/**
+ * 通知センターをセットアップする関数
+ * DOM内に通知を表示するためのReactコンポーネントがマウントされる
+ * @returns showToast関数とremoveNotificationCenter関数を含むオブジェクト
+ */
+export default function setupNotificationCenter(): {
+  showToast: (type: NotificationType, message: string) => void;
+  removeNotificationCenter: () => void;
+} {
+  // 通知用のルート要素を作成
+  const notificationRoot = document.createElement('div');
+  notificationRoot.id = 'kintone-auth-notification-root';
+  document.body.appendChild(notificationRoot);
 
-export default NotificationCenter;
+  // showToast関数を格納する変数
+  let showToastFn: ((type: NotificationType, message: string) => void) | null =
+    null;
+
+  // Reactコンポーネントをマウント
+  const root = createRoot(notificationRoot);
+  root.render(
+    <NotificationProvider>
+      <NotificationApp
+        onReady={(fn) => {
+          showToastFn = fn;
+        }}
+      />
+    </NotificationProvider>
+  );
+
+  // 通知センターを削除する関数
+  const removeNotificationCenter = () => {
+    root.unmount();
+    if (notificationRoot.parentNode) {
+      notificationRoot.parentNode.removeChild(notificationRoot);
+    }
+  };
+
+  // showToast関数をラップして返す
+  const showToast = (type: NotificationType, message: string) => {
+    if (showToastFn) {
+      showToastFn(type, message);
+    } else {
+      console.warn('NotificationCenter is not ready yet');
+    }
+  };
+
+  return {
+    showToast,
+    removeNotificationCenter,
+  };
+}
