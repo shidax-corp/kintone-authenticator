@@ -35,6 +35,7 @@ export default {
       testMatch: [
         '<rootDir>/src/chrome/lib/url-matcher.test.ts',
         '<rootDir>/src/chrome/lib/page-info.test.ts',
+        '<rootDir>/src/chrome/lib/tab-utils.test.ts',
         '<rootDir>/src/**/*.test.tsx',
       ],
       transform: {
