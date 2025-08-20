@@ -5,6 +5,12 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 
 import { SelectionView } from './SelectionView';
 
+// Mock the storage module
+jest.mock('../lib/storage', () => ({
+  getSettings: jest.fn(),
+  isSettingsComplete: jest.fn(),
+}));
+
 // Mock chrome runtime
 const mockChrome = {
   runtime: {
@@ -17,6 +23,21 @@ const mockChrome = {
 global.chrome = mockChrome;
 
 describe('SelectionView - URL and Name Matching', () => {
+  const mockGetSettings = require('../lib/storage').getSettings;
+  const mockIsSettingsComplete = require('../lib/storage').isSettingsComplete;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    
+    // Mock complete settings to show the content
+    mockGetSettings.mockResolvedValue({
+      kintoneBaseUrl: 'https://example.cybozu.com',
+      kintoneUsername: 'user',
+      kintonePassword: 'pass',
+      autoFillEnabled: true,
+    });
+    mockIsSettingsComplete.mockReturnValue(true);
+  });
   const mockRecords: kintone.types.SavedFields[] = [
     {
       $id: { value: '1' },

@@ -5,8 +5,7 @@ import { filterRecords } from '@lib/search';
 import SearchField from '@components/SearchField';
 
 import { RecordItem } from '../lib/RecordItem';
-import { isSettingsComplete } from '../lib/storage';
-import type { ExtensionSettings } from '../lib/types';
+import SettingsRequired from '../lib/SettingsRequired';
 
 interface SelectionViewProps {
   onRegister: () => void;
@@ -38,7 +37,6 @@ export const SelectionView: React.FC<SelectionViewProps> = ({
   const [searchQuery, setSearchQuery] = useState(initialSearchQuery);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [settings, setSettings] = useState<ExtensionSettings | null>(null);
   const [fetchError, setFetchError] = useState<boolean>(false);
 
   const loadInitialData = useCallback(async () => {
@@ -47,25 +45,13 @@ export const SelectionView: React.FC<SelectionViewProps> = ({
 
       // 初期レコードが渡されている場合はそれを使用
       if (initialRecords || allRecords) {
-        const settingsResponse = await chrome.runtime.sendMessage({
-          type: 'GET_SETTINGS',
-        });
-        if (settingsResponse.success) {
-          setSettings(settingsResponse.data);
-        }
-
         // allRecordsが利用可能な場合はそれをrecordsに設定、そうでなければinitialRecordsを使用
         setRecords(allRecords || initialRecords || []);
       } else {
         // 従来通りの処理
-        const [settingsResponse, recordsResponse] = await Promise.all([
-          chrome.runtime.sendMessage({ type: 'GET_SETTINGS' }),
-          chrome.runtime.sendMessage({ type: 'GET_RECORDS' }),
-        ]);
-
-        if (settingsResponse.success) {
-          setSettings(settingsResponse.data);
-        }
+        const recordsResponse = await chrome.runtime.sendMessage({
+          type: 'GET_RECORDS',
+        });
 
         if (recordsResponse.success) {
           setRecords(recordsResponse.data);
@@ -139,176 +125,89 @@ export const SelectionView: React.FC<SelectionViewProps> = ({
     filterRecordsCallback();
   }, [records, searchQuery, filterRecordsCallback]);
 
-  if (loading) {
-    return (
-      <div className="selection-view">
+  const viewContent = (
+    <>
+      {loading ? (
         <div className="loading">
           <div className="spinner"></div>
           <p>読み込み中...</p>
         </div>
-        <style jsx>{`
-          .selection-view {
-            width: 400px;
-            max-height: 600px;
-            display: flex;
-            flex-direction: column;
-          }
+      ) : (
+        <>
+          <div className="header">
+            <div className="header-title">
+              <h1>kintone Authenticator</h1>
+              {isModal && onClose && (
+                <button className="close-button" onClick={onClose} title="閉じる">
+                  ✕
+                </button>
+              )}
+            </div>
+            <div className="search-container">
+              <SearchField value={searchQuery} onChange={setSearchQuery} />
+              <button
+                className="refresh-button"
+                onClick={refreshRecords}
+                disabled={refreshing}
+                title="更新"
+              >
+                {refreshing ? '🔄' : '↻'}
+              </button>
+            </div>
+          </div>
 
-          .loading {
-            padding: 48px 24px;
-            text-align: center;
-            color: var(--ka-fg-light-color);
-          }
+          <div className="records-container">
+            {fetchError ? (
+              <div className="error-state">
+                データの取得に失敗しました。
+                <br />
+                <a
+                  href=""
+                  onClick={(ev) => {
+                    ev.preventDefault();
+                    chrome.runtime.openOptionsPage();
+                  }}
+                  style={{ color: 'inherit' }}
+                >
+                  設定
+                </a>
+                を確認してください
+              </div>
+            ) : filteredRecords.length === 0 ? (
+              <div className="empty-state">
+                {searchQuery
+                  ? '検索条件に一致するレコードがありません'
+                  : 'レコードがありません'}
+              </div>
+            ) : (
+              <ul className="records-list">
+                {filteredRecords.map((record) => (
+                  <RecordItem
+                    key={record.$id.value}
+                    record={record}
+                    onFieldSelect={onFieldSelect}
+                    isModal={isModal}
+                  />
+                ))}
+              </ul>
+            )}
+          </div>
 
-          .spinner {
-            border: 2px solid var(--ka-bg-tint-color);
-            border-top: 2px solid var(--ka-primary-color);
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 16px;
-          }
-
-          @keyframes spin {
-            0% {
-              transform: rotate(0deg);
-            }
-            100% {
-              transform: rotate(360deg);
-            }
-          }
-        `}</style>
-      </div>
-    );
-  }
-
-  if (!settings || !isSettingsComplete(settings)) {
-    return (
-      <div className="selection-view">
-        <div className="setup-required">
-          <h2>設定が必要です</h2>
-          <p>
-            kintone Authenticatorを使用するには、まず設定を完了してください。
-          </p>
-          <button
-            className="button button-primary"
-            onClick={() => chrome.runtime.openOptionsPage()}
-          >
-            設定画面を開く
-          </button>
-        </div>
-        <style jsx>{`
-          .selection-view {
-            width: 400px;
-            max-height: 600px;
-            display: flex;
-            flex-direction: column;
-          }
-
-          .setup-required {
-            padding: 48px 24px;
-            text-align: center;
-          }
-
-          .setup-required h2 {
-            margin: 0 0 16px 0;
-            color: var(--ka-fg-color);
-          }
-
-          .setup-required p {
-            margin: 0 0 24px 0;
-            color: var(--ka-fg-light-color);
-          }
-
-          .button {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 500;
-          }
-
-          .button-primary {
-            background: var(--ka-primary-color);
-            color: white;
-          }
-
-          .button-primary:hover {
-            background: #2980b9;
-          }
-        `}</style>
-      </div>
-    );
-  }
+          <div className="footer">
+            <button className="add-button" onClick={onRegister}>
+              ＋ 新しいサイトを登録
+            </button>
+          </div>
+        </>
+      )}
+    </>
+  );
 
   return (
     <div className="selection-view">
-      <div className="header">
-        <div className="header-title">
-          <h1>kintone Authenticator</h1>
-          {isModal && onClose && (
-            <button className="close-button" onClick={onClose} title="閉じる">
-              ✕
-            </button>
-          )}
-        </div>
-        <div className="search-container">
-          <SearchField value={searchQuery} onChange={setSearchQuery} />
-          <button
-            className="refresh-button"
-            onClick={refreshRecords}
-            disabled={refreshing}
-            title="更新"
-          >
-            {refreshing ? '🔄' : '↻'}
-          </button>
-        </div>
-      </div>
-
-      <div className="records-container">
-        {fetchError ? (
-          <div className="error-state">
-            データの取得に失敗しました。
-            <br />
-            <a
-              href=""
-              onClick={(ev) => {
-                ev.preventDefault();
-                chrome.runtime.openOptionsPage();
-              }}
-              style={{ color: 'inherit' }}
-            >
-              設定
-            </a>
-            を確認してください
-          </div>
-        ) : filteredRecords.length === 0 ? (
-          <div className="empty-state">
-            {searchQuery
-              ? '検索条件に一致するレコードがありません'
-              : 'レコードがありません'}
-          </div>
-        ) : (
-          <ul className="records-list">
-            {filteredRecords.map((record) => (
-              <RecordItem
-                key={record.$id.value}
-                record={record}
-                onFieldSelect={onFieldSelect}
-                isModal={isModal}
-              />
-            ))}
-          </ul>
-        )}
-      </div>
-
-      <div className="footer">
-        <button className="add-button" onClick={onRegister}>
-          ＋ 新しいサイトを登録
-        </button>
-      </div>
-
+      <SettingsRequired className="selection-view">
+        {viewContent}
+      </SettingsRequired>
       <style jsx>{`
         .selection-view {
           width: 400px;
@@ -317,6 +216,31 @@ export const SelectionView: React.FC<SelectionViewProps> = ({
             -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
           display: flex;
           flex-direction: column;
+        }
+
+        .loading {
+          padding: 48px 24px;
+          text-align: center;
+          color: var(--ka-fg-light-color);
+        }
+
+        .spinner {
+          border: 2px solid var(--ka-bg-tint-color);
+          border-top: 2px solid var(--ka-primary-color);
+          border-radius: 50%;
+          width: 24px;
+          height: 24px;
+          animation: spin 1s linear infinite;
+          margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+          0% {
+            transform: rotate(0deg);
+          }
+          100% {
+            transform: rotate(360deg);
+          }
         }
 
         .header {
