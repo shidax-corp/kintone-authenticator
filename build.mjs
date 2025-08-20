@@ -19,19 +19,22 @@ const options = {
       import.meta.dirname,
       'src',
       'chrome',
+      'popup',
       'index.tsx'
     ),
     'chrome/background': path.resolve(
       import.meta.dirname,
       'src',
       'chrome',
-      'background.ts'
+      'background',
+      'index.ts'
     ),
     'chrome/content': path.resolve(
       import.meta.dirname,
       'src',
       'chrome',
-      'content.ts'
+      'contents',
+      'index.tsx'
     ),
     'chrome/options/index': path.resolve(
       import.meta.dirname,
@@ -44,7 +47,8 @@ const options = {
       import.meta.dirname,
       'src',
       'chrome',
-      'offscreen.ts'
+      'offscreen',
+      'index.ts'
     ),
   },
   bundle: true,

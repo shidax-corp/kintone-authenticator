@@ -1,9 +1,7 @@
 import { generateTOTP } from '@lib/gen-otp';
 import { decodeOTPAuthURI, isValidOTPAuthURI } from '@lib/otpauth-uri';
-import { readQRFromImageInServiceWorker } from '@lib/qr-reader-service-worker';
 
-import { KintoneClient } from './lib/kintone-client';
-import { getSettings, isSettingsComplete } from './lib/storage';
+import { getSettings, isSettingsComplete } from '../lib/storage';
 import type {
   ExtensionSettings,
   GetOTPMessage,
@@ -11,8 +9,10 @@ import type {
   Message,
   ReadQRMessage,
   RegisterOTPMessage,
-} from './lib/types';
-import { getMatchingRecords } from './lib/url-matcher';
+} from '../lib/types';
+import { getMatchingRecords } from '../lib/url-matcher';
+import { KintoneClient } from './kintone-client';
+import { readQRFromImageInServiceWorker } from './qr-reader';
 
 const KINTONE_APP_ID = process.env.KINTONE_APP_ID || '1';
 

@@ -3,8 +3,8 @@ import { createRoot } from 'react-dom/client';
 
 import GlobalStyle from '@components/GlobalStyle';
 
-import { AuthenticatorWrapper } from './AuthenticatorWrapper';
-import { RegisterForm } from './popup/RegisterForm';
+import { RegisterForm } from './RegisterForm';
+import { SelectionView } from './SelectionView';
 
 type ViewMode = 'selection' | 'register';
 
@@ -30,7 +30,9 @@ const App: React.FC = () => {
   return (
     <>
       {viewMode === 'selection' && (
-        <AuthenticatorWrapper onRegister={() => handleRegister()} />
+        <GlobalStyle>
+          <SelectionView onRegister={() => handleRegister()} />
+        </GlobalStyle>
       )}
       {viewMode === 'register' && (
         <GlobalStyle>
