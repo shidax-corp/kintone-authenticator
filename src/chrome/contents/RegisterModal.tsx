@@ -9,8 +9,8 @@ import {
 import InputField from '@components/InputField';
 import OTPInputField from '@components/OTPInputField';
 
-import type { NotificationType } from '../lib/notification';
 import ModalBase from './ModalBase';
+import type { NotificationType } from './notification';
 
 interface RegisterModalProps {
   onClose: () => void;
