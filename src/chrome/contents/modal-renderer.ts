@@ -6,7 +6,8 @@ let currentReactRoot: Root | null = null;
 
 /**
  * contentスクリプト内でReactコンポーネントをモーダルとして表示する
- * DOM操作とReact root管理に特化し、モーダルの動作はModalBaseコンポーネントに委譲
+ * このモジュールはDOM操作とReact root管理のみを担当します。
+ * モーダルの動作（ESCキー、背景クリックなど）はModalBaseコンポーネント側で実装されています（このファイルでは扱いません）。
  */
 export const renderModalComponent = (component: React.ReactElement): void => {
   // 既存のモーダルがあれば削除
