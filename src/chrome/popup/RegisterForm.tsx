@@ -9,7 +9,7 @@ import {
 import InputField from '@components/InputField';
 import OTPInputField from '@components/OTPInputField';
 
-import { getActiveTabSiteName } from '../lib/tab-utils';
+import { getActiveTabSiteName } from './tab-utils';
 
 interface RegisterFormProps {
   otpAuthUri?: string;

@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { getFieldType, isInputField, normalizeURL } from '../lib/form-utils';
-import { getPageSiteName } from '../lib/page-info';
+import { getPageSiteName } from './page-info';
 import { RegisterModal } from './RegisterModal';
 import { SelectorModal } from './SelectorModal';
 import { closeModal, renderModalComponent } from './modal-renderer';
