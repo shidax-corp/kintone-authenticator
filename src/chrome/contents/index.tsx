@@ -4,6 +4,7 @@ import { getFieldType, isInputField, normalizeURL } from '../lib/form-utils';
 import { RegisterModal } from './RegisterModal';
 import { SelectorModal } from './SelectorModal';
 import { closeModal, renderModalComponent } from './modal-renderer';
+import setupNotificationCenter from './notification';
 
 let currentInputElement: HTMLElement | null = null;
 let autoFillExecuted = false;
@@ -74,39 +75,8 @@ const fillInputField = (element: HTMLElement, value: string) => {
   }
 };
 
-const showToast = (message: string, type: 'success' | 'error' = 'success') => {
-  const existingToast = document.getElementById('kintone-auth-toast');
-  if (existingToast) {
-    existingToast.remove();
-  }
-
-  const toast = document.createElement('div');
-  toast.id = 'kintone-auth-toast';
-  toast.style.cssText = `
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    background: ${type === 'success' ? '#4caf50' : '#f44336'};
-    color: white;
-    padding: 12px 24px;
-    border-radius: 4px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-    z-index: 10000;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    font-size: 14px;
-    max-width: 300px;
-    word-wrap: break-word;
-  `;
-  toast.textContent = message;
-
-  document.body.appendChild(toast);
-
-  setTimeout(() => {
-    if (toast.parentNode) {
-      toast.parentNode.removeChild(toast);
-    }
-  }, 3000);
-};
+// 通知システムを初期化
+const { showToast } = setupNotificationCenter();
 
 const showFillOptionsModal = async (
   records: kintone.types.SavedFields[],
@@ -130,15 +100,16 @@ const showFillOptionsModal = async (
 
           if (response.success && currentInputElement) {
             fillInputField(currentInputElement, response.data.otp);
-            showToast('OTPを入力しました');
+            showToast('success', 'OTPを入力しました');
             closeModal();
           }
         } catch {
-          showToast('OTPの取得に失敗しました', 'error');
+          showToast('error', 'OTPの取得に失敗しました');
         }
       } else if (currentInputElement) {
         fillInputField(currentInputElement, value);
         showToast(
+          'success',
           `${type === 'username' ? 'ユーザー名' : 'パスワード'}を入力しました`
         );
         closeModal();
@@ -163,7 +134,7 @@ const showFillOptionsModal = async (
 
     renderModalComponent(selectorElement);
   } catch {
-    showToast('モーダルの表示に失敗しました', 'error');
+    showToast('error', 'モーダルの表示に失敗しました');
   }
 };
 
@@ -183,11 +154,12 @@ const showRegisterFormModal = async (otpAuthUri: string) => {
       otpAuthUri: otpAuthUri,
       initialPageTitle: currentPageTitle,
       initialPageUrl: currentPageUrl,
+      showToast: showToast,
     });
 
     renderModalComponent(registerElement);
   } catch {
-    showToast('登録フォームの表示に失敗しました', 'error');
+    showToast('error', '登録フォームの表示に失敗しました');
   }
 };
 
@@ -202,7 +174,7 @@ document.addEventListener('contextmenu', (e) => {
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   switch (message.type) {
     case 'SHOW_ERROR':
-      showToast(message.data.message, 'error');
+      showToast('error', message.data.message);
       break;
 
     case 'SHOW_FILL_OPTIONS':
@@ -216,7 +188,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     case 'FILL_OTP':
       if (currentInputElement) {
         fillInputField(currentInputElement, message.data.otp);
-        showToast('OTPを入力しました');
+        showToast('success', 'OTPを入力しました');
       }
       break;
 
