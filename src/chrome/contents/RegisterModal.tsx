@@ -11,12 +11,14 @@ import InputField from '@components/InputField';
 import OTPInputField from '@components/OTPInputField';
 
 import ModalBase from './ModalBase';
+import type { NotificationType } from './notification';
 
 interface RegisterModalProps {
   onClose: () => void;
   otpAuthUri?: string;
   initialPageTitle?: string;
   initialPageUrl?: string;
+  showToast: (type: NotificationType, message: string) => void;
 }
 
 /**
@@ -28,6 +30,7 @@ export const RegisterModal: React.FC<RegisterModalProps> = ({
   otpAuthUri,
   initialPageTitle,
   initialPageUrl,
+  showToast,
 }) => {
   const [formData, setFormData] = useState({
     name: initialPageTitle || '',
@@ -149,30 +152,10 @@ export const RegisterModal: React.FC<RegisterModalProps> = ({
               await navigator.clipboard.writeText(otpResponse.data.otp);
 
               // Toast表示
-              const toast = document.createElement('div');
-              toast.textContent = `OTPが登録され、クリップボードにコピーされました: ${otpResponse.data.otp}`;
-              toast.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: #4caf50;
-                color: white;
-                padding: 12px 24px;
-                border-radius: 4px;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-                z-index: 10001;
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                font-size: 14px;
-                max-width: 300px;
-                word-wrap: break-word;
-              `;
-              document.body.appendChild(toast);
-
-              setTimeout(() => {
-                if (toast.parentNode) {
-                  toast.parentNode.removeChild(toast);
-                }
-              }, 5000);
+              showToast(
+                'success',
+                `OTPが登録され、クリップボードにコピーされました: ${otpResponse.data.otp}`
+              );
             }
           } catch (error) {
             console.error('OTP生成エラー:', error);
