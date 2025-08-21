@@ -7,6 +7,7 @@ export interface TextFieldProps {
   label: string;
   value: string;
   onClick?: () => void;
+  className?: string;
 }
 
 /**
@@ -15,11 +16,19 @@ export interface TextFieldProps {
  * @param label - フィールドの上に表示するラベル。
  * @param value - 表示するテキストの値。
  * @param onClick - テキストがクリックされたときのコールバック関数。デフォルトではテキストをコピーする。
+ * @param className - テキストを表示する枠に適用する追加のCSSクラス。
  */
-export default function TextField({ label, value, onClick }: TextFieldProps) {
+export default function TextField({
+  label,
+  value,
+  onClick,
+  className,
+}: TextFieldProps) {
   return (
     <Field label={label} onClick={onClick}>
-      <CopyField value={onClick ? undefined : value}>{value}</CopyField>
+      <CopyField value={onClick ? undefined : value} className={className}>
+        {value}
+      </CopyField>
     </Field>
   );
 }

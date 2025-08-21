@@ -18,6 +18,7 @@ export interface OTPProps {
   uri: string;
   onClick?: (otp: string) => void;
   onUpdate?: (newURI: string) => void;
+  className?: string;
 }
 
 /**
@@ -26,11 +27,13 @@ export interface OTPProps {
  * @param uri - OTP Auth URI。
  * @param onClick - OTPがクリックされたときのコールバック関数。デフォルトではOTPをコピーする。
  * @param onUpdate - HOTPのカウンターが更新されたときに呼び出されるコールバック関数。引数にはい新しいURIが渡される。
+ * @param className - OTPを表示する枠のコンポーネントに適用する追加のCSSクラス。
  */
 export default function OTPField({
   uri: initialURI,
   onClick,
   onUpdate,
+  className,
 }: OTPProps) {
   const [uri, setUri] = useState(initialURI);
   const [info, setInfo] = useState<OTPAuthRecord | null>(null);
@@ -140,7 +143,7 @@ export default function OTPField({
         label="ワンタイムパスワード"
         onClick={info ? () => onClickHandler() : undefined}
       >
-        <CopyField className="otp-field" copied={copied}>
+        <CopyField className={`otp-field ${className}`} copied={copied}>
           {/* HOTPの対応が必要なので、組込みのコピー機能は使わない */}
           <span ref={ref}>
             {error

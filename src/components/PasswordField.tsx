@@ -6,6 +6,7 @@ import Field from '@components/Field';
 export interface PasswordFieldProps {
   value: string;
   onClick?: () => void;
+  className?: string;
 }
 
 /**
@@ -13,8 +14,13 @@ export interface PasswordFieldProps {
  *
  * @param value - 表示するパスワードの値。
  * @param onClick - パスワードがクリックされたときのコールバック関数。デフォルトではパスワードをコピーする。
+ * @param className - パスワードを表示する枠のコンポーネントに適用する追加のCSSクラス。
  */
-export default function PasswordField({ value, onClick }: PasswordFieldProps) {
+export default function PasswordField({
+  value,
+  onClick,
+  className,
+}: PasswordFieldProps) {
   const [visible, setVisible] = useState(false);
 
   return (
@@ -25,7 +31,7 @@ export default function PasswordField({ value, onClick }: PasswordFieldProps) {
       onBlur={() => setVisible(false)}
     >
       <Field label="パスワード" onClick={onClick}>
-        <CopyField value={onClick ? undefined : value}>
+        <CopyField value={onClick ? undefined : value} className={className}>
           {visible ? value : '●●●●●●●●'}
         </CopyField>
       </Field>

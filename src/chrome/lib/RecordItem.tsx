@@ -79,6 +79,7 @@ export const RecordItem: React.FC<RecordItemProps> = ({
               ? () => handleUsernameClick(record.username.value)
               : undefined
           }
+          className="copy-field"
         />
       ) : null}
       {record.password?.value ? (
@@ -89,6 +90,7 @@ export const RecordItem: React.FC<RecordItemProps> = ({
               ? () => handlePasswordClick(record.password.value)
               : undefined
           }
+          className="copy-field"
         />
       ) : null}
       {record.otpuri?.value ? (
@@ -119,6 +121,9 @@ export const RecordItem: React.FC<RecordItemProps> = ({
         }
         a.url:hover {
           text-decoration: underline;
+        }
+        li :global(.copy-field) {
+          cursor: pointer;
         }
       `}</style>
     </li>
