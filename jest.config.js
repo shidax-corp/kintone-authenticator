@@ -34,6 +34,9 @@ export default {
       testEnvironment: 'jsdom',
       testMatch: [
         '<rootDir>/src/chrome/lib/url-matcher.test.ts',
+        '<rootDir>/src/chrome/contents/page-info.test.ts',
+        '<rootDir>/src/chrome/popup/tab-utils.test.ts',
+        '<rootDir>/src/chrome/contents/notification.test.ts',
         '<rootDir>/src/**/*.test.tsx',
       ],
       transform: {
