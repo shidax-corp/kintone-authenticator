@@ -171,12 +171,6 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
     }
   };
 
-  const isFormValid =
-    formData.name.trim() &&
-    formData.url.trim() &&
-    formData.username.trim() &&
-    formData.password.trim();
-
   return (
     <div className="register-form">
       <style jsx>{`
@@ -359,9 +353,6 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
             onChange={handleOTPChange}
             disableCamera={true}
           />
-          <div className="help-text">
-            ファイル選択または画像の貼り付けでQRコードを読み取れます
-          </div>
         </div>
       </form>
 
@@ -377,7 +368,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
           type="submit"
           className="button button-primary"
           onClick={handleSubmit}
-          disabled={!isFormValid || loading}
+          disabled={formData.name.trim() === '' || loading}
         >
           {loading ? '登録中...' : '登録'}
         </button>
