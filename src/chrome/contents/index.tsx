@@ -1,5 +1,7 @@
 import React from 'react';
 
+import { extractOriginURL } from '@lib/url';
+
 import { getFieldType, isInputField, normalizeURL } from '../lib/form-utils';
 import { RegisterModal } from './RegisterModal';
 import { SelectorModal } from './SelectorModal';
@@ -147,7 +149,7 @@ const showRegisterFormModal = async (otpAuthUri: string) => {
 
     // content script環境で現在のページ情報を取得
     const currentPageTitle = getPageSiteName();
-    const currentPageUrl = window.location.href;
+    const currentPageUrl = extractOriginURL(window.location.href);
 
     // RegisterModalコンポーネントをレンダリング
     const registerElement = React.createElement(RegisterModal, {

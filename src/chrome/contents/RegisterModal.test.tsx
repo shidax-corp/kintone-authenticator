@@ -37,6 +37,44 @@ describe('RegisterModal', () => {
     mockClipboard.writeText.mockResolvedValue(undefined);
   });
 
+  test('URL欄にオリジンのみが初期値として設定される', async () => {
+    // Chrome tabs APIのモック設定
+    mockChrome.tabs.query.mockImplementation((query, callback) => {
+      callback([
+        {
+          url: 'https://github.com/shidax-corp/kintone-authenticator',
+          title: 'GitHub - shidax-corp/kintone-authenticator',
+        },
+      ]);
+    });
+
+    render(<RegisterModal onClose={mockOnClose} showToast={mockShowToast} />);
+
+    // URLフィールドが表示されるまで待機
+    const urlInput = await screen.findByDisplayValue('https://github.com/');
+
+    expect(urlInput).toBeInTheDocument();
+  });
+
+  test('クエリパラメータがあるURLからもオリジンのみが抽出される', async () => {
+    mockChrome.tabs.query.mockImplementation((query, callback) => {
+      callback([
+        {
+          url: 'https://accounts.google.com/signin/oauth?param=value&other=test',
+          title: 'Google Accounts',
+        },
+      ]);
+    });
+
+    render(<RegisterModal onClose={mockOnClose} showToast={mockShowToast} />);
+
+    const urlInput = await screen.findByDisplayValue(
+      'https://accounts.google.com/'
+    );
+
+    expect(urlInput).toBeInTheDocument();
+  });
+
   it('should close immediately after successful registration without timeout', async () => {
     // Arrange
     mockChrome.runtime.sendMessage.mockImplementation((message) => {

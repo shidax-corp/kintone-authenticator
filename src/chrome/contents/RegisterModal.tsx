@@ -5,6 +5,7 @@ import {
   decodeOTPAuthURI,
   isValidOTPAuthURI,
 } from '@lib/otpauth-uri';
+import { extractOriginURL } from '@lib/url';
 
 import InputField from '@components/InputField';
 import OTPInputField from '@components/OTPInputField';
@@ -48,11 +49,11 @@ export const RegisterModal: React.FC<RegisterModalProps> = ({
     if (typeof chrome !== 'undefined' && chrome.tabs && chrome.tabs.query) {
       chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
         const currentTab = tabs[0];
-        if (currentTab && currentTab.url && currentTab.title) {
+        if (currentTab?.url && currentTab.title) {
           setFormData((prev) => ({
             ...prev,
             name: prev.name || currentTab.title || '',
-            url: prev.url || currentTab.url || '',
+            url: prev.url || extractOriginURL(currentTab.url) || '',
           }));
         }
       });

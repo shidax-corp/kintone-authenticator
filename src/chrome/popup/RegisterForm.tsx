@@ -5,6 +5,7 @@ import {
   decodeOTPAuthURI,
   isValidOTPAuthURI,
 } from '@lib/otpauth-uri';
+import { extractOriginURL } from '@lib/url';
 
 import InputField from '@components/InputField';
 import OTPInputField from '@components/OTPInputField';
@@ -57,7 +58,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
             setFormData((prev) => ({
               ...prev,
               name: prev.name || siteName || '',
-              url: prev.url || currentTab.url || '',
+              url: prev.url || extractOriginURL(currentTab.url) || '',
             }));
           }
         } catch {
@@ -68,7 +69,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
               setFormData((prev) => ({
                 ...prev,
                 name: prev.name || currentTab.title || '',
-                url: prev.url || currentTab.url || '',
+                url: prev.url || extractOriginURL(currentTab.url) || '',
               }));
             }
           });
