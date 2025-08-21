@@ -47,7 +47,7 @@ const performAutoFill = async () => {
       const inputField = field as HTMLInputElement;
       const fieldType = getFieldType(inputField);
       if (fieldType === 'username' || fieldType === 'email') {
-        inputField.value = record.username;
+        inputField.value = record.username.value;
         inputField.dispatchEvent(new Event('input', { bubbles: true }));
         inputField.dispatchEvent(new Event('change', { bubbles: true }));
       }
@@ -55,7 +55,7 @@ const performAutoFill = async () => {
 
     passwordFields.forEach((field) => {
       const inputField = field as HTMLInputElement;
-      inputField.value = record.password;
+      inputField.value = record.password.value;
       inputField.dispatchEvent(new Event('input', { bubbles: true }));
       inputField.dispatchEvent(new Event('change', { bubbles: true }));
     });
