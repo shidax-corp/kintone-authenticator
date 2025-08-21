@@ -10,6 +10,8 @@ import { extractOriginURL } from '@lib/url';
 import InputField from '@components/InputField';
 import OTPInputField from '@components/OTPInputField';
 
+import { getActiveTabSiteName } from './tab-utils';
+
 interface RegisterFormProps {
   otpAuthUri?: string;
   onBack: () => void;
@@ -40,16 +42,41 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
   useEffect(() => {
     // Get current tab information to pre-fill form (only in extension context)
     if (typeof chrome !== 'undefined' && chrome.tabs && chrome.tabs.query) {
-      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        const currentTab = tabs[0];
-        if (currentTab?.url && currentTab.title) {
-          setFormData((prev) => ({
-            ...prev,
-            name: prev.name || currentTab.title || '',
-            url: prev.url || extractOriginURL(currentTab.url) || '',
-          }));
+      const loadTabInfo = async () => {
+        try {
+          // Use getActiveTabSiteName to get og:site_name if available, fallback to title
+          const siteName = await getActiveTabSiteName();
+
+          // Get current tab for URL
+          const tabs = await chrome.tabs.query({
+            active: true,
+            currentWindow: true,
+          });
+          const currentTab = tabs[0];
+
+          if (currentTab) {
+            setFormData((prev) => ({
+              ...prev,
+              name: prev.name || siteName || '',
+              url: prev.url || extractOriginURL(currentTab.url) || '',
+            }));
+          }
+        } catch {
+          // If getActiveTabSiteName fails, fallback to original method
+          chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+            const currentTab = tabs[0];
+            if (currentTab && currentTab.url && currentTab.title) {
+              setFormData((prev) => ({
+                ...prev,
+                name: prev.name || currentTab.title || '',
+                url: prev.url || extractOriginURL(currentTab.url) || '',
+              }));
+            }
+          });
         }
-      });
+      };
+
+      loadTabInfo();
     }
 
     // If OTPAuth URI is provided, extract information

@@ -162,10 +162,8 @@ export const RegisterModal: React.FC<RegisterModalProps> = ({
           }
         }
 
-        // 少し待ってからモーダルを閉じる
-        setTimeout(() => {
-          onClose();
-        }, 2000);
+        // モーダルを閉じる
+        onClose();
       } else {
         setError(response.error || '登録に失敗しました');
       }
