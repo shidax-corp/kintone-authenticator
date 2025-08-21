@@ -15,6 +15,7 @@ export const OptionsForm: React.FC = () => {
     kintoneBaseUrl: '',
     kintoneUsername: '',
     kintonePassword: '',
+    kintoneAppId: '',
     autoFillEnabled: true,
   });
 
@@ -284,6 +285,18 @@ export const OptionsForm: React.FC = () => {
             onChange={(value) => handleInputChange('kintonePassword', value)}
             required
           />
+        </div>
+
+        <div className="form-group">
+          <InputField
+            type="text"
+            label="kintoneアプリID"
+            placeholder="1"
+            value={settings.kintoneAppId}
+            onChange={(value) => handleInputChange('kintoneAppId', value)}
+            required
+          />
+          <div className="help-text">認証データを管理するkintoneアプリのID</div>
         </div>
 
         <div className="form-group">

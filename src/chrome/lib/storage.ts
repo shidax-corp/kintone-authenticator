@@ -36,7 +36,8 @@ export const isSettingsComplete = (
   return !!(
     settings.kintoneBaseUrl &&
     settings.kintoneUsername &&
-    settings.kintonePassword
+    settings.kintonePassword &&
+    settings.kintoneAppId
   );
 };
 

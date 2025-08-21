@@ -14,8 +14,6 @@ import type {
 import { KintoneClient } from './kintone-client';
 import { readQRFromImageInServiceWorker } from './qr-reader';
 
-const KINTONE_APP_ID = process.env.KINTONE_APP_ID || '1';
-
 let contextMenusCreated = false;
 
 const createContextMenus = async () => {
@@ -97,7 +95,7 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
   }
 
   try {
-    const client = new KintoneClient(settings, KINTONE_APP_ID);
+    const client = new KintoneClient(settings, settings.kintoneAppId);
 
     switch (info.menuItemId) {
       case 'read_qr':
@@ -193,7 +191,7 @@ chrome.runtime.onMessage.addListener(
           if (!isSettingsComplete(settings)) {
             throw new Error('Settings not complete');
           }
-          return new KintoneClient(settings, KINTONE_APP_ID);
+          return new KintoneClient(settings, settings.kintoneAppId);
         };
 
         switch (message.type) {
@@ -256,7 +254,10 @@ chrome.runtime.onMessage.addListener(
 
           case 'TEST_CONNECTION': {
             const testSettings = message.data as ExtensionSettings;
-            const testClient = new KintoneClient(testSettings, KINTONE_APP_ID);
+            const testClient = new KintoneClient(
+              testSettings,
+              testSettings.kintoneAppId
+            );
             const isConnected = await testClient.testConnection();
             sendResponse({ success: isConnected });
             break;

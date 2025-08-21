@@ -114,6 +114,7 @@ describe('SelectionView - URL and Name Matching', () => {
     kintoneBaseUrl: 'https://test.cybozu.com',
     kintoneUsername: 'testuser',
     kintonePassword: 'testpass',
+    kintoneAppId: '1',
     autoFillEnabled: true,
   };
 

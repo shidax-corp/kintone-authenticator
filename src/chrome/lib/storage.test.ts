@@ -38,6 +38,7 @@ describe('storage', () => {
         kintoneBaseUrl: 'https://example.cybozu.com',
         kintoneUsername: 'user',
         kintonePassword: 'pass',
+        kintoneAppId: '1',
         autoFillEnabled: true,
       };
 
@@ -73,6 +74,7 @@ describe('storage', () => {
         kintoneBaseUrl: 'https://example.cybozu.com',
         kintoneUsername: 'user',
         kintonePassword: 'pass',
+        kintoneAppId: '1',
         autoFillEnabled: true,
       };
 
@@ -89,6 +91,7 @@ describe('storage', () => {
         kintoneBaseUrl: 'https://example.cybozu.com',
         kintoneUsername: 'user',
         kintonePassword: 'pass',
+        kintoneAppId: '1',
         autoFillEnabled: true,
       };
 
@@ -106,6 +109,7 @@ describe('storage', () => {
         kintoneBaseUrl: 'https://example.cybozu.com',
         kintoneUsername: 'user',
         kintonePassword: 'pass',
+        kintoneAppId: '1',
         autoFillEnabled: true,
       };
 
@@ -121,6 +125,19 @@ describe('storage', () => {
         kintoneBaseUrl: 'https://example.cybozu.com',
         kintoneUsername: '',
         kintonePassword: 'pass',
+        kintoneAppId: '1',
+        autoFillEnabled: true,
+      } as ExtensionSettings;
+
+      expect(isSettingsComplete(incompleteSettings)).toBe(false);
+    });
+
+    it('should return false for settings with missing app ID', () => {
+      const incompleteSettings = {
+        kintoneBaseUrl: 'https://example.cybozu.com',
+        kintoneUsername: 'user',
+        kintonePassword: 'pass',
+        kintoneAppId: '',
         autoFillEnabled: true,
       } as ExtensionSettings;
 

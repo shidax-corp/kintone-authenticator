@@ -33,6 +33,7 @@ describe('KintoneClient', () => {
     kintoneBaseUrl: 'https://example.cybozu.com',
     kintoneUsername: 'user',
     kintonePassword: 'pass',
+    kintoneAppId: '123',
     autoFillEnabled: true,
   };
 
