@@ -1,16 +1,21 @@
-name: CD
+name: CI/CD
 
 on:
-  workflow_run:
-    workflows: ['CI']
-    types:
-      - completed
+  push:
+    branches:
+      - main
 
 jobs:
+  test:
+    name: Test
+    uses: ./.github/workflows/ci.yaml
+    with:
+      secrets: inherit
+
   deploy-kintone:
     name: Deploy to Kintone
+    needs: test
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
