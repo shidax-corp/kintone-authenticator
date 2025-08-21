@@ -9,8 +9,7 @@ jobs:
   test:
     name: Test
     uses: ./.github/workflows/ci.yaml
-    with:
-      secrets: inherit
+    secrets: inherit
 
   deploy-kintone:
     name: Deploy to Kintone
