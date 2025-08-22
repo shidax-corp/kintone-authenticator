@@ -12,10 +12,9 @@ interface TestResult {
 
 export const OptionsForm: React.FC = () => {
   const [settings, setSettings] = useState<ExtensionSettings>({
-    kintoneBaseUrl: '',
+    kintoneAppUrl: '',
     kintoneUsername: '',
     kintonePassword: '',
-    kintoneAppId: '',
     autoFillEnabled: true,
   });
 
@@ -256,13 +255,13 @@ export const OptionsForm: React.FC = () => {
         <div className="form-group">
           <InputField
             type="url"
-            label="kintoneドメイン"
-            placeholder="https://example.cybozu.com"
-            value={settings.kintoneBaseUrl}
-            onChange={(value) => handleInputChange('kintoneBaseUrl', value)}
+            label="kintoneアプリのURL"
+            placeholder="https://example.cybozu.com/k/123/"
+            value={settings.kintoneAppUrl}
+            onChange={(value) => handleInputChange('kintoneAppUrl', value)}
             required
           />
-          <div className="help-text">例: https://example.cybozu.com</div>
+          <div className="help-text">例: https://example.cybozu.com/k/123/</div>
         </div>
 
         <div className="form-group">
@@ -285,18 +284,6 @@ export const OptionsForm: React.FC = () => {
             onChange={(value) => handleInputChange('kintonePassword', value)}
             required
           />
-        </div>
-
-        <div className="form-group">
-          <InputField
-            type="text"
-            label="kintoneアプリID"
-            placeholder="1"
-            value={settings.kintoneAppId}
-            onChange={(value) => handleInputChange('kintoneAppId', value)}
-            required
-          />
-          <div className="help-text">認証データを管理するkintoneアプリのID</div>
         </div>
 
         <div className="form-group">

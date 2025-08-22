@@ -1,8 +1,7 @@
 import { KintoneRestAPIClient } from '@kintone/rest-api-client';
 
 import { getCachedRecords, setCachedRecords } from '../lib/storage';
-import type { ExtensionSettings } from '../lib/types';
-import { KintoneClient, KintoneClientError } from './kintone-client';
+import { KintoneClient, KintoneClientError, type KintoneCredentials } from './kintone-client';
 
 jest.mock('@kintone/rest-api-client');
 jest.mock('../lib/storage');
@@ -29,12 +28,10 @@ const mockSetCachedRecords = setCachedRecords as jest.MockedFunction<
 (KintoneRestAPIClient as any).mockImplementation(() => mockKintoneClient);
 
 describe('KintoneClient', () => {
-  const mockSettings: ExtensionSettings = {
-    kintoneBaseUrl: 'https://example.cybozu.com',
-    kintoneUsername: 'user',
-    kintonePassword: 'pass',
-    kintoneAppId: '123',
-    autoFillEnabled: true,
+  const mockCredentials: KintoneCredentials = {
+    baseUrl: 'https://example.cybozu.com',
+    username: 'user',
+    password: 'pass',
   };
 
   const appId = '123';
@@ -42,16 +39,16 @@ describe('KintoneClient', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    client = new KintoneClient(mockSettings, appId);
+    client = new KintoneClient(mockCredentials, appId);
   });
 
   describe('constructor', () => {
     it('should create KintoneRestAPIClient with correct settings', () => {
       expect(KintoneRestAPIClient).toHaveBeenCalledWith({
-        baseUrl: mockSettings.kintoneBaseUrl,
+        baseUrl: mockCredentials.baseUrl,
         auth: {
-          username: mockSettings.kintoneUsername,
-          password: mockSettings.kintonePassword,
+          username: mockCredentials.username,
+          password: mockCredentials.password,
         },
       });
     });

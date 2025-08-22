@@ -10,21 +10,27 @@ export class KintoneClientError extends Error {
   }
 }
 
+export interface KintoneCredentials {
+  baseUrl: string;
+  username: string;
+  password: string;
+}
+
 export class KintoneClient {
   private client: KintoneRestAPIClient;
   private appId: string;
-  private settings: ExtensionSettings;
+  private credentials: KintoneCredentials;
 
-  constructor(settings: ExtensionSettings, appId: string) {
+  constructor(credentials: KintoneCredentials, appId: string) {
     this.client = new KintoneRestAPIClient({
-      baseUrl: settings.kintoneBaseUrl,
+      baseUrl: credentials.baseUrl,
       auth: {
-        username: settings.kintoneUsername,
-        password: settings.kintonePassword,
+        username: credentials.username,
+        password: credentials.password,
       },
     });
     this.appId = appId;
-    this.settings = settings;
+    this.credentials = credentials;
   }
 
   async getRecords(useCache = true): Promise<kintone.types.SavedFields[]> {
@@ -82,7 +88,7 @@ export class KintoneClient {
         username: { value: data.username },
         password: { value: data.password },
         otpuri: { value: data.otpAuthUri || '' },
-        shareto: { value: [{ code: this.settings.kintoneUsername }] },
+        shareto: { value: [{ code: this.credentials.username }] },
       };
 
       const response = await this.client.record.addRecord({

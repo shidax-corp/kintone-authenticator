@@ -111,10 +111,9 @@ describe('SelectionView - URL and Name Matching', () => {
   ];
 
   const mockSettings = {
-    kintoneBaseUrl: 'https://test.cybozu.com',
+    kintoneAppUrl: 'https://test.cybozu.com/k/1/',
     kintoneUsername: 'testuser',
     kintonePassword: 'testpass',
-    kintoneAppId: '1',
     autoFillEnabled: true,
   };
 
