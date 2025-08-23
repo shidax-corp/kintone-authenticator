@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - dev
 
 jobs:
   test:
@@ -15,6 +16,7 @@ jobs:
     name: Deploy to Kintone
     needs: test
     runs-on: ubuntu-latest
+    environment: ${{ github.ref == 'refs/heads/main' && 'production' || 'development' }}
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v4
