@@ -9,10 +9,11 @@ const serve = process.argv.includes('--serve');
 
 const options = {
   entryPoints: {
-    'kintone/kintone-authenticator': path.resolve(
+    'kintone/kintone-authenticator-desktop': path.resolve(
       import.meta.dirname,
       'src',
       'kintone',
+      'desktop',
       'index.tsx'
     ),
     'chrome/index': path.resolve(
