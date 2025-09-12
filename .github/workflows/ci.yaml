@@ -8,7 +8,7 @@ jobs:
   test:
     name: Unit Test
     runs-on: ubuntu-latest
-    if: github.ref != 'refs/heads/dev'
+    if: github.head_ref != 'dev'
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
@@ -18,7 +18,7 @@ jobs:
   check:
     name: Type Check
     runs-on: ubuntu-latest
-    if: github.ref != 'refs/heads/dev'
+    if: github.head_ref != 'dev'
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
@@ -28,7 +28,7 @@ jobs:
   lint:
     name: Lint Check
     runs-on: ubuntu-latest
-    if: github.ref != 'refs/heads/dev'
+    if: github.head_ref != 'dev'
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
@@ -38,7 +38,7 @@ jobs:
   format:
     name: Format Check
     runs-on: ubuntu-latest
-    if: github.ref != 'refs/heads/dev'
+    if: github.head_ref != 'dev'
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
