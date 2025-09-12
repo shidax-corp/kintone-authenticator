@@ -10,8 +10,11 @@ jobs:
     name: Create Release PR
     runs-on: ubuntu-latest
     permissions:
+      contents: read
       pull-requests: write
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
       - name: Create PR title
         id: create_title
         run: echo "title=[Release] $(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
