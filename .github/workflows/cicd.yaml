@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - dev
 
 jobs:
   test:
@@ -15,6 +16,7 @@ jobs:
     name: Deploy to Kintone
     needs: test
     runs-on: ubuntu-latest
+    environment: ${{ github.ref == 'refs/heads/main' && 'production' || 'development' }}
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v4
@@ -26,13 +28,10 @@ jobs:
           KINTONE_BASE_URL: ${{ secrets.KINTONE_BASE_URL }}
           KINTONE_APP_ID: ${{ vars.KINTONE_APP_ID }}
           KINTONE_VIEW_ID: ${{ vars.KINTONE_VIEW_ID }}
-      - run: |
-          sed -i 's/"app": "1"/"app": "${{ vars.KINTONE_APP_ID }}"/g' ./dist/kintone/dest/customize-manifest.json
-        env:
-          KINTONE_APP_ID: ${{ vars.KINTONE_APP_ID }}
-      - run: npm run deploy:kintone
-        env:
-          KINTONE_BASE_URL: ${{ secrets.KINTONE_BASE_URL }}
-          KINTONE_APP_ID: ${{ vars.KINTONE_APP_ID }}
-          KINTONE_USERNAME: ${{ secrets.KINTONE_USERNAME }}
-          KINTONE_PASSWORD: ${{ secrets.KINTONE_PASSWORD }}
+      - uses: macrat/upload-kintone-customize-action@v1
+        with:
+          base-url: ${{ secrets.KINTONE_BASE_URL }}
+          app-id: ${{ vars.KINTONE_APP_ID }}
+          username: ${{ secrets.KINTONE_USERNAME }}
+          password: ${{ secrets.KINTONE_PASSWORD }}
+          desktop-js: ./dist/kintone/kintone-authenticator.js
