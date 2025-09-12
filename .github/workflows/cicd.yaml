@@ -34,4 +34,4 @@ jobs:
           app-id: ${{ vars.KINTONE_APP_ID }}
           username: ${{ secrets.KINTONE_USERNAME }}
           password: ${{ secrets.KINTONE_PASSWORD }}
-          desktop-js: ./dist/kintone/kintone-authenticator.js
+          desktop-js: ./dist/kintone/kintone-authenticator-desktop.js
