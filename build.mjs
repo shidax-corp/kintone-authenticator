@@ -16,6 +16,13 @@ const options = {
       'desktop',
       'index.tsx'
     ),
+    'kintone/kintone-authenticator-mobile': path.resolve(
+      import.meta.dirname,
+      'src',
+      'kintone',
+      'mobile',
+      'index.tsx'
+    ),
     'chrome/index': path.resolve(
       import.meta.dirname,
       'src',
