@@ -35,3 +35,4 @@ jobs:
           username: ${{ secrets.KINTONE_USERNAME }}
           password: ${{ secrets.KINTONE_PASSWORD }}
           desktop-js: ./dist/kintone/kintone-authenticator-desktop.js
+          mobile-js: ./dist/kintone/kintone-authenticator-mobile.js
