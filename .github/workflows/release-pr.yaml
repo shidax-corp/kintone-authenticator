@@ -38,15 +38,18 @@ jobs:
           pr_number=$(gh pr list --label release --base main --head dev --json number --jq '.[0].number')
           commits=$(gh pr view $pr_number --json commits --jq '.commits[] | "- \(.oid): \(.messageHeadline)"')
 
+          interesting_commits=$(echo "$commits" | grep -Ev '^- [0-9a-f]+: (Merge|chore)')
+          prs=$(echo "$commits" | grep -E '^- [0-9a-f]+: Merge pull request #[0-9]+' | sed -E 's/^.*pull request #([0-9]+) from.*$/- #\1/')
+
           tempfile=$(mktemp)
           cat <<EOF > $tempfile
           Merge \`dev\` branch to \`main\` branch to release the latest changes.
 
           ## PRs
-          $(echo "$commits" | grep -E '^- [0-9a-f]+: Merge pull request #[0-9]+' | sed -E 's/^.*pull request #([0-9]+) from.*$/- #\1/' || echo 'No merged PRs to display.')
+          ${prs:-No merged PRs to display.}
 
           ## Commits
-          $(echo "$commits" | grep -Ev '^- [0-9a-f]+: (Merge|chore)' || echo 'No significant commits to display.')
+          ${interesting_commits:-No commits to display.}
           EOF
 
           gh pr edit $pr_number \
