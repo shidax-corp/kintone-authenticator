@@ -40,3 +40,5 @@ jobs:
           gh pr edit $pr_number \
             --title "${{ steps.create_title.outputs.title }}" \
             --body "Release dev to main.\n\n## Commits\n${commits}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
