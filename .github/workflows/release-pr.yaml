@@ -37,8 +37,17 @@ jobs:
         run: |
           pr_number=$(gh pr list --label release --base main --head dev --json number --jq '.[0].number')
           commits=$(gh pr view $pr_number --json commits --jq '.commits[] | "- \(.oid): \(.messageHeadline)"')
+
+          tempfile=$(mktemp)
+          cat <<EOF > $tempfile
+          Merge `dev` branch to `main` branch to release the latest changes.
+
+          ## Commits
+          $(echo "$commits" | grep -v '^- [0-9a-z]+: (Merge|chore)' || echo 'No significant commits to display.')
+          EOF
+
           gh pr edit $pr_number \
             --title "${{ steps.create_title.outputs.title }}" \
-            --body "Release dev to main.\n\n## Commits\n${commits}"
+            --body-file $tempfile
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
