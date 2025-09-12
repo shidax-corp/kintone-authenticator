@@ -1,0 +1,39 @@
+name: Release PR
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  create-pr:
+    name: Create Release PR
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Create PR title
+        id: create_title
+        run: echo "title=[Release] $(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
+        env:
+          TZ: JST
+      - name: Check existing PR
+        id: check_pr
+        run: |
+          echo "found=$(gh pr list --label release --base main --head dev --json number --jq 'length')" >> $GITHUB_OUTPUT
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create PR
+        if: steps.check_pr.outputs.found == '0'
+        run: |
+          gh pr create --title "${{ steps.create_title.outputs.title }}" --body "" --base main --head dev --label release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TZ: JST
+      - name: Set description
+        run: |
+          pr_number=$(gh pr list --label release --base main --head dev --json number --jq '.[0].number')
+          commits=$(gh pr view $pr_number --json commits --jq '.commits[] | "- \(.oid): \(.messageHeadline)"')
+          gh pr edit $pr_number \
+            --title "${{ steps.create_title.outputs.title }}" \
+            --body "Release dev to main.\n\n## Commits\n${commits}"
