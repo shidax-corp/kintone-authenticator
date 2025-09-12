@@ -1,0 +1,12 @@
+{
+  "app": "1",
+  "scope": "ALL",
+  "desktop": {
+    "js": ["kintone-authenticator.js"],
+    "css": []
+  },
+  "mobile": {
+    "js": ["kintone-authenticator.js"],
+    "css": []
+  }
+}

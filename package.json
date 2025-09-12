@@ -16,6 +16,7 @@
   "scripts": {
     "build": "node --env-file=.env build.mjs",
     "dev": "dotenv -v NODE_ENV=development -- node build.mjs --serve",
+    "deploy:kintone": "dotenv -c development -- sh -c \"cd dist/kintone && kintone-customize-uploader --base-url=${KINTONE_BASE_URL} --username=${KINTONE_USERNAME} --password=${KINTONE_PASSWORD} dest/customize-manifest.json\"",
     "gen:dts": "dotenv -c development -- sh -c 'kintone-dts-gen --base-url ${KINTONE_BASE_URL} --app-id ${KINTONE_APP_ID} --username ${KINTONE_USERNAME} --password ${KINTONE_PASSWORD} --output src/fields.d.ts'",
     "check": "run-s check:type check:lint check:format",
     "check:type": "tsc --noEmit",
