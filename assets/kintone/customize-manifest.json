@@ -2,11 +2,11 @@
   "app": "1",
   "scope": "ALL",
   "desktop": {
-    "js": ["kintone-authenticator.js"],
+    "js": ["kintone-authenticator-desktop.js"],
     "css": []
   },
   "mobile": {
-    "js": ["kintone-authenticator.js"],
+    "js": ["kintone-authenticator-mobile.js"],
     "css": []
   }
 }

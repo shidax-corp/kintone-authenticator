@@ -1,44 +1,46 @@
 name: CI
 
 on:
-  push:
-    branches:
-      - main
   pull_request:
+  workflow_call:
 
 jobs:
   test:
     name: Unit Test
     runs-on: ubuntu-latest
+    if: github.head_ref != 'dev'
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
       - run: npm ci
       - run: npm run test
 
   check:
     name: Type Check
     runs-on: ubuntu-latest
+    if: github.head_ref != 'dev'
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
       - run: npm ci
       - run: npm run check:type
 
   lint:
     name: Lint Check
     runs-on: ubuntu-latest
+    if: github.head_ref != 'dev'
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
       - run: npm ci
       - run: npm run check:lint
 
   format:
     name: Format Check
     runs-on: ubuntu-latest
+    if: github.head_ref != 'dev'
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
       - run: npm ci
       - run: npm run check:format

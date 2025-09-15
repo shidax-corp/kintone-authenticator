@@ -128,7 +128,7 @@ This is a kintone authenticator application similar to Google Authenticator, wit
 
 - Uses esbuild for bundling (`build.mjs`)
 - Six entry points:
-  - `src/kintone/index.tsx` → `dist/kintone/kintone-authenticator.js`
+  - `src/kintone/desktop/index.tsx` → `dist/kintone/kintone-authenticator-desktop.js`
   - `src/chrome/popup/index.tsx` → `dist/chrome/index.js`
   - `src/chrome/background/index.ts` → `dist/chrome/background.js`
   - `src/chrome/contents/index.tsx` → `dist/chrome/content.js`

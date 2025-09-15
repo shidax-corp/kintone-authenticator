@@ -69,6 +69,16 @@ declare namespace kintone {
     }
   }
 
+  namespace mobile {
+    namespace app {
+      function getHeaderSpaceElement(): HTMLDivElement | null;
+
+      namespace record {
+        function getSpaceElement(spaceId: string): HTMLDivElement | null;
+      }
+    }
+  }
+
   function api(pathOrUrl: '/k/v1/records/cursor.json', method: 'POST', params: { app: number | string, fields?: string[], query?: string, size?: number | string }): Promise<{ id: string, totalCount: number }>;
   function api(pathOrUrl: '/k/v1/records/cursor.json', method: 'GET', params: { id: string }): Promise<{ records: kintone.types.SavedFields[], next: boolean }>;
   function api(pathOrUrl: '/k/v1/records/cursor.json', method: 'DELETE', params: { id: string }): Promise<{ [key: string]: never }>;
