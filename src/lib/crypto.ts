@@ -4,32 +4,37 @@
  * The IV, salt, and ciphertext are encoded in base64 and concatenated with periods: `{iv}.{salt}.{ciphertext}`.
  */
 
-export const encrypt = async (data: string, pin: string): Promise<string> => {
-  const encoder = new TextEncoder();
-
-  const salt = crypto.getRandomValues(new Uint8Array(16));
-  const iv = crypto.getRandomValues(new Uint8Array(12));
-
+const generateKey = async (
+  pin: string,
+  salt: ArrayBuffer
+): Promise<CryptoKey> => {
   const keyMaterial = await crypto.subtle.importKey(
     'raw',
-    encoder.encode(pin),
+    new TextEncoder().encode(pin),
     'PBKDF2',
     false,
     ['deriveBits', 'deriveKey']
   );
 
-  const key = await crypto.subtle.deriveKey(
+  return await crypto.subtle.deriveKey(
     {
       name: 'PBKDF2',
-      salt: salt,
+      salt,
       iterations: 10000,
       hash: 'SHA-256',
     },
     keyMaterial,
     { name: 'AES-GCM', length: 256 },
     false,
-    ['encrypt']
+    ['encrypt', 'decrypt']
   );
+};
+
+export const encrypt = async (data: string, pin: string): Promise<string> => {
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+
+  const key = await generateKey(pin, salt.buffer);
 
   const ciphertext = await crypto.subtle.encrypt(
     {
@@ -37,7 +42,7 @@ export const encrypt = async (data: string, pin: string): Promise<string> => {
       iv: iv,
     },
     key,
-    encoder.encode(data)
+    new TextEncoder().encode(data)
   );
 
   const ivBase64 = Buffer.from(iv).toString('base64');
@@ -48,9 +53,6 @@ export const encrypt = async (data: string, pin: string): Promise<string> => {
 };
 
 export const decrypt = async (data: string, pin: string): Promise<string> => {
-  const encoder = new TextEncoder();
-  const decoder = new TextDecoder();
-
   const parts = data.split('.');
   if (parts.length !== 3) {
     throw new Error('Invalid encrypted data format');
@@ -60,26 +62,7 @@ export const decrypt = async (data: string, pin: string): Promise<string> => {
   const salt = new Uint8Array(Buffer.from(parts[1], 'base64'));
   const ciphertext = new Uint8Array(Buffer.from(parts[2], 'base64'));
 
-  const keyMaterial = await crypto.subtle.importKey(
-    'raw',
-    encoder.encode(pin),
-    'PBKDF2',
-    false,
-    ['deriveBits', 'deriveKey']
-  );
-
-  const key = await crypto.subtle.deriveKey(
-    {
-      name: 'PBKDF2',
-      salt: salt,
-      iterations: 10000,
-      hash: 'SHA-256',
-    },
-    keyMaterial,
-    { name: 'AES-GCM', length: 256 },
-    false,
-    ['decrypt']
-  );
+  const key = await generateKey(pin, salt.buffer);
 
   const decrypted = await crypto.subtle.decrypt(
     {
@@ -90,5 +73,5 @@ export const decrypt = async (data: string, pin: string): Promise<string> => {
     ciphertext
   );
 
-  return decoder.decode(decrypted);
+  return new TextDecoder().decode(decrypted);
 };
