@@ -1,7 +1,11 @@
 import { KintoneRestAPIClient } from '@kintone/rest-api-client';
 
 import { getCachedRecords, setCachedRecords } from '../lib/storage';
-import { KintoneClient, KintoneClientError, type KintoneCredentials } from './kintone-client';
+import {
+  KintoneClient,
+  KintoneClientError,
+  type KintoneCredentials,
+} from './kintone-client';
 
 jest.mock('@kintone/rest-api-client');
 jest.mock('../lib/storage');

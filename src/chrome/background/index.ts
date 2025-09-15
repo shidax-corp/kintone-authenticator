@@ -271,7 +271,9 @@ chrome.runtime.onMessage.addListener(
 
           case 'TEST_CONNECTION': {
             const testSettings = message.data as ExtensionSettings;
-            const { domain, appId } = parseKintoneAppUrl(testSettings.kintoneAppUrl);
+            const { domain, appId } = parseKintoneAppUrl(
+              testSettings.kintoneAppUrl
+            );
             const testClient = new KintoneClient(
               {
                 baseUrl: domain,
