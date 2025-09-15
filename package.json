@@ -28,7 +28,7 @@
   },
   "dependencies": {
     "@kintone/rest-api-client": "^5.7.4",
-    "@types/chrome": "^0.1.9",
+    "@types/chrome": "^0.1.11",
     "esbuild-plugin-copy": "^2.1.1",
     "jsqr": "^1.4.0",
     "react": "^19.1.1",
