@@ -1,5 +1,3 @@
-import { isValidKintoneAppUrl } from '@lib/kintone-url';
-
 import type { ExtensionSettings } from './types';
 
 interface CacheEntry<T> {
@@ -36,10 +34,10 @@ export const isSettingsComplete = (
   if (!settings) return false;
 
   return !!(
-    settings.kintoneAppUrl &&
+    settings.kintoneBaseUrl &&
+    settings.kintoneAppId &&
     settings.kintoneUsername &&
-    settings.kintonePassword &&
-    isValidKintoneAppUrl(settings.kintoneAppUrl)
+    settings.kintonePassword
   );
 };
 

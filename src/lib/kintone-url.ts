@@ -3,8 +3,8 @@
  */
 
 export interface ParsedKintoneUrl {
-  domain: string;
-  appId: string;
+  kintoneBaseUrl: string;
+  kintoneAppId: string;
 }
 
 /**
@@ -42,20 +42,9 @@ export const parseKintoneAppUrl = (appUrl: string): ParsedKintoneUrl => {
   const domain = url.origin;
 
   return {
-    domain,
-    appId,
+    kintoneBaseUrl: domain,
+    kintoneAppId: appId,
   };
-};
-
-/**
- * ドメインとアプリIDからkintone アプリURLを構築する
- * @param domain ドメイン (例: "https://example.cybozu.com")
- * @param appId アプリID (例: "123")
- * @returns 構築されたアプリURL
- */
-export const buildKintoneAppUrl = (domain: string, appId: string): string => {
-  const cleanDomain = domain.replace(/\/$/, ''); // 末尾のスラッシュを削除
-  return `${cleanDomain}/k/${appId}/`;
 };
 
 /**

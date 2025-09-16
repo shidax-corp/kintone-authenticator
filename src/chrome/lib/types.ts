@@ -1,5 +1,6 @@
 export interface ExtensionSettings {
-  kintoneAppUrl: string;
+  kintoneBaseUrl: string;
+  kintoneAppId: string;
   kintoneUsername: string;
   kintonePassword: string;
   autoFillEnabled: boolean;

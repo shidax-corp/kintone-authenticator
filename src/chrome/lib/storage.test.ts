@@ -35,7 +35,8 @@ describe('storage', () => {
   describe('getSettings', () => {
     it('should return settings from chrome storage', async () => {
       const mockSettings: ExtensionSettings = {
-        kintoneAppUrl: 'https://example.cybozu.com/k/123/',
+        kintoneBaseUrl: 'https://example.cybozu.com',
+        kintoneAppId: '123',
         kintoneUsername: 'user',
         kintonePassword: 'pass',
         autoFillEnabled: true,
@@ -70,7 +71,8 @@ describe('storage', () => {
   describe('saveSettings', () => {
     it('should save settings to chrome storage', async () => {
       const settings: ExtensionSettings = {
-        kintoneAppUrl: 'https://example.cybozu.com/k/123/',
+        kintoneBaseUrl: 'https://example.cybozu.com',
+        kintoneAppId: '123',
         kintoneUsername: 'user',
         kintonePassword: 'pass',
         autoFillEnabled: true,
@@ -86,7 +88,8 @@ describe('storage', () => {
 
     it('should throw error on storage failure', async () => {
       const settings: ExtensionSettings = {
-        kintoneAppUrl: 'https://example.cybozu.com/k/123/',
+        kintoneBaseUrl: 'https://example.cybozu.com',
+        kintoneAppId: '123',
         kintoneUsername: 'user',
         kintonePassword: 'pass',
         autoFillEnabled: true,
@@ -103,7 +106,8 @@ describe('storage', () => {
   describe('isSettingsComplete', () => {
     it('should return true for complete settings', () => {
       const settings: ExtensionSettings = {
-        kintoneAppUrl: 'https://example.cybozu.com/k/123/',
+        kintoneBaseUrl: 'https://example.cybozu.com',
+        kintoneAppId: '123',
         kintoneUsername: 'user',
         kintonePassword: 'pass',
         autoFillEnabled: true,
@@ -118,7 +122,8 @@ describe('storage', () => {
 
     it('should return false for incomplete settings', () => {
       const incompleteSettings = {
-        kintoneAppUrl: 'https://example.cybozu.com/k/123/',
+        kintoneBaseUrl: 'https://example.cybozu.com',
+        kintoneAppId: '123',
         kintoneUsername: '',
         kintonePassword: 'pass',
         autoFillEnabled: true,
@@ -129,7 +134,8 @@ describe('storage', () => {
 
     it('should return false for settings with invalid app URL', () => {
       const incompleteSettings = {
-        kintoneAppUrl: 'invalid-url',
+        kintoneBaseUrl: '',
+        kintoneAppId: '',
         kintoneUsername: 'user',
         kintonePassword: 'pass',
         autoFillEnabled: true,

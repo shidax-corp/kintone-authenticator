@@ -1,5 +1,4 @@
 import { generateTOTP } from '@lib/gen-otp';
-import { parseKintoneAppUrl } from '@lib/kintone-url';
 import { decodeOTPAuthURI, isValidOTPAuthURI } from '@lib/otpauth-uri';
 
 import { getMatchingRecords } from '../lib/record-matcher';
@@ -96,15 +95,7 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
   }
 
   try {
-    const { domain, appId } = parseKintoneAppUrl(settings.kintoneAppUrl);
-    const client = new KintoneClient(
-      {
-        baseUrl: domain,
-        username: settings.kintoneUsername,
-        password: settings.kintonePassword,
-      },
-      appId
-    );
+    const client = new KintoneClient(settings);
 
     switch (info.menuItemId) {
       case 'read_qr':
@@ -200,15 +191,7 @@ chrome.runtime.onMessage.addListener(
           if (!isSettingsComplete(settings)) {
             throw new Error('Settings not complete');
           }
-          const { domain, appId } = parseKintoneAppUrl(settings.kintoneAppUrl);
-          return new KintoneClient(
-            {
-              baseUrl: domain,
-              username: settings.kintoneUsername,
-              password: settings.kintonePassword,
-            },
-            appId
-          );
+          return new KintoneClient(settings);
         };
 
         switch (message.type) {
@@ -271,17 +254,7 @@ chrome.runtime.onMessage.addListener(
 
           case 'TEST_CONNECTION': {
             const testSettings = message.data as ExtensionSettings;
-            const { domain, appId } = parseKintoneAppUrl(
-              testSettings.kintoneAppUrl
-            );
-            const testClient = new KintoneClient(
-              {
-                baseUrl: domain,
-                username: testSettings.kintoneUsername,
-                password: testSettings.kintonePassword,
-              },
-              appId
-            );
+            const testClient = new KintoneClient(testSettings);
             const isConnected = await testClient.testConnection();
             sendResponse({ success: isConnected });
             break;
