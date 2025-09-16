@@ -1,20 +1,26 @@
 import React from 'react';
-import { createRoot } from 'react-dom/client';
 
-import GlobalStyle from '@components/GlobalStyle';
+import Renderer from '../lib/renderer';
+
+const renderer = new Renderer();
 
 kintone.events.on('mobile.app.record.index.show', (ev) => {
   if (`${ev.viewId}` === process.env.KINTONE_VIEW_ID) {
-    const root = createRoot(kintone.mobile.app.getHeaderSpaceElement()!);
-    root.render(<GlobalStyle>list</GlobalStyle>);
+    renderer.render(
+      kintone.mobile.app.getHeaderSpaceElement()!,
+      <div>list</div>
+    );
   }
 
   return ev;
 });
 
 kintone.events.on('mobile.app.record.detail.show', (ev) => {
-  const root = createRoot(kintone.mobile.app.record.getSpaceElement('space')!);
-  root.render(<GlobalStyle tint>detail</GlobalStyle>);
+  renderer.render(
+    kintone.mobile.app.record.getSpaceElement('space')!,
+    <div>detail</div>,
+    { tint: true }
+  );
 
   return ev;
 });
@@ -22,10 +28,11 @@ kintone.events.on('mobile.app.record.detail.show', (ev) => {
 kintone.events.on(
   'mobile.app.record.create.show',
   (ev: kintone.events.RecordCreateShowEvent) => {
-    const root = createRoot(
-      kintone.mobile.app.record.getSpaceElement('space')!
+    renderer.render(
+      kintone.mobile.app.record.getSpaceElement('space')!,
+      <div>create</div>,
+      { tint: true }
     );
-    root.render(<GlobalStyle tint>create</GlobalStyle>);
 
     return ev;
   }
@@ -34,10 +41,11 @@ kintone.events.on(
 kintone.events.on(
   'mobile.app.record.edit.show',
   (ev: kintone.events.RecordEditShowEvent) => {
-    const root = createRoot(
-      kintone.mobile.app.record.getSpaceElement('space')!
+    renderer.render(
+      kintone.mobile.app.record.getSpaceElement('space')!,
+      <div>edit</div>,
+      { tint: true }
     );
-    root.render(<GlobalStyle>edit</GlobalStyle>);
 
     return ev;
   }

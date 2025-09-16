@@ -1,19 +1,17 @@
 import React from 'react';
-import { createRoot } from 'react-dom/client';
 
-import GlobalStyle from '@components/GlobalStyle';
-
+import Renderer from '../lib/renderer';
 import DetailApp from './DetailApp';
 import FormApp from './FormApp';
 import ListApp from './ListApp';
 
+const renderer = new Renderer();
+
 kintone.events.on('app.record.index.show', (ev) => {
   if (`${ev.viewId}` === process.env.KINTONE_VIEW_ID) {
-    const root = createRoot(kintone.app.getHeaderSpaceElement()!);
-    root.render(
-      <GlobalStyle>
-        <ListApp appId={ev.appId} viewId={ev.viewId} records={ev.records} />
-      </GlobalStyle>
+    renderer.render(
+      kintone.app.getHeaderSpaceElement()!,
+      <ListApp appId={ev.appId} viewId={ev.viewId} records={ev.records} />
     );
   }
 
@@ -21,11 +19,10 @@ kintone.events.on('app.record.index.show', (ev) => {
 });
 
 kintone.events.on('app.record.detail.show', (ev) => {
-  const root = createRoot(kintone.app.record.getSpaceElement('space')!);
-  root.render(
-    <GlobalStyle tint>
-      <DetailApp record={ev.record} />
-    </GlobalStyle>
+  renderer.render(
+    kintone.app.record.getSpaceElement('space')!,
+    <DetailApp record={ev.record} />,
+    { tint: true }
   );
 
   return ev;
@@ -34,11 +31,10 @@ kintone.events.on('app.record.detail.show', (ev) => {
 kintone.events.on(
   'app.record.create.show',
   (ev: kintone.events.RecordCreateShowEvent) => {
-    const root = createRoot(kintone.app.record.getSpaceElement('space')!);
-    root.render(
-      <GlobalStyle tint>
-        <FormApp record={ev.record} />
-      </GlobalStyle>
+    renderer.render(
+      kintone.app.record.getSpaceElement('space')!,
+      <FormApp record={ev.record} />,
+      { tint: true }
     );
 
     return ev;
@@ -48,11 +44,10 @@ kintone.events.on(
 kintone.events.on(
   'app.record.edit.show',
   (ev: kintone.events.RecordEditShowEvent) => {
-    const root = createRoot(kintone.app.record.getSpaceElement('space')!);
-    root.render(
-      <GlobalStyle>
-        <FormApp record={ev.record} />
-      </GlobalStyle>
+    renderer.render(
+      kintone.app.record.getSpaceElement('space')!,
+      <FormApp record={ev.record} />,
+      { tint: true }
     );
 
     return ev;
