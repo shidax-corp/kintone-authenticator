@@ -27,6 +27,7 @@ export default class Renderer {
     if (this.root) {
       this.root.unmount();
       this.root = null;
+      this.container = null;
     }
   }
 }
