@@ -1,0 +1,11 @@
+{
+  "main": "index.js",
+  "scripts": {
+    "postinstall": "npx playwright install chromium-headless-shell",
+    "start": "node index.js"
+  },
+  "type": "module",
+  "dependencies": {
+    "playwright": "^1.55.0"
+  }
+}
