@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { type FormEvent, useEffect, useState } from 'react';
 
 import {
   type OTPAuthRecord,
@@ -20,13 +20,13 @@ interface RegisterFormProps {
   initialPageUrl?: string;
 }
 
-export const RegisterForm: React.FC<RegisterFormProps> = ({
+export const RegisterForm = ({
   otpAuthUri,
   onBack,
   onSuccess,
   initialPageTitle,
   initialPageUrl,
-}) => {
+}: RegisterFormProps) => {
   const [formData, setFormData] = useState({
     name: initialPageTitle || '',
     url: initialPageUrl || '',
@@ -135,7 +135,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
     return Object.keys(errors).length === 0;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
     if (!validateForm()) {

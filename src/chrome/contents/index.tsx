@@ -1,4 +1,4 @@
-import React from 'react';
+import { createElement } from 'react';
 
 import { extractOriginURL } from '@lib/url';
 
@@ -127,7 +127,7 @@ const showFillOptionsModal = async (
     const initialSearchQuery = currentUrl;
 
     // SelectorModalコンポーネントをレンダリング
-    const selectorElement = React.createElement(SelectorModal, {
+    const selectorElement = createElement(SelectorModal, {
       onClose: handleClose,
       onFieldSelect: handleFieldSelect,
       initialRecords: records, // マッチしたレコードデータを渡す
@@ -152,7 +152,7 @@ const showRegisterFormModal = async (otpAuthUri: string) => {
     const currentPageUrl = extractOriginURL(window.location.href);
 
     // RegisterModalコンポーネントをレンダリング
-    const registerElement = React.createElement(RegisterModal, {
+    const registerElement = createElement(RegisterModal, {
       onClose: handleClose,
       otpAuthUri: otpAuthUri,
       initialPageTitle: currentPageTitle,

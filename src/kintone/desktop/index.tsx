@@ -1,5 +1,3 @@
-import React from 'react';
-
 import Renderer from '../lib/renderer';
 import DetailApp from './DetailApp';
 import FormApp from './FormApp';

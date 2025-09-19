@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { filterRecords } from '@lib/search';
 
@@ -25,13 +25,13 @@ interface SelectorModalProps {
  * OTP選択機能専用モーダル
  * レコード一覧から選択してフィールドに入力する
  */
-export const SelectorModal: React.FC<SelectorModalProps> = ({
+export const SelectorModal = ({
   onClose,
   onFieldSelect,
   initialRecords,
   allRecords,
   initialSearchQuery = '',
-}) => {
+}: SelectorModalProps) => {
   const [records, setRecords] = useState<kintone.types.SavedFields[]>([]);
   const [filteredRecords, setFilteredRecords] = useState<
     kintone.types.SavedFields[]

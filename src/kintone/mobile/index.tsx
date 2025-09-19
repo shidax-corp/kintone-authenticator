@@ -1,5 +1,3 @@
-import React from 'react';
-
 import Renderer from '../lib/renderer';
 
 const renderer = new Renderer();

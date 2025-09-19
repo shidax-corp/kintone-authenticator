@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { isValidURL } from '@lib/url';
 
 import OTPField from '@components/OTPField';
@@ -16,11 +14,11 @@ interface RecordItemProps {
   isModal?: boolean;
 }
 
-export const RecordItem: React.FC<RecordItemProps> = ({
+export const RecordItem = ({
   record,
   onFieldSelect,
   isModal = false,
-}) => {
+}: RecordItemProps) => {
   const handleUsernameClick = (value: string) => {
     if (isModal && onFieldSelect) {
       onFieldSelect('username', value, record.$id.value);
