@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { OTP } from '@lib/gen-otp';
 import { generateHOTP, generateTOTP, prettifyOTP } from '@lib/gen-otp';
 import {
-  OTPAuthRecord,
+  type OTPAuthRecord,
   decodeOTPAuthURI,
   encodeOTPAuthURI,
 } from '@lib/otpauth-uri';
