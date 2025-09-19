@@ -1,5 +1,3 @@
-import React from 'react';
-
 export interface SearchFieldProps {
   value: string;
   placeholder?: string;

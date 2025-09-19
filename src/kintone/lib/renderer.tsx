@@ -1,4 +1,4 @@
-import React, { type ReactElement } from 'react';
+import type { ReactElement } from 'react';
 import { type Root, createRoot } from 'react-dom/client';
 
 import GlobalStyle, { type GlobalStyleOptions } from '@components/GlobalStyle';

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { type FormEvent, useEffect, useState } from 'react';
 
 import {
   type OTPAuthRecord,
@@ -25,13 +25,13 @@ interface RegisterModalProps {
  * OTP登録機能専用モーダル
  * 新しいサイトのOTP情報を登録する
  */
-export const RegisterModal: React.FC<RegisterModalProps> = ({
+export const RegisterModal = ({
   onClose,
   otpAuthUri,
   initialPageTitle,
   initialPageUrl,
   showToast,
-}) => {
+}: RegisterModalProps) => {
   const [formData, setFormData] = useState({
     name: initialPageTitle || '',
     url: initialPageUrl || '',
@@ -115,7 +115,7 @@ export const RegisterModal: React.FC<RegisterModalProps> = ({
     return Object.keys(errors).length === 0;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
     if (!validateForm()) {

@@ -1,17 +1,17 @@
-import React, { useEffect } from 'react';
+import { type MouseEvent, type ReactNode, useEffect } from 'react';
 
 import GlobalStyle from '@components/GlobalStyle';
 
 interface ModalBaseProps {
   onClose?: () => void;
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 /**
  * モーダルの基本コンポーネント
  * 背景を暗くし、コンテンツを中央に配置する
  */
-const ModalBase: React.FC<ModalBaseProps> = ({ onClose, children }) => {
+const ModalBase = ({ onClose = () => {}, children }: ModalBaseProps) => {
   // ESCキーでモーダルを閉じる
   useEffect(() => {
     if (!onClose) return;
@@ -27,7 +27,7 @@ const ModalBase: React.FC<ModalBaseProps> = ({ onClose, children }) => {
   }, [onClose]);
 
   // 背景クリックでモーダルを閉じる
-  const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleOverlayClick = (e: MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget && onClose) {
       onClose();
     }

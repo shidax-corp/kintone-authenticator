@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 import CopyField from '@components/CopyField';
 import Field from '@components/Field';

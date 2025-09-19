@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { type FormEvent, useEffect, useState } from 'react';
 
 import InputField from '@components/InputField';
 
@@ -10,7 +10,7 @@ interface TestResult {
   message: string;
 }
 
-export const OptionsForm: React.FC = () => {
+export const OptionsForm = () => {
   const [settings, setSettings] = useState<ExtensionSettings>({
     kintoneBaseUrl: '',
     kintoneUsername: '',
@@ -51,7 +51,7 @@ export const OptionsForm: React.FC = () => {
     setTestResult(null);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setSaving(true);
     setTestResult(null);

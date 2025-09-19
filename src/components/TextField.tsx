@@ -1,5 +1,3 @@
-import React from 'react';
-
 import CopyField from '@components/CopyField';
 import Field from '@components/Field';
 

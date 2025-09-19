@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 
 import { QRReadError, readQRFromCanvas } from '@lib/qr-reader';
 

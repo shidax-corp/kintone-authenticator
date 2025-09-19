@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { createRoot } from 'react-dom/client';
 
 import GlobalStyle from '@components/GlobalStyle';
@@ -8,7 +8,7 @@ import { SelectionView } from './SelectionView';
 
 type ViewMode = 'selection' | 'register';
 
-const App: React.FC = () => {
+const App = () => {
   const [viewMode, setViewMode] = useState<ViewMode>('selection');
   const [registerOtpUri, setRegisterOtpUri] = useState<string | undefined>();
 
