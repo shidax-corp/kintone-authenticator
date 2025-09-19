@@ -6,7 +6,6 @@ export interface ScannerProps {
   open?: boolean;
   onRead: (data: string) => void;
   onError: (error: Error) => void;
-  onClose?: () => void;
 }
 
 /**
@@ -19,13 +18,8 @@ export interface ScannerProps {
  *
  * @param onRead - QRコードが正常にスキャンされたときに呼び出されるコールバック関数。
  * @param onError - QRコードのスキャンに失敗したときに呼び出されるコールバック関数。
- * @param onClose - スキャンが完了または失敗したときに呼び出されるコールバック関数。
  */
-export default function Scanner({
-  onRead,
-  onError,
-  onClose = () => {},
-}: ScannerProps) {
+export default function Scanner({ onRead, onError }: ScannerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -63,16 +57,14 @@ export default function Scanner({
         try {
           const qrData = readQRFromCanvas(canvas);
           if (qrData) {
-            stopScanning();
             onRead(qrData);
-            onClose();
           }
         } catch {
           // QRコードが見つからない場合は継続してスキャン
         }
       }
     }, 200);
-  }, [onError, onRead, onClose, stopScanning]);
+  }, [onError, onRead]);
 
   const startCamera = useCallback(async () => {
     try {
@@ -96,9 +88,8 @@ export default function Scanner({
         }
       }
       onError(new Error(errorMessage));
-      onClose();
     }
-  }, [onError, onClose, startScanning]);
+  }, [onError, startScanning]);
 
   useEffect(() => {
     startCamera();

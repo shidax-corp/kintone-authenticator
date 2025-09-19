@@ -33,7 +33,16 @@ export default function Scanner({
         <span>QRコードをスキャンしてください</span>
 
         {open && (
-          <QRScanner onRead={onRead} onError={onError} onClose={onClose} />
+          <QRScanner
+            onRead={(data) => {
+              onRead(data);
+              onClose();
+            }}
+            onError={(err) => {
+              onError(err);
+              onClose();
+            }}
+          />
         )}
       </div>
 

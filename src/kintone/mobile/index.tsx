@@ -1,4 +1,5 @@
 import Renderer from '../lib/renderer';
+import CreateApp from './CreateApp';
 
 const renderer = new Renderer();
 
@@ -28,7 +29,7 @@ kintone.events.on(
   (ev: kintone.events.RecordCreateShowEvent) => {
     renderer.render(
       kintone.mobile.app.record.getSpaceElement('space')!,
-      <div>create</div>,
+      <CreateApp />,
       { tint: true }
     );
 
