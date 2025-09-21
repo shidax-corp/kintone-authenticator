@@ -30,7 +30,7 @@ export default function Field({
           font-weight: ${boldLabel ? 'bold' : 'normal'};
           font-size: 80%;
           color: var(--ka-fg-light-color);
-          pointer: ${onClick ? 'cursor' : 'default'};
+          cursor: ${onClick ? 'pointer' : 'default'};
         }
         div > div {
           background-color: var(--ka-bg-tint-color);
