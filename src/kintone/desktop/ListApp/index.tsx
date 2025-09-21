@@ -22,26 +22,46 @@ export default function ListApp({
     kintone.app.getQueryCondition()
   );
 
-  const countElement = useRef<HTMLElement[]>([]);
+  const countElements = useRef<HTMLElement[]>([]);
+  const pagerElements = useRef<HTMLElement[]>([]);
 
   useEffect(() => {
-    countElement.current = [
+    countElements.current = [
       ...document.querySelectorAll('.component-app-listtable-countitem-page'),
     ].filter((elm): elm is HTMLElement => elm instanceof HTMLElement);
 
-    for (const elm of countElement.current) {
+    for (const elm of countElements.current) {
       elm.dataset.originalCount = elm.textContent;
+    }
+
+    pagerElements.current = [
+      ...document.querySelectorAll('.gaia-ui-listtable-pagercomponent-prev'),
+      ...document.querySelectorAll('.gaia-ui-listtable-pagercomponent-next'),
+    ].filter((elm): elm is HTMLElement => elm instanceof HTMLElement);
+
+    for (const elm of pagerElements.current) {
+      if (elm.classList.contains('pager-disable')) {
+        elm.dataset.disable = 'true';
+      }
     }
   }, []);
 
   useEffect(() => {
-    for (const elm of countElement.current) {
-      if (query.trim() === '') {
+    if (query.trim() === '') {
+      for (const elm of countElements.current) {
         elm.textContent = elm.dataset.originalCount || '';
-      } else if (!fetchedAll) {
-        elm.textContent = `${records.length}+件`;
-      } else {
-        elm.textContent = `${records.length}件`;
+      }
+      for (const elm of pagerElements.current) {
+        if (elm.dataset.disable !== 'true') {
+          elm.classList.remove('pager-disable');
+        }
+      }
+    } else {
+      for (const elm of countElements.current) {
+        elm.textContent = `${records.length}${fetchedAll ? '' : '+'}件`;
+      }
+      for (const elm of pagerElements.current) {
+        elm.classList.add('pager-disable');
       }
     }
   }, [query, records, fetchedAll]);
