@@ -71,6 +71,13 @@ export default function Scanner({ onRead }: ScannerProps) {
 
       {error && <p>{error}</p>}
 
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+        <path d="M10 30 L10 10 L30 10" />
+        <path d="M90 30 L90 10 L70 10" />
+        <path d="M10 70 L10 90 L30 90" />
+        <path d="M90 70 L90 90 L70 90" />
+      </svg>
+
       <style jsx>{`
         div {
           position: absolute;
@@ -105,6 +112,21 @@ export default function Scanner({ onRead }: ScannerProps) {
           font-size: inherit;
           font-weight: bold;
           text-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
+        }
+
+        svg {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+        }
+        path {
+          fill: none;
+          stroke: #fff;
+          stroke-width: 1;
+          stroke-linecap: round;
+          stroke-linejoin: round;
         }
       `}</style>
     </div>
