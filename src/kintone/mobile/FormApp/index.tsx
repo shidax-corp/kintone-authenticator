@@ -43,6 +43,8 @@ export default function FormApp({ initialURI = '' }: FormAppProps) {
 
     setFieldValue('name', info.issuer || '');
     setFieldValue('username', info.accountName || '');
+
+    viewpanel.current?.liberate?.();
   };
 
   if (!uri) {
@@ -125,6 +127,10 @@ class viewpanelConqueror {
   }
 
   conquer(onCancel: () => void) {
+    if (this.createdCancelButton) {
+      this.createdCancelButton.remove();
+    }
+
     this.cancelButton.style.display = 'none';
     this.saveButton.style.display = 'none';
 
