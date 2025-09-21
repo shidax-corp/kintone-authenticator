@@ -1,9 +1,8 @@
-import { useCallback, useEffect, useState } from 'react';
-
-import { filterRecords } from '@lib/search';
+import { useEffect, useRef } from 'react';
 
 import SearchField from '@components/SearchField';
 
+import useListSearcher from '../../lib/listSearcher';
 import AccountCard from './AccountCard';
 
 export interface ListAppProps {
@@ -12,109 +11,40 @@ export interface ListAppProps {
   records: kintone.types.SavedFields[];
 }
 
-const FETCH_DEBOUNCE_TIME = 1000; // 検索用データの取得に失敗した場合にリトライを許可するまでの時間（ミリ秒）
-
 export default function ListApp({
   appId,
   viewId,
   records: pageRecords,
 }: ListAppProps) {
-  const [query, setQuery] = useState('');
-  const [records, setRecords] =
-    useState<kintone.types.SavedFields[]>(pageRecords);
-  const [allRecords, setAllRecords] = useState<
-    kintone.types.SavedFields[] | null
-  >(null);
-  const [fetchDebounce, setFetchDebounce] = useState(0);
+  const { query, setQuery, records, fetchedAll } = useListSearcher(
+    appId,
+    pageRecords,
+    kintone.app.getQueryCondition()
+  );
 
-  const setHitCount = useCallback((count: number | null) => {
-    const hitCountElements = document.querySelectorAll(
-      '.component-app-listtable-countitem-page'
-    );
-    for (const elm of hitCountElements) {
-      if (elm instanceof HTMLElement) {
-        if (!elm.dataset.originalCount) {
-          elm.dataset.originalCount = elm.textContent || '';
-        }
-        if (count === null) {
-          elm.textContent = elm.dataset.originalCount || '';
-        } else {
-          elm.textContent = `${count}件`;
-        }
-      }
+  const countElement = useRef<HTMLElement[]>([]);
+
+  useEffect(() => {
+    countElement.current = [
+      ...document.querySelectorAll('.component-app-listtable-countitem-page'),
+    ].filter((elm): elm is HTMLElement => elm instanceof HTMLElement);
+
+    for (const elm of countElement.current) {
+      elm.dataset.originalCount = elm.textContent;
     }
   }, []);
 
-  const fetchAllRecords = useCallback(async () => {
-    if (allRecords || fetchDebounce) return; // 既に全レコードが取得済み
-    if (Date.now() < fetchDebounce) return; // まだデータを未取得だが、失敗したばかりなのでリトライしない。
-    setFetchDebounce(Date.now() + FETCH_DEBOUNCE_TIME);
-
-    const result: kintone.types.SavedFields[] = [];
-
-    let cursor: string;
-
-    try {
-      cursor = (
-        await kintone.api('/k/v1/records/cursor.json', 'POST', {
-          app: appId,
-          query: kintone.app.getQueryCondition(),
-          size: 500,
-        })
-      ).id;
-    } catch (error) {
-      console.error('Failed to create cursor:', error);
-      return;
-    }
-
-    try {
-      while (true) {
-        const response = await kintone.api('/k/v1/records/cursor.json', 'GET', {
-          id: cursor,
-        });
-
-        result.push(...response.records);
-
-        if (!response.next) {
-          break;
-        }
-      }
-    } catch (error) {
-      console.error('Failed to fetch all records:', error);
-
-      try {
-        await kintone.api('/k/v1/records/cursor.json', 'DELETE', {
-          id: cursor,
-        });
-      } catch (deleteError) {
-        console.error('Failed to delete cursor:', deleteError);
-      }
-
-      return;
-    }
-
-    setAllRecords(result);
-    setFetchDebounce(0); // 成功したのでリトライタイマーをリセット
-  }, [appId, allRecords, fetchDebounce]);
-
   useEffect(() => {
-    if (query === '') {
-      setRecords(pageRecords);
-      setHitCount(null);
-      return;
+    for (const elm of countElement.current) {
+      if (query.trim() === '') {
+        elm.textContent = elm.dataset.originalCount || '';
+      } else if (!fetchedAll) {
+        elm.textContent = `${records.length}+件`;
+      } else {
+        elm.textContent = `${records.length}件`;
+      }
     }
-
-    let targetRecords = pageRecords; // とりあえず検索対象はページ内とする。
-    if (allRecords) {
-      targetRecords = allRecords; // 全レコードを取得済みならそれを使用する。
-    } else {
-      fetchAllRecords(); // 取得前ならひとまず今あるレコードを検索しつつ、その間に全レコードを取得する。
-    }
-
-    const filteredRecords = filterRecords(targetRecords, query);
-    setHitCount(filteredRecords.length);
-    setRecords(filteredRecords);
-  }, [query, pageRecords, allRecords, fetchAllRecords, setHitCount]);
+  }, [query, records, fetchedAll]);
 
   return (
     <div>
