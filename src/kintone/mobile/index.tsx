@@ -1,5 +1,6 @@
 import Renderer from '../lib/renderer';
 import FormApp from './FormApp';
+import ListApp from './ListApp';
 
 const renderer = new Renderer();
 
@@ -7,7 +8,8 @@ kintone.events.on('mobile.app.record.index.show', (ev) => {
   if (`${ev.viewId}` === process.env.KINTONE_VIEW_ID) {
     renderer.render(
       kintone.mobile.app.getHeaderSpaceElement()!,
-      <div>list</div>
+      <ListApp appId={ev.appId} viewId={ev.viewId} records={ev.records} />,
+      { tint: true }
     );
   }
 
