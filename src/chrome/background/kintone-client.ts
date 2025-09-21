@@ -15,7 +15,7 @@ export class KintoneClient {
   private appId: string;
   private settings: ExtensionSettings;
 
-  constructor(settings: ExtensionSettings, appId: string) {
+  constructor(settings: ExtensionSettings) {
     this.client = new KintoneRestAPIClient({
       baseUrl: settings.kintoneBaseUrl,
       auth: {
@@ -23,7 +23,7 @@ export class KintoneClient {
         password: settings.kintonePassword,
       },
     });
-    this.appId = appId;
+    this.appId = settings.kintoneAppId;
     this.settings = settings;
   }
 

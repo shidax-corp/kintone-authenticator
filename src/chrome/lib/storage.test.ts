@@ -36,6 +36,7 @@ describe('storage', () => {
     it('should return settings from chrome storage', async () => {
       const mockSettings: ExtensionSettings = {
         kintoneBaseUrl: 'https://example.cybozu.com',
+        kintoneAppId: '123',
         kintoneUsername: 'user',
         kintonePassword: 'pass',
         autoFillEnabled: true,
@@ -71,6 +72,7 @@ describe('storage', () => {
     it('should save settings to chrome storage', async () => {
       const settings: ExtensionSettings = {
         kintoneBaseUrl: 'https://example.cybozu.com',
+        kintoneAppId: '123',
         kintoneUsername: 'user',
         kintonePassword: 'pass',
         autoFillEnabled: true,
@@ -87,6 +89,7 @@ describe('storage', () => {
     it('should throw error on storage failure', async () => {
       const settings: ExtensionSettings = {
         kintoneBaseUrl: 'https://example.cybozu.com',
+        kintoneAppId: '123',
         kintoneUsername: 'user',
         kintonePassword: 'pass',
         autoFillEnabled: true,
@@ -104,6 +107,7 @@ describe('storage', () => {
     it('should return true for complete settings', () => {
       const settings: ExtensionSettings = {
         kintoneBaseUrl: 'https://example.cybozu.com',
+        kintoneAppId: '123',
         kintoneUsername: 'user',
         kintonePassword: 'pass',
         autoFillEnabled: true,
@@ -119,7 +123,20 @@ describe('storage', () => {
     it('should return false for incomplete settings', () => {
       const incompleteSettings = {
         kintoneBaseUrl: 'https://example.cybozu.com',
+        kintoneAppId: '123',
         kintoneUsername: '',
+        kintonePassword: 'pass',
+        autoFillEnabled: true,
+      } as ExtensionSettings;
+
+      expect(isSettingsComplete(incompleteSettings)).toBe(false);
+    });
+
+    it('should return false for settings with invalid app URL', () => {
+      const incompleteSettings = {
+        kintoneBaseUrl: '',
+        kintoneAppId: '',
+        kintoneUsername: 'user',
         kintonePassword: 'pass',
         autoFillEnabled: true,
       } as ExtensionSettings;
