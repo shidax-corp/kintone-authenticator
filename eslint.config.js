@@ -24,6 +24,7 @@ export default [
         document: 'readonly',
         console: 'readonly',
         setTimeout: 'readonly',
+        clearTimeout: 'readonly',
         setInterval: 'readonly',
         clearInterval: 'readonly',
         requestAnimationFrame: 'readonly',
@@ -70,6 +71,11 @@ export default [
       ...reactHooks.configs.recommended.rules,
 
       'react/no-unknown-property': ['error', { ignore: ['jsx'] }], // Allow styled-jsx
+
+      '@typescript-eslint/consistent-type-imports': [
+        'error',
+        { prefer: 'type-imports', fixStyle: 'inline-type-imports' },
+      ],
     },
     settings: {
       react: {

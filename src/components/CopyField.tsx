@@ -1,4 +1,4 @@
-import React, { ReactNode, useState } from 'react';
+import { type ReactNode, useState } from 'react';
 import type { MouseEventHandler } from 'react';
 
 /**

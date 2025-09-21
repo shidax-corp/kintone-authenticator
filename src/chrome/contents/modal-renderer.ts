@@ -1,4 +1,4 @@
-import React from 'react';
+import type { ReactElement } from 'react';
 import { type Root, createRoot } from 'react-dom/client';
 
 let currentModalRoot: HTMLElement | null = null;
@@ -9,7 +9,7 @@ let currentReactRoot: Root | null = null;
  * このモジュールはDOM操作とReact root管理のみを担当します。
  * モーダルの動作（ESCキー、背景クリックなど）はModalBaseコンポーネント側で実装されています（このファイルでは扱いません）。
  */
-export const renderModalComponent = (component: React.ReactElement): void => {
+export const renderModalComponent = (component: ReactElement): void => {
   // 既存のモーダルがあれば削除
   closeModal();
 

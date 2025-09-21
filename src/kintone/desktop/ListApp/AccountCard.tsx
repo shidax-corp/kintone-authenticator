@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { isValidURL } from '@lib/url';
 
 import OTPField from '@components/OTPField';
