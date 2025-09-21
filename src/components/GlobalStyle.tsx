@@ -1,7 +1,10 @@
-import React, { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 
-export interface GlobalStyleProps {
+export interface GlobalStyleOptions {
   tint?: boolean;
+}
+
+export interface GlobalStyleProps extends GlobalStyleOptions {
   children: ReactNode;
 }
 

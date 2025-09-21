@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { generateHOTP, generateTOTP, prettifyOTP } from '@lib/gen-otp';
 import { type OTPAuthRecord, decodeOTPAuthURI } from '@lib/otpauth-uri';

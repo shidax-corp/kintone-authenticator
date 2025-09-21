@@ -1,6 +1,4 @@
-import React, { useCallback, useEffect, useRef } from 'react';
-
-import { QRReadError, readQRFromCanvas } from '@lib/qr-reader';
+import QRScanner from '@components/QRScanner';
 
 export interface ScannerProps {
   open?: boolean;
@@ -26,92 +24,6 @@ export default function Scanner({
   onError,
   onClose = () => {},
 }: ScannerProps) {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const streamRef = useRef<MediaStream | null>(null);
-  const scanIntervalRef = useRef<NodeJS.Timeout | null>(null);
-
-  const stopScanning = useCallback(() => {
-    if (scanIntervalRef.current) {
-      clearInterval(scanIntervalRef.current);
-      scanIntervalRef.current = null;
-    }
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach((track) => track.stop());
-      streamRef.current = null;
-    }
-  }, []);
-
-  const startScanning = useCallback(() => {
-    if (!videoRef.current || !canvasRef.current) return;
-
-    const video = videoRef.current;
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d', { willReadFrequently: true });
-
-    if (!ctx) {
-      onError(new QRReadError('カメラの初期化に失敗しました'));
-      return;
-    }
-
-    scanIntervalRef.current = setInterval(() => {
-      if (video.readyState === video.HAVE_ENOUGH_DATA) {
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-        try {
-          const qrData = readQRFromCanvas(canvas);
-          if (qrData) {
-            stopScanning();
-            onRead(qrData);
-            onClose();
-          }
-        } catch {
-          // QRコードが見つからない場合は継続してスキャン
-        }
-      }
-    }, 200);
-  }, [onError, onRead, onClose, stopScanning]);
-
-  const startCamera = useCallback(async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'environment' },
-      });
-      streamRef.current = stream;
-
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        await videoRef.current.play();
-        startScanning();
-      }
-    } catch (error) {
-      let errorMessage = 'カメラの起動に失敗しました';
-      if (error instanceof DOMException) {
-        if (error.name === 'NotAllowedError') {
-          errorMessage = 'カメラへのアクセスが許可されていません';
-        } else if (error.name === 'NotFoundError') {
-          errorMessage = 'カメラが見つかりません';
-        }
-      }
-      onError(new Error(errorMessage));
-      onClose();
-    }
-  }, [onError, onClose, startScanning]);
-
-  useEffect(() => {
-    if (open) {
-      startCamera();
-    } else {
-      stopScanning();
-    }
-
-    return () => {
-      stopScanning();
-    };
-  }, [open, startCamera, stopScanning]);
-
   return (
     <div className={`outer ${open ? 'open' : ''}`} onClick={() => onClose()}>
       <div className="inner" onClick={(e) => e.stopPropagation()}>
@@ -120,10 +32,18 @@ export default function Scanner({
 
         <span>QRコードをスキャンしてください</span>
 
-        <div className="video-container">
-          <video ref={videoRef} playsInline muted />
-          <canvas ref={canvasRef} style={{ display: 'none' }} />
-        </div>
+        {open && (
+          <QRScanner
+            onRead={(data) => {
+              onRead(data);
+              onClose();
+            }}
+            onError={(err) => {
+              onError(err);
+              onClose();
+            }}
+          />
+        )}
       </div>
 
       <style jsx>{`
@@ -177,20 +97,6 @@ export default function Scanner({
           color: var(--ka-fg-color);
           font-size: 24px;
           cursor: pointer;
-        }
-        .video-container {
-          flex: 1;
-          background-color: var(--ka-bg-dark-color);
-          border-radius: 4px;
-          overflow: hidden;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-        }
-        video {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
         }
       `}</style>
     </div>

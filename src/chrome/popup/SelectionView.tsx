@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { filterRecords } from '@lib/search';
 
@@ -22,7 +22,7 @@ interface SelectionViewProps {
   initialSearchQuery?: string;
 }
 
-export const SelectionView: React.FC<SelectionViewProps> = ({
+export const SelectionView = ({
   onRegister,
   isModal = false,
   onClose,
@@ -30,7 +30,7 @@ export const SelectionView: React.FC<SelectionViewProps> = ({
   initialRecords,
   allRecords,
   initialSearchQuery = '',
-}) => {
+}: SelectionViewProps) => {
   const [records, setRecords] = useState<kintone.types.SavedFields[]>([]);
   const [filteredRecords, setFilteredRecords] = useState<
     kintone.types.SavedFields[]
