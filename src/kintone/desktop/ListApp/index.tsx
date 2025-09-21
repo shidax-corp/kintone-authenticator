@@ -1,7 +1,8 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 
 import SearchField from '@components/SearchField';
 
+import useElementsAttributeSetter from '../../lib/elementsAttributeSetter';
 import useListSearcher from '../../lib/listSearcher';
 import AccountCard from './AccountCard';
 
@@ -22,49 +23,25 @@ export default function ListApp({
     kintone.app.getQueryCondition()
   );
 
-  const countElements = useRef<HTMLElement[]>([]);
-  const pagerElements = useRef<HTMLElement[]>([]);
-
-  useEffect(() => {
-    countElements.current = [
-      ...document.querySelectorAll('.component-app-listtable-countitem-page'),
-    ].filter((elm): elm is HTMLElement => elm instanceof HTMLElement);
-
-    for (const elm of countElements.current) {
-      elm.dataset.originalCount = elm.textContent;
-    }
-
-    pagerElements.current = [
-      ...document.querySelectorAll('.gaia-ui-listtable-pagercomponent-prev'),
-      ...document.querySelectorAll('.gaia-ui-listtable-pagercomponent-next'),
-    ].filter((elm): elm is HTMLElement => elm instanceof HTMLElement);
-
-    for (const elm of pagerElements.current) {
-      if (elm.classList.contains('pager-disable')) {
-        elm.dataset.disable = 'true';
-      }
-    }
-  }, []);
+  const setCounterAttribute = useElementsAttributeSetter(
+    '.component-app-listtable-countitem-page'
+  );
+  const setPagerAttribute = useElementsAttributeSetter(
+    '.gaia-ui-listtable-pagercomponent-prev, .gaia-ui-listtable-pagercomponent-next'
+  );
 
   useEffect(() => {
     if (query.trim() === '') {
-      for (const elm of countElements.current) {
-        elm.textContent = elm.dataset.originalCount || '';
-      }
-      for (const elm of pagerElements.current) {
-        if (elm.dataset.disable !== 'true') {
-          elm.classList.remove('pager-disable');
-        }
-      }
+      setCounterAttribute('textContent', null);
+      setPagerAttribute('style', null);
     } else {
-      for (const elm of countElements.current) {
-        elm.textContent = `${records.length}${fetchedAll ? '' : '+'}件`;
-      }
-      for (const elm of pagerElements.current) {
-        elm.classList.add('pager-disable');
-      }
+      setCounterAttribute(
+        'textContent',
+        `${records.length}${fetchedAll ? '' : '+'}件`
+      );
+      setPagerAttribute('style', 'visibility: hidden;');
     }
-  }, [query, records, fetchedAll]);
+  }, [query, records, fetchedAll, setCounterAttribute, setPagerAttribute]);
 
   return (
     <div>

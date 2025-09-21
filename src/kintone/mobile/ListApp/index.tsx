@@ -1,7 +1,8 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 
 import SearchField from '@components/SearchField';
 
+import useElementsAttributeSetter from '../../lib/elementsAttributeSetter';
 import useListSearcher from '../../lib/listSearcher';
 
 export interface ListAppProps {
@@ -17,41 +18,25 @@ export default function ListApp({ appId, records: pageRecords }: ListAppProps) {
     kintone.mobile.app.getQueryCondition()
   );
 
-  const countElements = useRef<HTMLElement[]>([]);
-  const pagerElements = useRef<HTMLElement[]>([]);
-
-  useEffect(() => {
-    countElements.current = [
-      ...document.querySelectorAll('.gaia-mobile-v2-app-index-pager-current'),
-    ].filter((elm): elm is HTMLElement => elm instanceof HTMLElement);
-
-    for (const elm of countElements.current) {
-      elm.dataset.originalCount = elm.textContent;
-    }
-
-    pagerElements.current = [
-      ...document.querySelectorAll('.gaia-mobile-v2-app-index-pager-prev'),
-      ...document.querySelectorAll('.gaia-mobile-v2-app-index-pager-next'),
-    ].filter((elm): elm is HTMLElement => elm instanceof HTMLElement);
-  }, []);
+  const setCounterAttribute = useElementsAttributeSetter(
+    '.gaia-mobile-v2-app-index-pager-current'
+  );
+  const setPagerAttribute = useElementsAttributeSetter(
+    '.gaia-mobile-v2-app-index-pager-prev, .gaia-mobile-v2-app-index-pager-next'
+  );
 
   useEffect(() => {
     if (query.trim() === '') {
-      for (const elm of countElements.current) {
-        elm.textContent = elm.dataset.originalCount || '';
-      }
-      for (const elm of pagerElements.current) {
-        elm.style.display = '';
-      }
+      setCounterAttribute('textContent', null);
+      setPagerAttribute('style', null);
     } else {
-      for (const elm of countElements.current) {
-        elm.textContent = `${records.length}${fetchedAll ? '' : '+'}件`;
-      }
-      for (const elm of pagerElements.current) {
-        elm.style.display = 'none';
-      }
+      setCounterAttribute(
+        'textContent',
+        `${records.length}${fetchedAll ? '' : '+'}件`
+      );
+      setPagerAttribute('style', 'display: none;');
     }
-  }, [query, records, fetchedAll]);
+  }, [query, records, fetchedAll, setCounterAttribute, setPagerAttribute]);
 
   return (
     <div>
