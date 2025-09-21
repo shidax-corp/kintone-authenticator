@@ -30,7 +30,9 @@ export const parseKintoneAppUrl = (appUrl: string): ParsedKintoneUrl => {
     throw new Error('HTTPSのURLを入力してください');
   }
 
-  // kintone の /k/{appId}/ パターンをチェック
+  // kintone アプリURLのパスが `/k/{appId}/` 形式であることを確認する
+  // この正規表現は appId が数字のみ（1つ以上の数字）であることを要求します
+  // 例: /k/123/ （123は数字のみ）
   const pathMatch = url.pathname.match(/^\/k\/(\d+)\/?$/);
   if (!pathMatch) {
     throw new Error(
