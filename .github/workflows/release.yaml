@@ -10,6 +10,8 @@ jobs:
     name: Release
     runs-on: ubuntu-latest
     environment: production
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v5
       - name: Pull tags
@@ -52,3 +54,5 @@ jobs:
             ./dist/kintone/kintone-authenticator-desktop.js \
             ./dist/kintone/kintone-authenticator-mobile.js \
             ./app-template.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
