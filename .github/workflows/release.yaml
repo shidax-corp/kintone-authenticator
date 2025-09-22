@@ -1,0 +1,52 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+      - run: npm ci
+      - run: npm run build
+        env:
+          NODE_ENV: production
+          KINTONE_BASE_URL: ${{ secrets.KINTONE_BASE_URL }}
+          KINTONE_APP_ID: ${{ vars.KINTONE_APP_ID }}
+          KINTONE_VIEW_ID: ${{ vars.KINTONE_VIEW_ID }}
+      - uses: macrat/upload-kintone-customize-action@v1
+        with:
+          base-url: ${{ secrets.KINTONE_BASE_URL }}
+          app-id: ${{ vars.KINTONE_APP_ID }}
+          username: ${{ secrets.KINTONE_USERNAME }}
+          password: ${{ secrets.KINTONE_PASSWORD }}
+          desktop-js: ./dist/kintone/kintone-authenticator-desktop.js
+          mobile-js: ./dist/kintone/kintone-authenticator-mobile.js
+      - uses: macrat/download-kintone-template@v0
+        with:
+          base-url: ${{ secrets.KINTONE_BASE_URL }}
+          app-id: ${{ vars.KINTONE_APP_ID }}
+          username: ${{ secrets.KINTONE_USERNAME }}
+          password: ${{ secrets.KINTONE_PASSWORD }}
+          output: ./app-template.zip
+      - name: Extract release info
+        id: metadata
+        run: |
+          echo "title=$(git tag --format '%(subject)' ${GITHUB_REF#refs/tags/})" >> $GITHUB_OUTPUT
+          echo "release_note<<EOF" >> $GITHUB_OUTPUT
+          git tag --format '%(body)' ${GITHUB_REF#refs/tags/}
+          echo "EOF" >> $GITHUB_OUTPUT
+      - name: Create GitHub Release
+        run: |
+          gh release create ${GITHUB_REF#refs/tags/} \
+            --title "${{ steps.metadata.outputs.title }}" \
+            --notes "${{ steps.metadata.outputs.release_note }}" \
+            ./dist/kintone/kintone-authenticator-desktop.js \
+            ./dist/kintone/kintone-authenticator-mobile.js \
+            ./app-template.zip
