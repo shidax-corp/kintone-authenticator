@@ -4,11 +4,9 @@ import FormApp from './FormApp';
 const renderer = new Renderer();
 
 kintone.events.on('mobile.app.record.index.show', (ev) => {
-  if (`${ev.viewId}` === process.env.KINTONE_VIEW_ID) {
-    renderer.render(
-      kintone.mobile.app.getHeaderSpaceElement()!,
-      <div>list</div>
-    );
+  const container = document.getElementById('kintone-authenticator-list-view');
+  if (container) {
+    renderer.render(container, <div>list</div>);
   }
 
   return ev;

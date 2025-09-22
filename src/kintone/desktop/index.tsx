@@ -6,9 +6,10 @@ import ListApp from './ListApp';
 const renderer = new Renderer();
 
 kintone.events.on('app.record.index.show', (ev) => {
-  if (`${ev.viewId}` === process.env.KINTONE_VIEW_ID) {
+  const container = document.getElementById('kintone-authenticator-list-view');
+  if (container) {
     renderer.render(
-      kintone.app.getHeaderSpaceElement()!,
+      container,
       <ListApp appId={ev.appId} viewId={ev.viewId} records={ev.records} />
     );
   }
