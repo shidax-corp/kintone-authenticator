@@ -1,14 +1,12 @@
 import Renderer from '../lib/renderer';
-import CreateApp from './CreateApp';
+import FormApp from './FormApp';
 
 const renderer = new Renderer();
 
 kintone.events.on('mobile.app.record.index.show', (ev) => {
-  if (`${ev.viewId}` === process.env.KINTONE_VIEW_ID) {
-    renderer.render(
-      kintone.mobile.app.getHeaderSpaceElement()!,
-      <div>list</div>
-    );
+  const container = document.getElementById('kintone-authenticator-list-view');
+  if (container) {
+    renderer.render(container, <div>list</div>);
   }
 
   return ev;
@@ -17,8 +15,7 @@ kintone.events.on('mobile.app.record.index.show', (ev) => {
 kintone.events.on('mobile.app.record.detail.show', (ev) => {
   renderer.render(
     kintone.mobile.app.record.getSpaceElement('space')!,
-    <div>detail</div>,
-    { tint: true }
+    <div>detail</div>
   );
 
   return ev;
@@ -29,8 +26,7 @@ kintone.events.on(
   (ev: kintone.events.RecordCreateShowEvent) => {
     renderer.render(
       kintone.mobile.app.record.getSpaceElement('space')!,
-      <CreateApp />,
-      { tint: true }
+      <FormApp />
     );
 
     return ev;
@@ -42,8 +38,7 @@ kintone.events.on(
   (ev: kintone.events.RecordEditShowEvent) => {
     renderer.render(
       kintone.mobile.app.record.getSpaceElement('space')!,
-      <div>edit</div>,
-      { tint: true }
+      <FormApp initialURI={ev.record.otpuri.value} />
     );
 
     return ev;

@@ -31,17 +31,17 @@ const mockSetCachedRecords = setCachedRecords as jest.MockedFunction<
 describe('KintoneClient', () => {
   const mockSettings: ExtensionSettings = {
     kintoneBaseUrl: 'https://example.cybozu.com',
+    kintoneAppId: '123',
     kintoneUsername: 'user',
     kintonePassword: 'pass',
     autoFillEnabled: true,
   };
 
-  const appId = '123';
   let client: KintoneClient;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    client = new KintoneClient(mockSettings, appId);
+    client = new KintoneClient(mockSettings);
   });
 
   describe('constructor', () => {
@@ -107,7 +107,7 @@ describe('KintoneClient', () => {
       await client.getRecords(true);
 
       expect(mockKintoneClient.record.getRecords).toHaveBeenCalledWith({
-        app: appId,
+        app: mockSettings.kintoneAppId,
         fields: [
           '$id',
           'name',
@@ -178,7 +178,7 @@ describe('KintoneClient', () => {
       const result = await client.createRecord(recordData);
 
       expect(mockKintoneClient.record.addRecord).toHaveBeenCalledWith({
-        app: appId,
+        app: mockSettings.kintoneAppId,
         record: {
           name: { value: 'New Site' },
           url: { value: 'https://new.com' },
@@ -221,7 +221,7 @@ describe('KintoneClient', () => {
       await client.updateRecord('123', updateData);
 
       expect(mockKintoneClient.record.updateRecord).toHaveBeenCalledWith({
-        app: appId,
+        app: mockSettings.kintoneAppId,
         id: '123',
         record: {
           name: { value: 'Updated Site' },
@@ -248,7 +248,7 @@ describe('KintoneClient', () => {
       await client.deleteRecord('123');
 
       expect(mockKintoneClient.record.deleteRecords).toHaveBeenCalledWith({
-        app: appId,
+        app: mockSettings.kintoneAppId,
         ids: ['123'],
       });
       expect(mockKintoneClient.record.getRecords).toHaveBeenCalled();

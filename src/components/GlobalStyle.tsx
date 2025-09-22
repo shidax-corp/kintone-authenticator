@@ -23,7 +23,7 @@ export default function GlobalStyle({ tint, children }: GlobalStyleProps) {
         & {
           --ka-fg-rgb: 51, 51, 51;
           --ka-fg-color: rgb(var(--ka-fg-rgb));
-          --ka-fg-light-rgb: 102, 102, 102;
+          --ka-fg-light-rgb: 136, 136, 136;
           --ka-fg-light-color: rgb(var(--ka-fg-light-rgb));
           --ka-fg-error-rgb: 255, 0, 0;
           --ka-fg-error-color: rgb(var(--ka-fg-error-rgb));

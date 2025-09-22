@@ -2,6 +2,7 @@ import { type FormEvent, useEffect, useState } from 'react';
 
 import InputField from '@components/InputField';
 
+import { parseKintoneAppUrl } from '../lib/kintone-url';
 import { getSettings, isSettingsComplete, saveSettings } from '../lib/storage';
 import type { ExtensionSettings } from '../lib/types';
 
@@ -13,10 +14,13 @@ interface TestResult {
 export const OptionsForm = () => {
   const [settings, setSettings] = useState<ExtensionSettings>({
     kintoneBaseUrl: '',
+    kintoneAppId: '',
     kintoneUsername: '',
     kintonePassword: '',
     autoFillEnabled: true,
   });
+
+  const [kintoneAppUrl, setKintoneAppUrl] = useState('');
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -32,6 +36,11 @@ export const OptionsForm = () => {
       const existingSettings = await getSettings();
       if (existingSettings) {
         setSettings(existingSettings);
+        // Reconstruct the URL for display
+        if (existingSettings.kintoneBaseUrl && existingSettings.kintoneAppId) {
+          const url = `${existingSettings.kintoneBaseUrl}/k/${existingSettings.kintoneAppId}/`;
+          setKintoneAppUrl(url);
+        }
       }
     } catch {
       // Settings loading failure is not critical
@@ -49,6 +58,36 @@ export const OptionsForm = () => {
       [field]: value,
     }));
     setTestResult(null);
+  };
+
+  const handleAppUrlChange = (url: string) => {
+    setKintoneAppUrl(url);
+    setTestResult(null);
+
+    // Parse the URL and update the settings
+    if (url.trim()) {
+      try {
+        const parsed = parseKintoneAppUrl(url);
+        setSettings((prev) => ({
+          ...prev,
+          kintoneBaseUrl: parsed.kintoneBaseUrl,
+          kintoneAppId: parsed.kintoneAppId,
+        }));
+      } catch {
+        // If parsing fails, clear the parsed values but keep the URL for display
+        setSettings((prev) => ({
+          ...prev,
+          kintoneBaseUrl: '',
+          kintoneAppId: '',
+        }));
+      }
+    } else {
+      setSettings((prev) => ({
+        ...prev,
+        kintoneBaseUrl: '',
+        kintoneAppId: '',
+      }));
+    }
   };
 
   const handleSubmit = async (e: FormEvent) => {
@@ -255,13 +294,13 @@ export const OptionsForm = () => {
         <div className="form-group">
           <InputField
             type="url"
-            label="kintoneドメイン"
-            placeholder="https://example.cybozu.com"
-            value={settings.kintoneBaseUrl}
-            onChange={(value) => handleInputChange('kintoneBaseUrl', value)}
+            label="kintoneアプリのURL"
+            placeholder="https://example.cybozu.com/k/123/"
+            value={kintoneAppUrl}
+            onChange={handleAppUrlChange}
             required
           />
-          <div className="help-text">例: https://example.cybozu.com</div>
+          <div className="help-text">例: https://example.cybozu.com/k/123/</div>
         </div>
 
         <div className="form-group">
