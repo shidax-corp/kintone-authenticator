@@ -34,13 +34,13 @@ jobs:
           app-id: ${{ vars.KINTONE_APP_ID }}
           username: ${{ secrets.KINTONE_USERNAME }}
           password: ${{ secrets.KINTONE_PASSWORD }}
-          path: ./app-template.zip
+          output: ./app-template.zip
       - name: Extract release info
         id: metadata
         run: |
-          echo "title=$(git tag --format '%(subject)' ${GITHUB_REF#refs/tags/})" >> $GITHUB_OUTPUT
+          echo "title=$(git tag -v --format '%(subject)' ${GITHUB_REF#refs/tags/})" >> $GITHUB_OUTPUT
           echo "release_note<<EOF" >> $GITHUB_OUTPUT
-          git tag --format '%(body)' ${GITHUB_REF#refs/tags/}
+          git tag -v --format '%(contents:body)' ${GITHUB_REF#refs/tags/} >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
       - name: Create GitHub Release
         run: |
