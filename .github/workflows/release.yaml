@@ -28,7 +28,7 @@ jobs:
           password: ${{ secrets.KINTONE_PASSWORD }}
           desktop-js: ./dist/kintone/kintone-authenticator-desktop.js
           mobile-js: ./dist/kintone/kintone-authenticator-mobile.js
-      - uses: macrat/download-kintone-template@v0
+      - uses: macrat/download-kintone-template-action@v0
         with:
           base-url: ${{ secrets.KINTONE_BASE_URL }}
           app-id: ${{ vars.KINTONE_APP_ID }}
