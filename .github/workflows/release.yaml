@@ -12,6 +12,8 @@ jobs:
     environment: production
     steps:
       - uses: actions/checkout@v5
+        with:
+          fetch-tags: true
       - uses: actions/setup-node@v5
       - run: npm ci
       - run: npm run build
@@ -38,9 +40,9 @@ jobs:
       - name: Extract release info
         id: metadata
         run: |
-          echo "title=$(git tag -v --format '%(subject)' ${GITHUB_REF#refs/tags/})" >> $GITHUB_OUTPUT
+          echo "title=$(git tag -l --format '%(subject)' ${GITHUB_REF#refs/tags/})" >> $GITHUB_OUTPUT
           echo "release_note<<EOF" >> $GITHUB_OUTPUT
-          git tag -v --format '%(contents:body)' ${GITHUB_REF#refs/tags/} >> $GITHUB_OUTPUT
+          git tag -l --format '%(contents:body)' ${GITHUB_REF#refs/tags/} >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
       - name: Create GitHub Release
         run: |
