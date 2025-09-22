@@ -34,7 +34,7 @@ jobs:
           app-id: ${{ vars.KINTONE_APP_ID }}
           username: ${{ secrets.KINTONE_USERNAME }}
           password: ${{ secrets.KINTONE_PASSWORD }}
-          output: ./app-template.zip
+          path: ./app-template.zip
       - name: Extract release info
         id: metadata
         run: |
