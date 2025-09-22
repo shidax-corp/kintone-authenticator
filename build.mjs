@@ -70,7 +70,6 @@ const options = {
     'process.env.KINTONE_BASE_URL': JSON.stringify(
       process.env.KINTONE_BASE_URL
     ),
-    'process.env.KINTONE_VIEW_ID': JSON.stringify(process.env.KINTONE_VIEW_ID),
   },
   plugins: [
     babel({

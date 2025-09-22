@@ -8,5 +8,6 @@
 
 ## ドキュメント
 
+- [アプリの設定方法](./docs/設定方法.md)
 - [kintoneカスタマイズの要件](./docs/kintone-requirements.md)
 - [Chrome拡張機能の要件](./docs/chrome-extension-requirements.md)
