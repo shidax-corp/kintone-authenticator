@@ -14,10 +14,10 @@
   "author": "SHIDA Yuma <m@crat.jp>",
   "type": "module",
   "scripts": {
-    "build": "node --env-file=.env build.mjs",
+    "build": "node build.mjs",
     "dev": "dotenv -v NODE_ENV=development -- node build.mjs --serve",
-    "deploy:kintone": "dotenv -c development -- sh -c \"cd dist/kintone && kintone-customize-uploader --base-url=${KINTONE_BASE_URL} --username=${KINTONE_USERNAME} --password=${KINTONE_PASSWORD} customize-manifest.json\"",
-    "gen:dts": "dotenv -c development -- sh -c 'kintone-dts-gen --base-url ${KINTONE_BASE_URL} --app-id ${KINTONE_APP_ID} --username ${KINTONE_USERNAME} --password ${KINTONE_PASSWORD} --output src/fields.d.ts'",
+    "deploy:kintone": "dotenv -- sh -c \"cd dist/kintone && kintone-customize-uploader --base-url=${KINTONE_BASE_URL} --username=${KINTONE_USERNAME} --password=${KINTONE_PASSWORD} customize-manifest.json\"",
+    "gen:dts": "dotenv -- sh -c 'kintone-dts-gen --base-url ${KINTONE_BASE_URL} --app-id ${KINTONE_APP_ID} --username ${KINTONE_USERNAME} --password ${KINTONE_PASSWORD} --output src/fields.d.ts'",
     "check": "run-s check:type check:lint check:format",
     "check:type": "tsc --noEmit",
     "check:format": "prettier --check .",
@@ -28,7 +28,7 @@
   },
   "dependencies": {
     "@kintone/rest-api-client": "^5.7.4",
-    "@types/chrome": "^0.1.11",
+    "@types/chrome": "^0.1.12",
     "esbuild-plugin-copy": "^2.1.1",
     "jsqr": "^1.4.0",
     "react": "^19.1.1",
@@ -48,12 +48,12 @@
     "@types/jsdom": "^21.1.7",
     "@types/react": "^19.1.13",
     "@types/react-dom": "^19.1.9",
-    "@typescript-eslint/eslint-plugin": "^8.43.0",
+    "@typescript-eslint/eslint-plugin": "^8.44.0",
     "@typescript-eslint/parser": "^8.40.0",
     "dotenv-cli": "^10.0.0",
-    "esbuild": "^0.25.9",
+    "esbuild": "^0.25.10",
     "esbuild-plugin-babel": "^0.2.3",
-    "eslint": "^9.35.0",
+    "eslint": "^9.36.0",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^5.2.0",
     "jest": "^30.1.3",
@@ -61,7 +61,7 @@
     "jsdom": "^27.0.0",
     "npm-run-all": "^4.1.5",
     "prettier": "^3.6.2",
-    "ts-jest": "^29.4.1",
+    "ts-jest": "^29.4.4",
     "typescript": "^5.9.2"
   }
 }
