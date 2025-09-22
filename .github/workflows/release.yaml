@@ -40,13 +40,13 @@ jobs:
       - name: Extract release info
         id: metadata
         run: |
-          echo "title=$(git tag -l --format '%(subject)' ${GITHUB_REF#refs/tags/})" >> $GITHUB_OUTPUT
+          echo "title=$(git tag -l --format '%(subject)' ${{github.ref_name}})" >> $GITHUB_OUTPUT
           echo "release_note<<EOF" >> $GITHUB_OUTPUT
-          git tag -l --format '%(contents:body)' ${GITHUB_REF#refs/tags/} >> $GITHUB_OUTPUT
+          git tag -l --format '%(contents:body)' ${{github.ref_name}} >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
       - name: Create GitHub Release
         run: |
-          gh release create ${GITHUB_REF#refs/tags/} \
+          gh release create ${{github.ref_name}} \
             --title "${{ steps.metadata.outputs.title }}" \
             --notes "${{ steps.metadata.outputs.release_note }}" \
             ./dist/kintone/kintone-authenticator-desktop.js \
