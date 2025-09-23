@@ -113,6 +113,18 @@ componentsディレクトリは、kintoneアプリとChrome拡張の両方で使
 - `value: string` - 表示するパスワードの値。
 - `onClick?: () => void` - パスワードがクリックされたときのコールバック関数。デフォルトではパスワードをコピーする。
 
+## QRScanner
+
+**インポート**: `import QRScanner from '@components/QRScanner'`
+
+**説明**: QRコードをスキャンするためのコンポーネント。カメラを使用してQRコードを読み取り、成功した場合は`onRead`コールバックを呼び出す。
+
+**Props**:
+
+- `open?: boolean` - スキャナーを開いているかどうか。
+- `onRead: (data: string) => void` - QRコードが正常にスキャンされたときに呼び出されるコールバック関数。
+- `onError: (error: Error) => void` - QRコードのスキャンに失敗したときに呼び出されるコールバック関数。
+
 ## SearchField
 
 **インポート**: `import SearchField from '@components/SearchField'`

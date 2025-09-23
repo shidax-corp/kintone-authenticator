@@ -58,6 +58,18 @@ Run tests:
 npm run test
 ```
 
+Deploy to kintone:
+
+```bash
+npm run deploy:kintone
+```
+
+Generate kintone type definitions:
+
+```bash
+npm run gen:dts
+```
+
 ## Architecture
 
 This is a kintone authenticator application similar to Google Authenticator, with two main components:
@@ -88,6 +100,12 @@ This is a kintone authenticator application similar to Google Authenticator, wit
 
    The `src/chrome/` directory follows this structure:
    - **`lib/`** - Shared functionality used across multiple Chrome extension components
+     - `form-utils.ts` - Form-related utilities (URL normalization, input field detection, field type detection)
+     - `kintone-url.ts` - Kintone URL parsing and validation
+     - `record-matcher.ts` - Record matching logic (finding, sorting by priority)
+     - `storage.ts` - Chrome storage API operations (settings and cache management)
+     - `types.ts` - Type definitions for extension messages and settings
+     - `RecordItem.tsx` - Record item React component (shared between popup and contents)
    - **`background/`** - Background service related files
      - `index.ts` - Entry point
      - Background-specific functionality (e.g., kintone-client.ts, qr-reader.ts)
@@ -127,8 +145,9 @@ This is a kintone authenticator application similar to Google Authenticator, wit
 ### Build System
 
 - Uses esbuild for bundling (`build.mjs`)
-- Six entry points:
+- Seven entry points:
   - `src/kintone/desktop/index.tsx` → `dist/kintone/kintone-authenticator-desktop.js`
+  - `src/kintone/mobile/index.tsx` → `dist/kintone/kintone-authenticator-mobile.js`
   - `src/chrome/popup/index.tsx` → `dist/chrome/index.js`
   - `src/chrome/background/index.ts` → `dist/chrome/background.js`
   - `src/chrome/contents/index.tsx` → `dist/chrome/content.js`
