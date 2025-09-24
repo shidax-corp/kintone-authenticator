@@ -38,7 +38,9 @@ jobs:
           app-id: ${{ vars.KINTONE_APP_ID }}
           username: ${{ secrets.KINTONE_USERNAME }}
           password: ${{ secrets.KINTONE_PASSWORD }}
-          output: ./app-template.zip
+          output: ./kintone-authenticator-app.zip
+          name: kintone Authenticator
+          description: "ID/パスワードやワンタイムパスワードをまとめて管理するアプリです。"
       - name: Extract release info
         id: metadata
         run: |
@@ -53,6 +55,6 @@ jobs:
             --notes "${{ steps.metadata.outputs.release_note }}" \
             ./dist/kintone/kintone-authenticator-desktop.js \
             ./dist/kintone/kintone-authenticator-mobile.js \
-            ./app-template.zip
+            ./kintone-authenticator-app.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
