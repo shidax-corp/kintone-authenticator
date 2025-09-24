@@ -40,7 +40,7 @@ jobs:
           password: ${{ secrets.KINTONE_PASSWORD }}
           output: ./kintone-authenticator-app.zip
           name: kintone Authenticator
-          description: "ID/パスワードやワンタイムパスワードをまとめて管理するアプリです。"
+          description: 'ID/パスワードやワンタイムパスワードをまとめて管理するアプリです。'
       - name: Extract release info
         id: metadata
         run: |
