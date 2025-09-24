@@ -25,9 +25,6 @@ jobs:
       - run: npm run build
         env:
           NODE_ENV: production
-          KINTONE_BASE_URL: ${{ secrets.KINTONE_BASE_URL }}
-          KINTONE_APP_ID: ${{ vars.KINTONE_APP_ID }}
-          KINTONE_VIEW_ID: ${{ vars.KINTONE_VIEW_ID }}
       - uses: macrat/upload-kintone-customize-action@v1
         with:
           base-url: ${{ secrets.KINTONE_BASE_URL }}
