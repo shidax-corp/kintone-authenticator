@@ -1,0 +1,60 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+      - name: Pull tags
+        run: git fetch --tags --force
+      - uses: actions/setup-node@v5
+      - run: npm ci
+      - run: npm run build
+        env:
+          NODE_ENV: production
+          KINTONE_BASE_URL: ${{ secrets.KINTONE_BASE_URL }}
+          KINTONE_APP_ID: ${{ vars.KINTONE_APP_ID }}
+          KINTONE_VIEW_ID: ${{ vars.KINTONE_VIEW_ID }}
+      - uses: macrat/upload-kintone-customize-action@v1
+        with:
+          base-url: ${{ secrets.KINTONE_BASE_URL }}
+          app-id: ${{ vars.KINTONE_APP_ID }}
+          username: ${{ secrets.KINTONE_USERNAME }}
+          password: ${{ secrets.KINTONE_PASSWORD }}
+          desktop-js: ./dist/kintone/kintone-authenticator-desktop.js
+          mobile-js: ./dist/kintone/kintone-authenticator-mobile.js
+      - uses: macrat/download-kintone-template-action@v0
+        with:
+          base-url: ${{ secrets.KINTONE_BASE_URL }}
+          app-id: ${{ vars.KINTONE_APP_ID }}
+          username: ${{ secrets.KINTONE_USERNAME }}
+          password: ${{ secrets.KINTONE_PASSWORD }}
+          output: ./kintone-authenticator-app.zip
+          name: kintone Authenticator
+          description: 'ID/パスワードやワンタイムパスワードをまとめて管理するアプリです。'
+      - name: Extract release info
+        id: metadata
+        run: |
+          echo "title=$(git tag -l --format '%(subject)' ${{github.ref_name}})" >> $GITHUB_OUTPUT
+          echo "release_note<<EOF" >> $GITHUB_OUTPUT
+          git tag -l --format '%(contents:body)' ${{github.ref_name}} >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+      - name: Create GitHub Release
+        run: |
+          gh release create ${{github.ref_name}} \
+            --title "${{ steps.metadata.outputs.title }}" \
+            --notes "${{ steps.metadata.outputs.release_note }}" \
+            ./dist/kintone/kintone-authenticator-desktop.js \
+            ./dist/kintone/kintone-authenticator-mobile.js \
+            ./kintone-authenticator-app.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
