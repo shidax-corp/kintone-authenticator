@@ -1,3 +1,5 @@
+import CloseIcon from '@mui/icons-material/Close';
+
 import QRScanner from '@components/QRScanner';
 
 export interface ScannerProps {
@@ -27,8 +29,9 @@ export default function Scanner({
   return (
     <div className={`outer ${open ? 'open' : ''}`} onClick={() => onClose()}>
       <div className="inner" onClick={(e) => e.stopPropagation()}>
-        <button onClick={onClose}>×</button>
-        {/* TODO: ちゃんとアイコンにする */}
+        <button onClick={onClose}>
+          <CloseIcon />
+        </button>
 
         <span>QRコードをスキャンしてください</span>
 

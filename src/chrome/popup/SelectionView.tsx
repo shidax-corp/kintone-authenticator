@@ -1,5 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 
+import CloseIcon from '@mui/icons-material/Close';
+import RefreshIcon from '@mui/icons-material/Refresh';
+
 import { filterRecords } from '@lib/search';
 
 import SearchField from '@components/SearchField';
@@ -249,7 +252,7 @@ export const SelectionView = ({
           <h1>kintone Authenticator</h1>
           {isModal && onClose && (
             <button className="close-button" onClick={onClose} title="閉じる">
-              ✕
+              <CloseIcon />
             </button>
           )}
         </div>
@@ -261,7 +264,7 @@ export const SelectionView = ({
             disabled={refreshing}
             title="更新"
           >
-            {refreshing ? '🔄' : '↻'}
+            <RefreshIcon className={refreshing ? 'spinning' : ''} />
           </button>
         </div>
       </div>
@@ -356,7 +359,12 @@ export const SelectionView = ({
         .search-container {
           display: flex;
           gap: 8px;
-          align-items: center;
+          align-items: stretch;
+        }
+
+        .search-container > :global(input) {
+          border-radius: 4px;
+          background-color: #fff;
         }
 
         .refresh-button {
@@ -377,6 +385,19 @@ export const SelectionView = ({
         .refresh-button:disabled {
           opacity: 0.6;
           cursor: not-allowed;
+        }
+
+        @keyframes spin {
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(360deg);
+          }
+        }
+
+        .refresh-button :global(.spinning) {
+          animation: spin 1s linear infinite;
         }
 
         .records-container {

@@ -27,7 +27,10 @@
     "format": "prettier --write ."
   },
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
     "@kintone/rest-api-client": "^5.7.4",
+    "@mui/icons-material": "^7.3.2",
     "jsqr": "^1.4.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
