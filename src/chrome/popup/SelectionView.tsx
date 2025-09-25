@@ -349,6 +349,11 @@ export const SelectionView = ({
           cursor: pointer;
           padding: 4px;
           border-radius: 4px;
+          width: 36px;
+          height: 36px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
 
         .close-button:hover {
