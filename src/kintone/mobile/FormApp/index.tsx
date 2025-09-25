@@ -88,9 +88,9 @@ export default function FormApp({ record }: FormAppProps) {
             setName(info.issuer);
             setFieldValue('name', info.issuer);
           }
-          if (!username && info.issuer) {
-            setUsername(info.issuer);
-            setFieldValue('username', info.issuer);
+          if (!username && info.accountName) {
+            setUsername(info.accountName);
+            setFieldValue('username', info.accountName);
           }
         }}
         openScannerByDefault={record == null}
