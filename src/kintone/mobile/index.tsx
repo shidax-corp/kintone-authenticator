@@ -43,7 +43,7 @@ kintone.events.on(
   (ev: kintone.events.RecordEditShowEvent) => {
     renderer.render(
       kintone.mobile.app.record.getSpaceElement('space')!,
-      <FormApp initialURI={ev.record.otpuri.value} />
+      <FormApp record={ev.record} />
     );
 
     return ev;

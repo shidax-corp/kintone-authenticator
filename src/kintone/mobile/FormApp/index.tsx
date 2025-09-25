@@ -1,27 +1,27 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 
-import type { OTPAuthRecord } from '@lib/otpauth-uri';
+import InputField from '@components/InputField';
 
-import OTPField from '@components/OTPField';
-
-import Scanner from './Scanner';
+import OTPInputField from './OTPInputField';
 
 export type FormAppProps = {
-  initialURI?: string;
+  record?: kintone.types.Fields;
 };
 
-export default function FormApp({ initialURI = '' }: FormAppProps) {
-  const [uri, setUri] = useState<string>(initialURI);
-  const viewpanel = useRef<viewpanelConqueror | null>(null);
-
+export default function FormApp({ record }: FormAppProps) {
   useEffect(() => {
+    kintone.mobile.app.record.setFieldShown('name', false);
+    kintone.mobile.app.record.setFieldShown('url', false);
+    kintone.mobile.app.record.setFieldShown('username', false);
+    kintone.mobile.app.record.setFieldShown('password', false);
     kintone.mobile.app.record.setFieldShown('otpuri', false);
-
-    viewpanel.current = new viewpanelConqueror();
-    return () => {
-      viewpanel.current?.liberate();
-    };
   }, []);
+
+  const [name, setName] = useState(record?.name.value || '');
+  const [url, setUrl] = useState(record?.url.value || '');
+  const [username, setUsername] = useState(record?.username.value || '');
+  const [password, setPassword] = useState(record?.password.value || '');
+  const [otpuri, setOtpuri] = useState(record?.otpuri.value || '');
 
   const setFieldValue = (field: keyof kintone.types.Fields, value: string) => {
     const { record } = kintone.mobile.app.record.get();
@@ -37,115 +37,83 @@ export default function FormApp({ initialURI = '' }: FormAppProps) {
     });
   };
 
-  const onScanned = (u: string, info: OTPAuthRecord) => {
-    setFieldValue('otpuri', u);
-    setUri(u);
-
-    setFieldValue('name', info.issuer || '');
-    setFieldValue('username', info.accountName || '');
-
-    viewpanel.current?.liberate?.();
+  const withWriteBack = (
+    field: keyof kintone.types.Fields,
+    setter: (value: string) => void
+  ) => {
+    return (value: string) => {
+      setter(value);
+      setFieldValue(field, value);
+    };
   };
 
-  if (!uri) {
-    return <Scanner onRead={onScanned} />;
-  } else {
-    return (
-      <div>
-        <OTPField uri={uri} boldLabel fontSize="2rem" />
-        <button
-          type="button"
-          onClick={() => {
-            const backup = uri;
+  return (
+    <div>
+      <InputField
+        label="名前"
+        placeholder="サイト名"
+        value={name}
+        onChange={withWriteBack('name', setName)}
+        type="text"
+        required
+      />
+      <InputField
+        label="URL"
+        placeholder="https://example.com"
+        value={url}
+        onChange={withWriteBack('url', setUrl)}
+        type="url"
+      />
+      <InputField
+        label="ユーザー名"
+        placeholder=""
+        value={username}
+        onChange={withWriteBack('username', setUsername)}
+        type="text"
+      />
+      <InputField
+        label="パスワード"
+        placeholder=""
+        value={password}
+        onChange={withWriteBack('password', setPassword)}
+        type="text"
+      />
+      <OTPInputField
+        uri={otpuri}
+        onScanned={(value, info) => {
+          setOtpuri(value);
+          setFieldValue('otpuri', value);
 
-            setFieldValue('otpuri', '');
-            setUri('');
-
-            viewpanel.current?.conquer(() => {
-              setFieldValue('otpuri', backup);
-              setUri(backup);
-              viewpanel.current?.liberate();
-            });
-          }}
-        >
-          📷 {/* TODO: 絵文字ではなくアイコンにする */}
-        </button>
-
-        <style jsx>{`
-          div {
-            margin: 0.5em 1em 1em 0.5em;
-            display: flex;
-            align-items: end;
+          if (!name && info.issuer) {
+            setName(info.issuer);
+            setFieldValue('name', info.issuer);
           }
-          div :global(:first-child) {
-            flex-grow: 1;
+          if (!username && info.accountName) {
+            setUsername(info.accountName);
+            setFieldValue('username', info.accountName);
           }
-          div :global(:has(> .otp-field)) {
-            margin-left: 0.5em;
-          }
-          button {
-            border-radius: 4px;
-            background-image: linear-gradient(
-              to top,
-              #c3c2c4,
-              #efefef 30%,
-              #fff 80%
-            );
-            background-repeat: no-repeat;
-            background-position: center;
-            border: 1px solid #c3c2c4;
-            margin-left: 0.5em;
-            width: 36px;
-            height: 36px;
-          }
-        `}</style>
-      </div>
-    );
-  }
-}
-
-/** 画面下にある「キャンセル」や「保存」などのボタンがある部分を乗っ取るためのクラス。
- *
- * @param onCancel - キャンセルボタンが押されたときのコールバック関数。
- */
-class viewpanelConqueror {
-  private leftArea: HTMLDivElement;
-  private cancelButton: HTMLButtonElement;
-  private saveButton: HTMLButtonElement;
-  private createdCancelButton: HTMLButtonElement | null = null;
-
-  constructor() {
-    this.leftArea = document.querySelector(
-      '.gaia-mobile-v2-app-record-edittoolbar-left'
-    )! as HTMLDivElement;
-    this.cancelButton = document.querySelector(
-      '.gaia-mobile-v2-app-record-edittoolbar-cancel'
-    )! as HTMLButtonElement;
-    this.saveButton = document.querySelector(
-      '.gaia-mobile-v2-app-record-edittoolbar-save'
-    )! as HTMLButtonElement;
-  }
-
-  conquer(onCancel: () => void) {
-    if (this.createdCancelButton) {
-      this.createdCancelButton.remove();
-    }
-
-    this.cancelButton.style.display = 'none';
-    this.saveButton.style.display = 'none';
-
-    const newCancelButton = document.createElement('button');
-    newCancelButton.textContent = 'キャンセル';
-    newCancelButton.className = 'gaia-mobile-v2-app-record-edittoolbar-cancel';
-    newCancelButton.onclick = onCancel;
-    this.leftArea.appendChild(newCancelButton);
-    this.createdCancelButton = newCancelButton;
-  }
-
-  liberate() {
-    this.createdCancelButton?.remove();
-    this.createdCancelButton = null;
-    this.cancelButton.style.display = '';
-    this.saveButton.style.display = '';
-  }
+        }}
+        openScannerByDefault={record == null}
+      />
+      <style jsx>{`
+        div {
+          margin-bottom: 28px;
+          --ka-bg-input-rgb: 255, 255, 255;
+          --ka-bg-input-color: rgb(var(--ka-bg-input-rgb));
+        }
+        div > :global(*) {
+          margin: 0.5em 1em 1em 0.5em;
+        }
+        div :global(div:has(> input)) {
+          margin-left: 0.5em;
+          background-color: transparent;
+        }
+        div :global(input) {
+          border-radius: 6px;
+          border: 1px solid var(--ka-bg-dark-color);
+          box-shadow: inset 0 2px 3px rgba(var(--ka-bg-dark-rgb), 0.5);
+        }
+      `}</style>
+    </div>
+  );
 }

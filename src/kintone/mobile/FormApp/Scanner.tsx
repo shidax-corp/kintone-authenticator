@@ -86,6 +86,7 @@ export default function Scanner({ onRead }: ScannerProps) {
           right: 0;
           bottom: 0;
           z-index: 1000;
+          margin: 0 !important;
         }
 
         h1 {
