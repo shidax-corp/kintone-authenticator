@@ -1,4 +1,5 @@
 import Renderer from '../lib/renderer';
+import DetailApp from './DetailApp';
 import FormApp from './FormApp';
 import ListApp from './ListApp';
 
@@ -19,7 +20,7 @@ kintone.events.on('mobile.app.record.index.show', (ev) => {
 kintone.events.on('mobile.app.record.detail.show', (ev) => {
   renderer.render(
     kintone.mobile.app.record.getSpaceElement('space')!,
-    <div>detail</div>
+    <DetailApp record={ev.record} />
   );
 
   return ev;
