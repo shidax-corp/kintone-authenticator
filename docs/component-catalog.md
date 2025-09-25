@@ -74,6 +74,8 @@ componentsディレクトリは、kintoneアプリとChrome拡張の両方で使
 - `uri: string` - OTP Auth URI。
 - `onClick?: (otp: string) => void` - OTPがクリックされたときのコールバック関数。デフォルトではOTPをコピーする。
 - `onUpdate?: (newURI: string) => void` - HOTPのカウンターが更新されたときに呼び出されるコールバック関数。引数には新しいURIが渡される。
+- `className?: string` - コンポーネントに適用する追加のCSSクラス。
+- `fontSize?: string` - OTPのフォントサイズ。デフォルトは '1.3rem'。
 
 ## OTPInputField
 
@@ -98,6 +100,7 @@ componentsディレクトリは、kintoneアプリとChrome拡張の両方で使
 
 - `value: string` - 表示するパスワードの値。
 - `onClick?: () => void` - パスワードがクリックされたときのコールバック関数。デフォルトではパスワードをコピーする。
+- `className?: string` - コンポーネントに適用する追加のCSSクラス。
 
 ## QRScanner
 
@@ -133,3 +136,4 @@ componentsディレクトリは、kintoneアプリとChrome拡張の両方で使
 - `label: string` - フィールドの上に表示するラベル。
 - `value: string` - 表示するテキストの値。
 - `onClick?: () => void` - テキストがクリックされたときのコールバック関数。デフォルトではテキストをコピーする。
+- `className?: string` - コンポーネントに適用する追加のCSSクラス。
