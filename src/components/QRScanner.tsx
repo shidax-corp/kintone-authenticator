@@ -3,7 +3,6 @@ import { useCallback, useEffect, useRef } from 'react';
 import { QRReadError, readQRFromCanvas } from '@lib/qr-reader';
 
 export interface ScannerProps {
-  open?: boolean;
   onRead: (data: string) => void;
   onError: (error: Error) => void;
 }

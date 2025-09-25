@@ -3,20 +3,6 @@
 このドキュメントは、`src/components/` ディレクトリに含まれるUIコンポーネントの一覧を示します。
 componentsディレクトリは、kintoneアプリとChrome拡張の両方で使用される汎用的なコンポーネントを含んでいます。
 
-## Button
-
-**インポート**: `import Button from '@components/Button'`
-
-**説明**: 汎用的なボタンコンポーネント。
-
-**Props**:
-
-- `children: ReactNode` - ボタン内に表示するコンテンツ。通常はテキストやアイコンを指定する。
-- `onClick?: () => void` - ボタンがクリックされたときに呼び出されるコールバック関数。
-- `disabled?: boolean` - ボタンを無効化するかどうか。
-- `bg?: string` - ボタンの背景色。CSS変数名を指定する。（デフォルト: `'--ka-primary-color'`）
-- `fg?: string` - ボタンの文字色。CSS変数名を指定する。（デフォルト: `'--ka-bg-color'`）
-
 ## CopyField
 
 **インポート**: `import CopyField from '@components/CopyField'`
@@ -88,6 +74,8 @@ componentsディレクトリは、kintoneアプリとChrome拡張の両方で使
 - `uri: string` - OTP Auth URI。
 - `onClick?: (otp: string) => void` - OTPがクリックされたときのコールバック関数。デフォルトではOTPをコピーする。
 - `onUpdate?: (newURI: string) => void` - HOTPのカウンターが更新されたときに呼び出されるコールバック関数。引数には新しいURIが渡される。
+- `className?: string` - コンポーネントに適用する追加のCSSクラス。
+- `fontSize?: string` - OTPのフォントサイズ。デフォルトは '1.3rem'。
 
 ## OTPInputField
 
@@ -112,6 +100,7 @@ componentsディレクトリは、kintoneアプリとChrome拡張の両方で使
 
 - `value: string` - 表示するパスワードの値。
 - `onClick?: () => void` - パスワードがクリックされたときのコールバック関数。デフォルトではパスワードをコピーする。
+- `className?: string` - コンポーネントに適用する追加のCSSクラス。
 
 ## QRScanner
 
@@ -121,7 +110,6 @@ componentsディレクトリは、kintoneアプリとChrome拡張の両方で使
 
 **Props**:
 
-- `open?: boolean` - スキャナーを開いているかどうか。
 - `onRead: (data: string) => void` - QRコードが正常にスキャンされたときに呼び出されるコールバック関数。
 - `onError: (error: Error) => void` - QRコードのスキャンに失敗したときに呼び出されるコールバック関数。
 
@@ -148,3 +136,4 @@ componentsディレクトリは、kintoneアプリとChrome拡張の両方で使
 - `label: string` - フィールドの上に表示するラベル。
 - `value: string` - 表示するテキストの値。
 - `onClick?: () => void` - テキストがクリックされたときのコールバック関数。デフォルトではテキストをコピーする。
+- `className?: string` - コンポーネントに適用する追加のCSSクラス。

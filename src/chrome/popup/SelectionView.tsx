@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import CloseIcon from '@mui/icons-material/Close';
 import RefreshIcon from '@mui/icons-material/Refresh';
 
 import { filterRecords } from '@lib/search';
@@ -13,32 +12,20 @@ import type { ExtensionSettings } from '../lib/types';
 
 interface SelectionViewProps {
   onRegister: () => void;
-  isModal?: boolean;
-  onClose?: () => void;
-  onFieldSelect?: (
-    type: 'username' | 'password' | 'otp',
-    value: string,
-    recordId?: string
-  ) => void;
   initialRecords?: kintone.types.SavedFields[];
   allRecords?: kintone.types.SavedFields[];
-  initialSearchQuery?: string;
 }
 
 export const SelectionView = ({
   onRegister,
-  isModal = false,
-  onClose,
-  onFieldSelect,
   initialRecords,
   allRecords,
-  initialSearchQuery = '',
 }: SelectionViewProps) => {
   const [records, setRecords] = useState<kintone.types.SavedFields[]>([]);
   const [filteredRecords, setFilteredRecords] = useState<
     kintone.types.SavedFields[]
   >([]);
-  const [searchQuery, setSearchQuery] = useState(initialSearchQuery);
+  const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [settings, setSettings] = useState<ExtensionSettings | null>(null);
@@ -250,11 +237,6 @@ export const SelectionView = ({
       <div className="header">
         <div className="header-title">
           <h1>kintone Authenticator</h1>
-          {isModal && onClose && (
-            <button className="close-button" onClick={onClose} title="閉じる">
-              <CloseIcon />
-            </button>
-          )}
         </div>
         <div className="search-container">
           <SearchField value={searchQuery} onChange={setSearchQuery} />
@@ -298,8 +280,7 @@ export const SelectionView = ({
               <RecordItem
                 key={record.$id.value}
                 record={record}
-                onFieldSelect={onFieldSelect}
-                isModal={isModal}
+                isModal={false}
               />
             ))}
           </ul>
@@ -338,26 +319,6 @@ export const SelectionView = ({
         .header h1 {
           margin: 0;
           font-size: 18px;
-          color: var(--ka-fg-color);
-        }
-
-        .close-button {
-          background: none;
-          border: none;
-          font-size: 20px;
-          color: var(--ka-fg-light-color);
-          cursor: pointer;
-          padding: 4px;
-          border-radius: 4px;
-          width: 36px;
-          height: 36px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-
-        .close-button:hover {
-          background: var(--ka-bg-dark-color);
           color: var(--ka-fg-color);
         }
 
