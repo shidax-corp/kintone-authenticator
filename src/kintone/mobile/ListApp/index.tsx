@@ -4,6 +4,7 @@ import SearchField from '@components/SearchField';
 
 import useElementsAttributeSetter from '../../lib/elementsAttributeSetter';
 import useListSearcher from '../../lib/listSearcher';
+import Item from './Item';
 
 export interface ListAppProps {
   appId: number;
@@ -11,12 +12,24 @@ export interface ListAppProps {
   records: kintone.types.SavedFields[];
 }
 
-export default function ListApp({ appId, records: pageRecords }: ListAppProps) {
+export default function ListApp({
+  appId,
+  viewId,
+  records: pageRecords,
+}: ListAppProps) {
   const { query, setQuery, records, fetchedAll } = useListSearcher(
     appId,
     pageRecords,
     kintone.mobile.app.getQueryCondition()
   );
+
+  useEffect(() => {
+    // アプリの背景を白にする。
+    const customview = document.querySelector('.gaia-mobile-app-customview');
+    if (customview instanceof HTMLElement) {
+      customview.style.backgroundColor = '#fff';
+    }
+  }, []);
 
   const setCounterAttribute = useElementsAttributeSetter(
     '.gaia-mobile-v2-app-index-pager-current'
@@ -45,29 +58,39 @@ export default function ListApp({ appId, records: pageRecords }: ListAppProps) {
       </div>
       <ul>
         {records.map((record) => (
-          <div key={record.$id.value}>{JSON.stringify(record, null, 2)}</div>
+          <Item
+            key={record.$id.value}
+            appId={appId}
+            viewId={viewId}
+            account={record}
+          />
         ))}
       </ul>
       <style jsx>{`
         & {
-          max-width: 1200px;
+          max-width: 800px;
           margin: 0 auto;
+          background-color: #fff;
         }
 
         & > div {
-          margin: 8px 8px 16px;
+          margin: 0 12px 16px;
         }
 
         ul {
           display: block;
           list-style: none;
-          padding: 8px;
-          margin: 0;
-          columns: 30rem 3;
         }
+
         ul > :global(li) {
-          break-inside: avoid;
-          margin-bottom: 16px;
+          border-bottom: 1px solid var(--ka-bg-dark-color);
+          padding: 32px 16px;
+        }
+        ul > :global(li:first-child) {
+          padding-top: 16px;
+        }
+        ul > :global(li:last-child) {
+          border-bottom: none;
         }
       `}</style>
     </div>

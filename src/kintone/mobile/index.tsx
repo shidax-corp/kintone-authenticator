@@ -9,8 +9,7 @@ kintone.events.on('mobile.app.record.index.show', (ev) => {
   if (container) {
     renderer.render(
       container,
-      <ListApp appId={ev.appId} viewId={ev.viewId} records={ev.records} />,
-      { tint: true }
+      <ListApp appId={ev.appId} viewId={ev.viewId} records={ev.records} />
     );
   }
 
