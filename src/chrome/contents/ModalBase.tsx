@@ -1,5 +1,7 @@
 import { type MouseEvent, type ReactNode, useEffect } from 'react';
 
+import CloseIcon from '@mui/icons-material/Close';
+
 import GlobalStyle from '@components/GlobalStyle';
 
 interface ModalBaseProps {
@@ -43,7 +45,7 @@ const ModalBase = ({ onClose = () => {}, children }: ModalBaseProps) => {
               onClick={onClose}
               title="閉じる"
             >
-              ✕
+              <CloseIcon />
             </button>
           )}
           {children}

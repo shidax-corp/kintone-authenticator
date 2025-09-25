@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 
+import RefreshIcon from '@mui/icons-material/Refresh';
+
 import { filterRecords } from '@lib/search';
 
 import SearchField from '@components/SearchField';
@@ -260,7 +262,7 @@ export const SelectorModal = ({
               disabled={refreshing}
               title="更新"
             >
-              {refreshing ? '🔄' : '↻'}
+              <RefreshIcon className={refreshing ? 'spinning' : ''} />
             </button>
           </div>
         </div>
@@ -327,7 +329,12 @@ export const SelectorModal = ({
           .search-container {
             display: flex;
             gap: 8px;
-            align-items: center;
+            align-items: stretch;
+          }
+
+          .search-container > :global(input) {
+            border-radius: 4px;
+            background-color: #fff;
           }
 
           .refresh-button {
@@ -383,6 +390,19 @@ export const SelectorModal = ({
             padding: 48px 24px;
             text-align: center;
             color: var(--ka-fg-light-color);
+          }
+
+          @keyframes spin {
+            from {
+              transform: rotate(0deg);
+            }
+            to {
+              transform: rotate(360deg);
+            }
+          }
+
+          .refresh-button :global(.spinning) {
+            animation: spin 1s linear infinite;
           }
         `}</style>
       </div>

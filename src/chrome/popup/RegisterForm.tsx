@@ -1,5 +1,7 @@
 import { type FormEvent, useEffect, useState } from 'react';
 
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+
 import {
   type OTPAuthRecord,
   decodeOTPAuthURI,
@@ -292,7 +294,7 @@ export const RegisterForm = ({
 
       <div className="header">
         <button className="back-button" onClick={onBack}>
-          ←
+          <ArrowBackIcon />
         </button>
         <h1>新しいサイトを登録</h1>
       </div>

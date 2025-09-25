@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 
+import QrCodeScannerIcon from '@mui/icons-material/QrCodeScanner';
+
 import type { OTPAuthRecord } from '@lib/otpauth-uri';
 
 import OTPField from '@components/OTPField';
@@ -63,7 +65,7 @@ export default function OTPInputField({
             });
           }}
         >
-          📷 {/* TODO: 絵文字ではなくアイコンにする */}
+          <QrCodeScannerIcon />
         </button>
 
         <style jsx>{`
