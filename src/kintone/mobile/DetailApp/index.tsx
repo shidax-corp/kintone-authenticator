@@ -50,12 +50,16 @@ export default function DetailApp({
       )}
 
       {username.value ? (
-        <TextField label="ユーザー名" value={username.value} />
+        <TextField
+          label="ユーザー名"
+          value={username.value}
+          className="field"
+        />
       ) : (
         <EmptyField label="ユーザー名" />
       )}
       {password.value ? (
-        <PasswordField value={password.value} />
+        <PasswordField value={password.value} className="field" />
       ) : (
         <EmptyField label="パスワード" />
       )}
@@ -68,12 +72,21 @@ export default function DetailApp({
       <style jsx>{`
         .detail {
           margin: 0 16px 40px;
+          --ka-bg-tint-rgb: 245, 245, 245;
+          --ka-bg-tint-color: rgb(var(--ka-bg-tint-rgb));
         }
         .detail > :global(*) {
           margin-bottom: 1em;
         }
         .field {
           padding: var(--ka-field-padding);
+        }
+        .detail :global(div:has(> .field)) {
+          border-radius: 6px;
+        }
+        .detail :global(div:has(> .otp-field)) {
+          border-radius: 6px;
+          overflow: hidden;
         }
       `}</style>
     </div>
@@ -83,7 +96,7 @@ export default function DetailApp({
 function EmptyField({ label }: { label: string }) {
   return (
     <Field label={label}>
-      <div>未設定</div>
+      <div className="field">未設定</div>
       <style jsx>{`
         div {
           color: rgba(var(--ka-fg-light-rgb), 0.5);
