@@ -61,6 +61,11 @@ const parseURL = (uri: string): URL => {
 
 export const decodeOTPAuthURI = (uri: string): OTPAuthRecord => {
   const url = parseURL(uri);
+
+  if (url.protocol !== 'otpauth:') {
+    throw new Error('ワンタイムパスワード用のデータ形式ではありません');
+  }
+
   const type = url.hostname.toUpperCase();
   const label = decodeURIComponent(url.pathname.slice(1));
   const [issuerByLabel, accountName] = label.includes(':')
