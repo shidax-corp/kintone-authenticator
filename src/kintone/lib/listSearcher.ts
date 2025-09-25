@@ -104,6 +104,8 @@ const useAllRecords = (appId: number, queryCondition: string) => {
           setTimeout(() => {
             fetchAllRecords();
           }, 1000);
+        } else {
+          setFetching(false);
         }
       });
   }, [appId, queryCondition, setAllRecords, allRecords, fetching, setFetching]);
