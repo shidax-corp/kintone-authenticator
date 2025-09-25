@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { filterRecords } from '@lib/search';
 
@@ -54,6 +54,7 @@ const useAllRecords = (appId: number, queryCondition: string) => {
     kintone.types.SavedFields[] | null
   >(null);
   const [fetching, setFetching] = useState(false);
+  const retryCount = useRef(0);
 
   const fetchAllRecords = useCallback(() => {
     if (allRecords != null || fetching) return;
@@ -93,13 +94,17 @@ const useAllRecords = (appId: number, queryCondition: string) => {
       .then((result) => {
         setAllRecords(result);
         setFetching(false);
+        retryCount.current = 0;
       })
       .catch((err) => {
         console.error(err);
 
-        setTimeout(() => {
-          fetchAllRecords();
-        }, 1000);
+        if (retryCount.current < 5) {
+          retryCount.current += 1;
+          setTimeout(() => {
+            fetchAllRecords();
+          }, 1000);
+        }
       });
   }, [appId, queryCondition, setAllRecords, allRecords, fetching, setFetching]);
 
