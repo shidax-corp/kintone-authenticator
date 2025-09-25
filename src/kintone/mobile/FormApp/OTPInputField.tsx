@@ -44,6 +44,7 @@ export default function OTPInputField({
       <Scanner
         onRead={(uri: string, info: OTPAuthRecord) => {
           viewpanel.current?.liberate();
+          setOpened(false);
           onScanned(uri, info);
         }}
       />
@@ -68,7 +69,6 @@ export default function OTPInputField({
 
         <style jsx>{`
           div {
-            margin: 0.5em 1em 1em 0.5em;
             display: flex;
             align-items: end;
           }
@@ -77,6 +77,8 @@ export default function OTPInputField({
           }
           div :global(:has(> .otp-field)) {
             margin-left: 0.5em;
+            border-radius: 6px;
+            overflow: hidden;
           }
           button {
             border-radius: 4px;

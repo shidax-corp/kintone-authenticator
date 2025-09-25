@@ -3,6 +3,7 @@ import Field from '@components/Field';
 export interface InputFieldProps {
   type: 'text' | 'url' | 'password' | 'search';
   label: string;
+  boldLabel?: boolean;
   placeholder?: string;
   value: string;
   onChange: (value: string) => void;
@@ -15,6 +16,7 @@ export interface InputFieldProps {
  *
  * @param type - 入力フィールドのタイプ。
  * @param label - フィールドの上に表示するラベル。
+ * @param boldLabel - ラベルを太字にするかどうかを示すフラグ。デフォルトは false。
  * @param placeholder - 入力フィールドのプレースホルダーテキスト。
  * @param value - 入力フィールドの現在の値。
  * @param onChange - 入力値が変更されたときに呼び出されるコールバック関数。
@@ -24,6 +26,7 @@ export interface InputFieldProps {
 export default function InputField({
   type,
   label,
+  boldLabel = false,
   placeholder,
   value,
   onChange,
@@ -46,7 +49,7 @@ export default function InputField({
   );
 
   return (
-    <Field label={markedLabel}>
+    <Field label={markedLabel} boldLabel={boldLabel}>
       <input
         type={type}
         placeholder={placeholder}
