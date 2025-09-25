@@ -23,16 +23,15 @@ export default function OTPInputField({
   const viewpanel = useRef<viewpanelConqueror | null>(null);
 
   useEffect(() => {
-    if (!viewpanel.current && openScannerByDefault) {
-      const saveButton = document.querySelector(
-        '.gaia-mobile-v2-app-record-edittoolbar-save'
-      );
-      if (saveButton instanceof HTMLButtonElement) {
-        saveButton.style.display = 'none';
-      }
-    }
-
+    const firstTime = viewpanel.current === null;
     viewpanel.current = new viewpanelConqueror();
+
+    if (firstTime && openScannerByDefault) {
+      // レコード作成画面を最初に開いたときは、ボタンを以下のような挙動にしたい。
+      // 「キャンセル」→作成画面そのものを閉じる（通常の挙動のまま）
+      // 「保存」→初回スキャンのときはまだ必須レコードが足りなくて保存できないので、そもそも表示しない。
+      viewpanel.current.hideSaveButton();
+    }
 
     return () => {
       viewpanel.current?.liberate();
@@ -128,13 +127,21 @@ class viewpanelConqueror {
       this.createdCancelButton.remove();
     }
 
-    this.cancelButton.style.display = 'none';
+    this.hideSaveButton();
+    this.overrideCancelButton(onCancel);
+  }
+
+  hideSaveButton() {
     this.saveButton.style.display = 'none';
+  }
+
+  overrideCancelButton(onClick: () => void) {
+    this.cancelButton.style.display = 'none';
 
     const newCancelButton = document.createElement('button');
     newCancelButton.textContent = 'キャンセル';
     newCancelButton.className = 'gaia-mobile-v2-app-record-edittoolbar-cancel';
-    newCancelButton.onclick = onCancel;
+    newCancelButton.addEventListener('click', onClick);
     this.leftArea.appendChild(newCancelButton);
     this.createdCancelButton = newCancelButton;
   }
