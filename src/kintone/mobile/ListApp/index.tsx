@@ -4,7 +4,7 @@ import SearchField from '@components/SearchField';
 
 import useElementsAttributeSetter from '../../lib/elementsAttributeSetter';
 import useListSearcher from '../../lib/listSearcher';
-import AccountCard from './AccountCard';
+import Item from './Item';
 
 export interface ListAppProps {
   appId: number;
@@ -20,14 +20,22 @@ export default function ListApp({
   const { query, setQuery, records, fetchedAll } = useListSearcher(
     appId,
     pageRecords,
-    kintone.app.getQueryCondition()
+    kintone.mobile.app.getQueryCondition()
   );
 
+  useEffect(() => {
+    // アプリの背景を白にする。
+    const customview = document.querySelector('.gaia-mobile-app-customview');
+    if (customview instanceof HTMLElement) {
+      customview.style.backgroundColor = '#fff';
+    }
+  }, []);
+
   const setCounterAttribute = useElementsAttributeSetter(
-    '.component-app-listtable-countitem-page'
+    '.gaia-mobile-v2-app-index-pager-current'
   );
   const setPagerAttribute = useElementsAttributeSetter(
-    '.gaia-ui-listtable-pagercomponent-prev, .gaia-ui-listtable-pagercomponent-next'
+    '.gaia-mobile-v2-app-index-pager-prev, .gaia-mobile-v2-app-index-pager-next'
   );
 
   useEffect(() => {
@@ -39,7 +47,7 @@ export default function ListApp({
         'textContent',
         `${records.length}${fetchedAll ? '' : '+'}件`
       );
-      setPagerAttribute('style', 'visibility: hidden;');
+      setPagerAttribute('style', 'display: none;');
     }
   }, [query, records, fetchedAll, setCounterAttribute, setPagerAttribute]);
 
@@ -50,34 +58,39 @@ export default function ListApp({
       </div>
       <ul>
         {records.map((record) => (
-          <AccountCard
+          <Item
+            key={record.$id.value}
             appId={appId}
             viewId={viewId}
             account={record}
-            key={record.$id.value}
           />
         ))}
       </ul>
       <style jsx>{`
         & {
-          max-width: 1200px;
+          max-width: 800px;
           margin: 0 auto;
+          background-color: #fff;
         }
 
         & > div {
-          margin: 8px 8px 16px;
+          margin: 0 12px 16px;
         }
 
         ul {
           display: block;
           list-style: none;
-          padding: 8px;
-          margin: 0;
-          columns: 30rem 3;
         }
+
         ul > :global(li) {
-          break-inside: avoid;
-          margin-bottom: 16px;
+          border-bottom: 1px solid var(--ka-bg-dark-color);
+          padding: 32px 16px;
+        }
+        ul > :global(li:first-child) {
+          padding-top: 16px;
+        }
+        ul > :global(li:last-child) {
+          border-bottom: none;
         }
       `}</style>
     </div>

@@ -1,12 +1,16 @@
 import Renderer from '../lib/renderer';
 import FormApp from './FormApp';
+import ListApp from './ListApp';
 
 const renderer = new Renderer();
 
 kintone.events.on('mobile.app.record.index.show', (ev) => {
   const container = document.getElementById('kintone-authenticator-list-view');
   if (container) {
-    renderer.render(container, <div>list</div>);
+    renderer.render(
+      container,
+      <ListApp appId={ev.appId} viewId={ev.viewId} records={ev.records} />
+    );
   }
 
   return ev;

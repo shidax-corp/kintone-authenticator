@@ -72,6 +72,7 @@ declare namespace kintone {
   namespace mobile {
     namespace app {
       function getHeaderSpaceElement(): HTMLDivElement | null;
+      function getQueryCondition(): string;
 
       namespace record {
         function getSpaceElement(spaceId: string): HTMLDivElement | null;
