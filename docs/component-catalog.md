@@ -3,20 +3,6 @@
 このドキュメントは、`src/components/` ディレクトリに含まれるUIコンポーネントの一覧を示します。
 componentsディレクトリは、kintoneアプリとChrome拡張の両方で使用される汎用的なコンポーネントを含んでいます。
 
-## Button
-
-**インポート**: `import Button from '@components/Button'`
-
-**説明**: 汎用的なボタンコンポーネント。
-
-**Props**:
-
-- `children: ReactNode` - ボタン内に表示するコンテンツ。通常はテキストやアイコンを指定する。
-- `onClick?: () => void` - ボタンがクリックされたときに呼び出されるコールバック関数。
-- `disabled?: boolean` - ボタンを無効化するかどうか。
-- `bg?: string` - ボタンの背景色。CSS変数名を指定する。（デフォルト: `'--ka-primary-color'`）
-- `fg?: string` - ボタンの文字色。CSS変数名を指定する。（デフォルト: `'--ka-bg-color'`）
-
 ## CopyField
 
 **インポート**: `import CopyField from '@components/CopyField'`
@@ -121,7 +107,6 @@ componentsディレクトリは、kintoneアプリとChrome拡張の両方で使
 
 **Props**:
 
-- `open?: boolean` - スキャナーを開いているかどうか。
 - `onRead: (data: string) => void` - QRコードが正常にスキャンされたときに呼び出されるコールバック関数。
 - `onError: (error: Error) => void` - QRコードのスキャンに失敗したときに呼び出されるコールバック関数。
 
