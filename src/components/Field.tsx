@@ -2,7 +2,6 @@ import type { ReactNode } from 'react';
 
 export interface FieldProps {
   label: ReactNode;
-  boldLabel?: boolean;
   onClick?: () => void;
   children: ReactNode;
 }
@@ -11,23 +10,16 @@ export interface FieldProps {
  * シンプルなフィールドとラベルを表示するコンポーネント。
  *
  * @param label - フィールドの上に表示するラベル。
- * @param boldLabel - ラベルを太字にするかどうか。デフォルトはfalse。
  * @param onClick - フィールドコンテンツがクリックされたときのコールバック関数。
  * @param children - フィールドの内容として表示するコンテンツ。
  */
-export default function Field({
-  label,
-  boldLabel,
-  onClick,
-  children,
-}: FieldProps) {
+export default function Field({ label, onClick, children }: FieldProps) {
   return (
     <div onClick={onClick}>
       <span>{label}</span>
       <div>{children}</div>
       <style jsx>{`
         span {
-          font-weight: ${boldLabel ? 'bold' : 'normal'};
           font-size: 80%;
           color: var(--ka-fg-light-color);
           cursor: ${onClick ? 'pointer' : 'default'};

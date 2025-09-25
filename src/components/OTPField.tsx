@@ -19,7 +19,6 @@ export interface OTPProps {
   onClick?: (otp: string) => void;
   onUpdate?: (newURI: string) => void;
   className?: string;
-  boldLabel?: boolean;
   fontSize?: string;
 }
 
@@ -30,7 +29,6 @@ export interface OTPProps {
  * @param onClick - OTPがクリックされたときのコールバック関数。デフォルトではOTPをコピーする。
  * @param onUpdate - HOTPのカウンターが更新されたときに呼び出されるコールバック関数。引数にはい新しいURIが渡される。
  * @param className - OTPを表示する枠のコンポーネントに適用する追加のCSSクラス。
- * @param boldLabel - ラベルを太字にするかどうか。デフォルトはfalse。
  * @param fontSize - OTPのフォントサイズ。デフォルトは1.3rem。
  */
 export default function OTPField({
@@ -38,7 +36,6 @@ export default function OTPField({
   onClick,
   onUpdate,
   className,
-  boldLabel = false,
   fontSize = '1.3rem',
 }: OTPProps) {
   const [uri, setUri] = useState(initialURI);
@@ -147,7 +144,6 @@ export default function OTPField({
     <div>
       <Field
         label="ワンタイムパスワード"
-        boldLabel={boldLabel}
         onClick={info ? () => onClickHandler() : undefined}
       >
         <CopyField className={`otp-field ${className || ''}`} copied={copied}>

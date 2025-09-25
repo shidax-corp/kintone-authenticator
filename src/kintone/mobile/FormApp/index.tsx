@@ -51,7 +51,6 @@ export default function FormApp({ record }: FormAppProps) {
     <div>
       <InputField
         label="名前"
-        boldLabel
         placeholder="サイト名"
         value={name}
         onChange={withWriteBack('name', setName)}
@@ -60,7 +59,6 @@ export default function FormApp({ record }: FormAppProps) {
       />
       <InputField
         label="URL"
-        boldLabel
         placeholder="https://example.com"
         value={url}
         onChange={withWriteBack('url', setUrl)}
@@ -68,7 +66,6 @@ export default function FormApp({ record }: FormAppProps) {
       />
       <InputField
         label="ユーザー名"
-        boldLabel
         placeholder=""
         value={username}
         onChange={withWriteBack('username', setUsername)}
@@ -76,7 +73,6 @@ export default function FormApp({ record }: FormAppProps) {
       />
       <InputField
         label="パスワード"
-        boldLabel
         placeholder=""
         value={password}
         onChange={withWriteBack('password', setPassword)}

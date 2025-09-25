@@ -52,7 +52,7 @@ export default function OTPInputField({
   } else {
     return (
       <div>
-        <OTPField uri={uri} boldLabel fontSize="2rem" />
+        <OTPField uri={uri} fontSize="2rem" />
         <button
           type="button"
           onClick={() => {
