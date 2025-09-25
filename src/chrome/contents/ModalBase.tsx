@@ -78,8 +78,8 @@ const ModalBase = ({ onClose = () => {}, children }: ModalBaseProps) => {
 
           .modal-close-button {
             position: absolute;
-            top: 12px;
-            right: 12px;
+            top: 8px;
+            right: 8px;
             background: none;
             border: none;
             font-size: 20px;
@@ -88,6 +88,11 @@ const ModalBase = ({ onClose = () => {}, children }: ModalBaseProps) => {
             padding: 4px;
             border-radius: 4px;
             z-index: 10;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
           }
 
           .modal-close-button:hover {
