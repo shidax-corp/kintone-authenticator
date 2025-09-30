@@ -3,12 +3,12 @@ import { createElement } from 'react';
 import { extractOriginURL } from '@lib/url';
 
 import { getFieldType, isInputField, normalizeURL } from '../lib/form-utils';
-import { getBestMatch } from '../lib/record-matcher';
 import { RegisterModal } from './RegisterModal';
 import { SelectorModal } from './SelectorModal';
 import { closeModal, renderModalComponent } from './modal-renderer';
 import setupNotificationCenter from './notification';
 import { getPageSiteName } from './page-info';
+import { getBestMatch } from './record-matcher';
 
 let currentInputElement: HTMLElement | null = null;
 let autoFillExecuted = false;

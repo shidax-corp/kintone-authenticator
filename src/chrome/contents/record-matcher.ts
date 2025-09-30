@@ -1,20 +1,6 @@
 import { matchURL } from '@lib/search';
 
 /**
- * 指定されたURLにマッチするレコードを取得する。
- *
- * @param records - 検索対象のレコードの配列
- * @param url - マッチさせるURL
- * @returns マッチするレコードの配列
- */
-export const getMatchingRecords = (
-  records: kintone.types.SavedFields[],
-  url: string
-): kintone.types.SavedFields[] => {
-  return records.filter((record) => matchURL(record.url.value, url));
-};
-
-/**
  * マッチするレコードを優先度順に並び替える。
  * URLの長さが長いレコードを優先し、同じ長さの場合は更新日時が新しいレコードを優先する。
  *

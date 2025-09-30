@@ -1,8 +1,4 @@
-import {
-  getBestMatch,
-  getMatchingRecords,
-  sortRecordsByPriority,
-} from './record-matcher';
+import { getBestMatch, sortRecordsByPriority } from './record-matcher';
 
 describe('record-matcher', () => {
   const mockRecords: kintone.types.SavedFields[] = [
@@ -52,22 +48,6 @@ describe('record-matcher', () => {
       shareto: { value: [] },
     },
   ];
-
-  describe('getMatchingRecords', () => {
-    it('should return records that match the URL', () => {
-      const matches = getMatchingRecords(
-        mockRecords,
-        'https://example.com/login'
-      );
-      expect(matches).toHaveLength(2);
-      expect(matches.map((r) => r.$id.value)).toEqual(['1', '2']);
-    });
-
-    it('should return empty array for no matches', () => {
-      const matches = getMatchingRecords(mockRecords, 'https://nomatch.com');
-      expect(matches).toHaveLength(0);
-    });
-  });
 
   describe('sortRecordsByPriority', () => {
     it('should prioritize longer URLs', () => {
