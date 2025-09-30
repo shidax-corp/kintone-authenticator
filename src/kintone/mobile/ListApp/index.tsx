@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import SearchField from '@components/SearchField';
 
 import useElementsAttributeSetter from '../../lib/elementsAttributeSetter';
-import useListSearcher from '../../lib/listSearcher';
+import { useSearch } from '../../lib/search';
 import Item from './Item';
 
 export interface ListAppProps {
@@ -17,7 +17,7 @@ export default function ListApp({
   viewId,
   records: pageRecords,
 }: ListAppProps) {
-  const { query, setQuery, records, fetchedAll, message } = useListSearcher(
+  const { query, setQuery, records, fetchedAll, message } = useSearch(
     appId,
     pageRecords,
     kintone.mobile.app.getQueryCondition()

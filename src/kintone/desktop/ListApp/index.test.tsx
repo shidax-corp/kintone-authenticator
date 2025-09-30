@@ -1,13 +1,12 @@
 import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
 
-import useListSearcher from '../../lib/listSearcher';
+import { useSearch } from '../../lib/search';
 import ListApp from './index';
 
-// Mock the useListSearcher hook
-jest.mock('../../lib/listSearcher', () => ({
-  __esModule: true,
-  default: jest.fn(),
+// Mock the useSearch hook
+jest.mock('../../lib/search', () => ({
+  useSearch: jest.fn(),
 }));
 
 // Mock the useElementsAttributeSetter hook
@@ -44,9 +43,7 @@ global.kintone = {
   },
 } as any;
 
-const mockUseListSearcher = useListSearcher as jest.MockedFunction<
-  typeof useListSearcher
->;
+const mockUseSearch = useSearch as jest.MockedFunction<typeof useSearch>;
 
 describe('ListApp - Desktop', () => {
   const mockAppId = 1;
@@ -90,7 +87,7 @@ describe('ListApp - Desktop', () => {
 
   describe('Empty State Messages', () => {
     it('should display "まだ何も登録されていません" when no records and no search conditions', () => {
-      mockUseListSearcher.mockReturnValue({
+      mockUseSearch.mockReturnValue({
         query: '',
         setQuery: jest.fn(),
         records: [],
@@ -107,7 +104,7 @@ describe('ListApp - Desktop', () => {
     });
 
     it('should display "一致するものがありません" when no matching records with search query', () => {
-      mockUseListSearcher.mockReturnValue({
+      mockUseSearch.mockReturnValue({
         query: 'NonExistent',
         setQuery: jest.fn(),
         records: [],
@@ -126,7 +123,7 @@ describe('ListApp - Desktop', () => {
     it('should display "一致するものがありません" when no records with kintone query condition', () => {
       global.kintone.app.getQueryCondition = jest.fn(() => 'status = "Active"');
 
-      mockUseListSearcher.mockReturnValue({
+      mockUseSearch.mockReturnValue({
         query: '',
         setQuery: jest.fn(),
         records: [],
@@ -141,7 +138,7 @@ describe('ListApp - Desktop', () => {
     });
 
     it('should not display message when records exist', () => {
-      mockUseListSearcher.mockReturnValue({
+      mockUseSearch.mockReturnValue({
         query: '',
         setQuery: jest.fn(),
         records: mockRecords,
@@ -163,7 +160,7 @@ describe('ListApp - Desktop', () => {
     });
 
     it('should not display message when search results exist', () => {
-      mockUseListSearcher.mockReturnValue({
+      mockUseSearch.mockReturnValue({
         query: 'Test',
         setQuery: jest.fn(),
         records: [mockRecords[0]],
@@ -187,7 +184,7 @@ describe('ListApp - Desktop', () => {
 
   describe('Message Styling', () => {
     it('should apply correct styles to the empty state message', () => {
-      mockUseListSearcher.mockReturnValue({
+      mockUseSearch.mockReturnValue({
         query: '',
         setQuery: jest.fn(),
         records: [],
@@ -211,7 +208,7 @@ describe('ListApp - Desktop', () => {
 
   describe('Component Integration', () => {
     it('should display search field and empty message together', () => {
-      mockUseListSearcher.mockReturnValue({
+      mockUseSearch.mockReturnValue({
         query: '',
         setQuery: jest.fn(),
         records: [],
@@ -230,7 +227,7 @@ describe('ListApp - Desktop', () => {
     });
 
     it('should display search field and records when available', () => {
-      mockUseListSearcher.mockReturnValue({
+      mockUseSearch.mockReturnValue({
         query: '',
         setQuery: jest.fn(),
         records: mockRecords,

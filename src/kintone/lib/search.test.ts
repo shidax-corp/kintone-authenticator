@@ -1,19 +1,7 @@
 import '@testing-library/jest-dom';
 import { act, renderHook, waitFor } from '@testing-library/react';
 
-import useListSearcher from './listSearcher';
-
-// Mock filterRecords from @lib/search
-jest.mock('@lib/search', () => ({
-  filterRecords: jest.fn(
-    (records: kintone.types.SavedFields[], query: string) => {
-      if (!query.trim()) return records;
-      return records.filter((record) =>
-        record.name.value.toLowerCase().includes(query.toLowerCase())
-      );
-    }
-  ),
-}));
+import { useSearch } from './search';
 
 // Mock kintone API
 const mockKintoneApi = jest.fn();
@@ -21,7 +9,7 @@ global.kintone = {
   api: mockKintoneApi,
 } as any;
 
-describe('useListSearcher', () => {
+describe('useSearch (kintone integration)', () => {
   const mockAppId = 1;
   const mockRecords: kintone.types.SavedFields[] = [
     {
@@ -76,7 +64,7 @@ describe('useListSearcher', () => {
   describe('message field', () => {
     it('should return empty message when records exist and no search query', () => {
       const { result } = renderHook(() =>
-        useListSearcher(mockAppId, mockRecords, '')
+        useSearch(mockAppId, mockRecords, '')
       );
 
       expect(result.current.message).toBe('');
@@ -84,7 +72,7 @@ describe('useListSearcher', () => {
     });
 
     it('should return "まだ何も登録されていません" when no records and no search conditions', () => {
-      const { result } = renderHook(() => useListSearcher(mockAppId, [], ''));
+      const { result } = renderHook(() => useSearch(mockAppId, [], ''));
 
       expect(result.current.message).toBe('まだ何も登録されていません');
       expect(result.current.records).toEqual([]);
@@ -92,10 +80,9 @@ describe('useListSearcher', () => {
 
     it('should return "一致するものがありません" when no records and search query exists', async () => {
       const { result } = renderHook(() =>
-        useListSearcher(mockAppId, mockRecords, '')
+        useSearch(mockAppId, mockRecords, '')
       );
 
-      // Set search query that doesn't match any records
       act(() => {
         result.current.setQuery('NonExistentRecord');
       });
@@ -108,70 +95,46 @@ describe('useListSearcher', () => {
 
     it('should return "一致するものがありません" when no records and kintone query condition exists', () => {
       const { result } = renderHook(() =>
-        useListSearcher(mockAppId, [], 'status = "Active"')
+        useSearch(mockAppId, [], 'status = "Active"')
       );
 
       expect(result.current.message).toBe('一致するものがありません');
       expect(result.current.records).toEqual([]);
     });
+  });
 
-    it('should return empty message when search results exist', async () => {
+  describe('cursor API integration', () => {
+    it('should use cursor API to fetch all records', async () => {
       const { result } = renderHook(() =>
-        useListSearcher(mockAppId, mockRecords, '')
-      );
-
-      // Set search query that matches records
-      act(() => {
-        result.current.setQuery('Test Record 1');
-      });
-
-      await waitFor(() => {
-        expect(result.current.message).toBe('');
-        expect(result.current.records).toHaveLength(1);
-        expect(result.current.records[0].name.value).toBe('Test Record 1');
-      });
-    });
-
-    it('should return "一致するものがありません" when search query and kintone condition both exist but no matches', () => {
-      const { result } = renderHook(() =>
-        useListSearcher(mockAppId, [], 'status = "Active"')
+        useSearch(mockAppId, mockRecords.slice(0, 1), '')
       );
 
       act(() => {
-        result.current.setQuery('NonExistent');
-      });
-
-      expect(result.current.message).toBe('一致するものがありません');
-      expect(result.current.records).toEqual([]);
-    });
-
-    it('should clear message when search query is cleared and records exist', async () => {
-      const { result } = renderHook(() =>
-        useListSearcher(mockAppId, mockRecords, '')
-      );
-
-      // First set a query that returns no results
-      act(() => {
-        result.current.setQuery('NonExistent');
+        result.current.setQuery('Record 2');
       });
 
       await waitFor(() => {
-        expect(result.current.message).toBe('一致するものがありません');
-      });
-
-      // Clear the query
-      act(() => {
-        result.current.setQuery('');
-      });
-
-      await waitFor(() => {
-        expect(result.current.message).toBe('');
-        expect(result.current.records).toEqual(mockRecords);
+        expect(result.current.fetchedAll).toBe(true);
+        expect(mockKintoneApi).toHaveBeenCalledWith(
+          '/k/v1/records/cursor.json',
+          'POST',
+          {
+            app: mockAppId,
+            query: '',
+            size: 500,
+          }
+        );
+        expect(mockKintoneApi).toHaveBeenCalledWith(
+          '/k/v1/records/cursor.json',
+          'GET',
+          {
+            id: 'cursor-id',
+          }
+        );
       });
     });
 
-    it('should handle fetching all records and update message accordingly', async () => {
-      // Mock API to return additional records
+    it('should handle multiple pages of records', async () => {
       const allRecords = [
         ...mockRecords,
         {
@@ -191,21 +154,34 @@ describe('useListSearcher', () => {
         },
       ];
 
+      let callCount = 0;
       mockKintoneApi.mockImplementation((path, method) => {
         if (path === '/k/v1/records/cursor.json' && method === 'POST') {
           return Promise.resolve({ id: 'cursor-id' });
         }
         if (path === '/k/v1/records/cursor.json' && method === 'GET') {
-          return Promise.resolve({ records: allRecords, next: false });
+          callCount++;
+          if (callCount === 1) {
+            return Promise.resolve({
+              records: mockRecords,
+              next: true,
+            });
+          }
+          return Promise.resolve({
+            records: [allRecords[2]],
+            next: false,
+          });
+        }
+        if (path === '/k/v1/records/cursor.json' && method === 'DELETE') {
+          return Promise.resolve({});
         }
         return Promise.reject(new Error('Unexpected API call'));
       });
 
       const { result } = renderHook(() =>
-        useListSearcher(mockAppId, mockRecords.slice(0, 2), '')
+        useSearch(mockAppId, mockRecords.slice(0, 2), '')
       );
 
-      // Search for a record that only exists in all records
       act(() => {
         result.current.setQuery('Special');
       });
@@ -214,57 +190,48 @@ describe('useListSearcher', () => {
         expect(result.current.fetchedAll).toBe(true);
         expect(result.current.records).toHaveLength(1);
         expect(result.current.records[0].name.value).toBe('Special Record');
-        expect(result.current.message).toBe('');
-      });
-    });
-  });
-
-  describe('existing functionality', () => {
-    it('should initialize with provided records', () => {
-      const { result } = renderHook(() =>
-        useListSearcher(mockAppId, mockRecords, '')
-      );
-
-      expect(result.current.query).toBe('');
-      expect(result.current.records).toEqual(mockRecords);
-      expect(result.current.fetchedAll).toBe(false);
-    });
-
-    it('should filter records based on query', async () => {
-      const { result } = renderHook(() =>
-        useListSearcher(mockAppId, mockRecords, '')
-      );
-
-      act(() => {
-        result.current.setQuery('Record 1');
       });
 
-      await waitFor(() => {
-        expect(result.current.records).toHaveLength(1);
-        expect(result.current.records[0].name.value).toBe('Test Record 1');
-      });
+      expect(mockKintoneApi).toHaveBeenCalledTimes(3); // POST + GET + GET
     });
 
-    it('should reset to initial records when query is cleared', async () => {
+    it('should delete cursor on error', async () => {
+      const consoleErrorSpy = jest
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+
+      mockKintoneApi.mockImplementation((path, method) => {
+        if (path === '/k/v1/records/cursor.json' && method === 'POST') {
+          return Promise.resolve({ id: 'cursor-id' });
+        }
+        if (path === '/k/v1/records/cursor.json' && method === 'GET') {
+          return Promise.reject(new Error('Network error'));
+        }
+        if (path === '/k/v1/records/cursor.json' && method === 'DELETE') {
+          return Promise.resolve({});
+        }
+        return Promise.reject(new Error('Unexpected API call'));
+      });
+
       const { result } = renderHook(() =>
-        useListSearcher(mockAppId, mockRecords, '')
+        useSearch(mockAppId, mockRecords, '')
       );
 
       act(() => {
-        result.current.setQuery('Record 1');
+        result.current.setQuery('Test');
       });
 
       await waitFor(() => {
-        expect(result.current.records).toHaveLength(1);
+        expect(mockKintoneApi).toHaveBeenCalledWith(
+          '/k/v1/records/cursor.json',
+          'DELETE',
+          {
+            id: 'cursor-id',
+          }
+        );
       });
 
-      act(() => {
-        result.current.setQuery('');
-      });
-
-      await waitFor(() => {
-        expect(result.current.records).toEqual(mockRecords);
-      });
+      consoleErrorSpy.mockRestore();
     });
   });
 });

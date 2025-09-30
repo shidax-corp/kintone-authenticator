@@ -1,3 +1,5 @@
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+
 /**
  * URLパターンがクエリにマッチするかどうかを判定する。
  *
@@ -79,4 +81,115 @@ export const filterRecords = <T extends kintone.types.Fields>(
       return false;
     });
   });
+};
+
+export type RecordFetcher<T extends kintone.types.Fields> = {
+  getInitialRecords: () => T[];
+  getAllRecords?: () => Promise<T[]>;
+};
+
+export type SearchResult<T extends kintone.types.Fields> = {
+  query: string;
+  setQuery: (query: string) => void;
+  records: T[];
+  fetchedAll: boolean;
+  message: string;
+};
+
+/**
+ * レコード検索機能を提供するReactフック。
+ *
+ * @param fetcher - レコード取得を行う関数群
+ * @param queryCondition - kintoneのクエリ条件（空状態メッセージの判定に使用）
+ * @returns 検索クエリ、フィルタ済みレコード、メッセージ等
+ */
+export function useSearch<T extends kintone.types.Fields>(
+  fetcher: RecordFetcher<T>,
+  queryCondition: string = ''
+): SearchResult<T> {
+  const [query, setQuery] = useState('');
+  // 初期レコードをメモ化して無限ループを防ぐ
+  const initialRecords = useMemo(
+    () => fetcher.getInitialRecords(),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
+  );
+  const [records, setRecords] = useState<T[]>(initialRecords);
+  const { allRecords, fetchAllRecords } = useAllRecords(fetcher);
+
+  useEffect(() => {
+    if (query.trim() === '') {
+      setRecords(initialRecords);
+      return;
+    }
+
+    // 全レコードがまだ取得されていなければ取得する。
+    // レコードの取得に成功したらallRecordsが更新されてこのuseEffectが再実行されるので、ここで条件分けはしなくても動く。
+    fetchAllRecords();
+
+    // 全レコードの取得がまだの場合は、とりあえず初期から表示されているレコードの中から検索する。
+    setRecords(filterRecords(allRecords ?? initialRecords, query));
+    // fetchAllRecordsは副作用として呼ばれるだけなので、依存配列に含めない
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [query, allRecords, initialRecords]);
+
+  // メッセージの決定
+  let message = '';
+  if (records.length === 0) {
+    if (query.trim() === '' && queryCondition.trim() === '') {
+      message = 'まだ何も登録されていません';
+    } else {
+      message = '一致するものがありません';
+    }
+  }
+
+  return { query, setQuery, records, fetchedAll: allRecords != null, message };
+}
+
+/**
+ * 全レコードを取得するカスタムフック。
+ * 取得に失敗した場合の自動リトライ機能が付いている。
+ *
+ * @param fetcher - レコード取得を行う関数群
+ * @returns allRecords - 取得した全レコードの配列。まだ取得されていない場合は null。
+ * @returns fetchAllRecords - 全レコードを取得する関数。すでに取得されている場合は何もしない。
+ */
+const useAllRecords = <T extends kintone.types.Fields>(
+  fetcher: RecordFetcher<T>
+) => {
+  const [allRecords, setAllRecords] = useState<T[] | null>(null);
+  const [fetching, setFetching] = useState(false);
+  const retryCount = useRef(0);
+
+  const fetchAllRecords = useCallback(() => {
+    if (allRecords != null || fetching || !fetcher.getAllRecords) return;
+
+    setFetching(true);
+
+    fetcher
+      .getAllRecords()
+      .then((result) => {
+        setAllRecords(result);
+        setFetching(false);
+        retryCount.current = 0;
+      })
+      .catch((err) => {
+        console.error(err);
+
+        if (retryCount.current < 5) {
+          retryCount.current += 1;
+          setFetching(false);
+          setTimeout(() => {
+            fetchAllRecords();
+          }, 1000);
+        } else {
+          setFetching(false);
+        }
+      });
+  }, [fetcher, allRecords, fetching]);
+
+  return {
+    allRecords,
+    fetchAllRecords,
+  } as const;
 };
