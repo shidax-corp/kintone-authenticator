@@ -1,5 +1,6 @@
 import { createElement } from 'react';
 
+import { matchURL } from '@lib/search';
 import { extractOriginURL } from '@lib/url';
 
 import { getFieldType, isInputField, normalizeURL } from '../lib/form-utils';
@@ -11,6 +12,44 @@ import { getPageSiteName } from './page-info';
 
 let currentInputElement: HTMLElement | null = null;
 let autoFillExecuted = false;
+
+/**
+ * 指定されたURLに最もマッチするレコードを取得する。
+ * URLの長さが長いレコードを優先し、同じ長さの場合は更新日時が新しいレコードを優先する。
+ */
+const getBestMatch = (
+  records: kintone.types.SavedFields[],
+  url: string
+): kintone.types.SavedFields | null => {
+  let bestMatch: kintone.types.SavedFields | null = null;
+
+  for (const record of records) {
+    if (!matchURL(record.url.value, url)) {
+      continue;
+    }
+
+    if (bestMatch === null) {
+      bestMatch = record;
+      continue;
+    }
+
+    const lengthCurrent = record.url.value.length;
+    const lengthBest = bestMatch.url.value.length;
+
+    if (lengthCurrent > lengthBest) {
+      bestMatch = record;
+    } else if (lengthCurrent === lengthBest) {
+      const timeCurrent = new Date(record.更新日時.value).getTime();
+      const timeBest = new Date(bestMatch.更新日時.value).getTime();
+
+      if (timeCurrent > timeBest) {
+        bestMatch = record;
+      }
+    }
+  }
+
+  return bestMatch;
+};
 
 const performAutoFill = async () => {
   if (autoFillExecuted) return;
@@ -28,14 +67,18 @@ const performAutoFill = async () => {
 
     const recordsResponse = await chrome.runtime.sendMessage({
       type: 'GET_RECORDS',
-      data: { url: currentUrl },
     });
 
-    if (!recordsResponse.success || recordsResponse.data.length === 0) {
+    if (!recordsResponse.success || !recordsResponse.data) {
       return;
     }
 
-    const record = recordsResponse.data[0];
+    const record = getBestMatch(recordsResponse.data, currentUrl);
+
+    if (!record) {
+      return;
+    }
+
     autoFillExecuted = true;
 
     const usernameFields = document.querySelectorAll(
@@ -83,7 +126,6 @@ const { showToast } = setupNotificationCenter();
 
 const showFillOptionsModal = async (
   records: kintone.types.SavedFields[],
-  allRecords: kintone.types.SavedFields[],
   currentUrl: string
 ) => {
   try {
@@ -130,9 +172,8 @@ const showFillOptionsModal = async (
     const selectorElement = createElement(SelectorModal, {
       onClose: handleClose,
       onFieldSelect: handleFieldSelect,
-      initialRecords: records, // マッチしたレコードデータを渡す
-      allRecords: allRecords, // すべてのレコードデータを渡す
-      initialSearchQuery: initialSearchQuery, // 初期検索クエリを渡す
+      records, // レコードデータを渡す
+      initialSearchQuery, // 初期検索クエリを渡す
     });
 
     renderModalComponent(selectorElement);
@@ -181,11 +222,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       break;
 
     case 'SHOW_FILL_OPTIONS':
-      showFillOptionsModal(
-        message.data.records,
-        message.data.allRecords,
-        message.data.currentUrl
-      );
+      showFillOptionsModal(message.data.records, message.data.currentUrl);
       break;
 
     case 'FILL_OTP':
@@ -201,10 +238,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 
   sendResponse({ success: true });
-});
-
-document.addEventListener('DOMContentLoaded', () => {
-  setTimeout(performAutoFill, 1000);
 });
 
 if (document.readyState === 'loading') {

@@ -13,35 +13,32 @@ import type { ExtensionSettings } from '../lib/types';
 
 interface SelectionViewProps {
   onRegister: () => void;
-  initialRecords?: kintone.types.SavedFields[];
-  allRecords?: kintone.types.SavedFields[];
 }
 
-export const SelectionView = ({
-  onRegister,
-  initialRecords,
-  allRecords,
-}: SelectionViewProps) => {
-  // 設定取得
+export const SelectionView = ({ onRegister }: SelectionViewProps) => {
   const [settings, setSettings] = useState<ExtensionSettings | null>(null);
   const [settingsLoading, setSettingsLoading] = useState(true);
 
+  // 設定情報の取得（初回マウント時のみ）
   useEffect(() => {
-    chrome.runtime
-      .sendMessage({ type: 'GET_SETTINGS' })
-      .then((response) => {
-        if (response.success) {
-          setSettings(response.data);
+    const loadSettings = async () => {
+      try {
+        const settingsResponse = await chrome.runtime.sendMessage({
+          type: 'GET_SETTINGS',
+        });
+        if (settingsResponse.success) {
+          setSettings(settingsResponse.data);
         }
-      })
-      .finally(() => setSettingsLoading(false));
+      } finally {
+        setSettingsLoading(false);
+      }
+    };
+
+    loadSettings();
   }, []);
 
-  // レコード取得と状態管理
-  const { records, loading, refreshing, fetchError, refresh } = useRecords({
-    initialRecords,
-    allRecords,
-  });
+  // レコード取得と状態管理（useRecordsフックを使用）
+  const { records, loading, refreshing, fetchError, refresh } = useRecords();
 
   // 有効なフィールドを持つレコードのみをフィルタ
   const hasAnyValidField = (record: kintone.types.SavedFields): boolean => {
@@ -52,7 +49,7 @@ export const SelectionView = ({
     );
   };
 
-  // 検索機能
+  // 検索機能（useSearchフックを使用）
   const {
     query: searchQuery,
     setQuery: setSearchQuery,

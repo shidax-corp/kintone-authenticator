@@ -19,8 +19,7 @@ interface SelectorModalProps {
     value: string,
     recordId?: string
   ) => void;
-  initialRecords?: kintone.types.SavedFields[];
-  allRecords?: kintone.types.SavedFields[];
+  records: kintone.types.SavedFields[];
   initialSearchQuery?: string;
 }
 
@@ -31,29 +30,34 @@ interface SelectorModalProps {
 export const SelectorModal = ({
   onClose,
   onFieldSelect,
-  initialRecords,
-  allRecords,
+  records: recordsFromProps,
   initialSearchQuery = '',
 }: SelectorModalProps) => {
   // 設定取得
   const [settings, setSettings] = useState<ExtensionSettings | null>(null);
   const [settingsLoading, setSettingsLoading] = useState(true);
 
+  // 設定情報の取得（初回マウント時のみ）
   useEffect(() => {
-    chrome.runtime
-      .sendMessage({ type: 'GET_SETTINGS' })
-      .then((response) => {
-        if (response.success) {
-          setSettings(response.data);
+    const loadSettings = async () => {
+      try {
+        const settingsResponse = await chrome.runtime.sendMessage({
+          type: 'GET_SETTINGS',
+        });
+        if (settingsResponse.success) {
+          setSettings(settingsResponse.data);
         }
-      })
-      .finally(() => setSettingsLoading(false));
+      } finally {
+        setSettingsLoading(false);
+      }
+    };
+
+    loadSettings();
   }, []);
 
-  // レコード取得と状態管理
+  // レコード取得と状態管理（useRecordsフックを使用）
   const { records, loading, refreshing, fetchError, refresh } = useRecords({
-    initialRecords,
-    allRecords,
+    initialRecords: recordsFromProps,
   });
 
   // 有効なフィールドを持つレコードのみをフィルタ
@@ -65,7 +69,7 @@ export const SelectorModal = ({
     );
   };
 
-  // 検索機能
+  // 検索機能（useSearchフックを使用）
   const {
     query: searchQuery,
     setQuery: setSearchQuery,
