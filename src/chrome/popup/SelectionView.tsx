@@ -12,15 +12,9 @@ import type { ExtensionSettings } from '../lib/types';
 
 interface SelectionViewProps {
   onRegister: () => void;
-  initialRecords?: kintone.types.SavedFields[];
-  allRecords?: kintone.types.SavedFields[];
 }
 
-export const SelectionView = ({
-  onRegister,
-  initialRecords,
-  allRecords,
-}: SelectionViewProps) => {
+export const SelectionView = ({ onRegister }: SelectionViewProps) => {
   const [records, setRecords] = useState<kintone.types.SavedFields[]>([]);
   const [filteredRecords, setFilteredRecords] = useState<
     kintone.types.SavedFields[]
@@ -35,34 +29,20 @@ export const SelectionView = ({
     try {
       setFetchError(false);
 
-      // 初期レコードが渡されている場合はそれを使用
-      if (initialRecords || allRecords) {
-        const settingsResponse = await chrome.runtime.sendMessage({
-          type: 'GET_SETTINGS',
-        });
-        if (settingsResponse.success) {
-          setSettings(settingsResponse.data);
-        }
+      const [settingsResponse, recordsResponse] = await Promise.all([
+        chrome.runtime.sendMessage({ type: 'GET_SETTINGS' }),
+        chrome.runtime.sendMessage({ type: 'GET_RECORDS' }),
+      ]);
 
-        // allRecordsが利用可能な場合はそれをrecordsに設定、そうでなければinitialRecordsを使用
-        setRecords(allRecords || initialRecords || []);
+      if (settingsResponse.success) {
+        setSettings(settingsResponse.data);
+      }
+
+      if (recordsResponse.success) {
+        setRecords(recordsResponse.data);
       } else {
-        // 従来通りの処理
-        const [settingsResponse, recordsResponse] = await Promise.all([
-          chrome.runtime.sendMessage({ type: 'GET_SETTINGS' }),
-          chrome.runtime.sendMessage({ type: 'GET_RECORDS' }),
-        ]);
-
-        if (settingsResponse.success) {
-          setSettings(settingsResponse.data);
-        }
-
-        if (recordsResponse.success) {
-          setRecords(recordsResponse.data);
-        } else {
-          setFetchError(true);
-          setRecords([]);
-        }
+        setFetchError(true);
+        setRecords([]);
       }
     } catch {
       setFetchError(true);
@@ -70,7 +50,7 @@ export const SelectionView = ({
     } finally {
       setLoading(false);
     }
-  }, [initialRecords, allRecords]);
+  }, []);
 
   const refreshRecords = async () => {
     setRefreshing(true);
@@ -105,11 +85,8 @@ export const SelectionView = ({
   };
 
   const filterRecordsCallback = useCallback(() => {
-    // 検索に使用するレコードを決定（allRecordsが利用可能ならそれを使用、そうでなければrecords）
-    const searchableRecords = allRecords || records;
-
     // まず有効なフィールドを持つレコードのみに絞り込み
-    const recordsWithValidFields = searchableRecords.filter(hasAnyValidField);
+    const recordsWithValidFields = records.filter(hasAnyValidField);
 
     if (!searchQuery.trim()) {
       setFilteredRecords(recordsWithValidFields);
@@ -119,7 +96,7 @@ export const SelectionView = ({
     // @lib/searchのfilterRecordsを使用して検索処理
     const filtered = filterRecords(recordsWithValidFields, searchQuery);
     setFilteredRecords(filtered);
-  }, [allRecords, records, searchQuery]);
+  }, [records, searchQuery]);
 
   useEffect(() => {
     loadInitialData();

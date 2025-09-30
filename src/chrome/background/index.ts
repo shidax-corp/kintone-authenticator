@@ -1,14 +1,12 @@
 import { generateTOTP } from '@lib/gen-otp';
 import { decodeOTPAuthURI, isValidOTPAuthURI } from '@lib/otpauth-uri';
 
-import { getMatchingRecords } from '../lib/record-matcher';
 import { getSettings, isSettingsComplete } from '../lib/storage';
 import type {
   ExtensionSettings,
   GetOTPMessage,
   GetRecordsMessage,
   Message,
-  ReadQRMessage,
   RegisterOTPMessage,
 } from '../lib/types';
 import { KintoneClient } from './kintone-client';
@@ -148,15 +146,12 @@ const handleFillFromKintone = async (
 ) => {
   try {
     const records = await client.getRecords();
-    const matchingRecords = getMatchingRecords(records, url);
 
     chrome.tabs.sendMessage(tabId, {
       type: 'SHOW_FILL_OPTIONS',
       data: {
-        records: matchingRecords,
-        allRecords: records,
+        records: records,
         currentUrl: url,
-        isGeneral: false,
       },
     });
   } catch {
@@ -195,13 +190,6 @@ chrome.runtime.onMessage.addListener(
         };
 
         switch (message.type) {
-          case 'READ_QR': {
-            const { imageUrl } = (message as ReadQRMessage).data;
-            const qrData = await readQRFromImageInServiceWorker(imageUrl);
-            sendResponse({ success: true, data: qrData });
-            break;
-          }
-
           case 'REGISTER_OTP': {
             const client = await getClient();
             const recordData = (message as RegisterOTPMessage).data;
@@ -212,13 +200,9 @@ chrome.runtime.onMessage.addListener(
 
           case 'GET_RECORDS': {
             const client = await getClient();
-            const { url, forceRefresh } =
-              (message as GetRecordsMessage).data || {};
+            const { forceRefresh } = (message as GetRecordsMessage).data || {};
             const records = await client.getRecords(!forceRefresh);
-            const filteredRecords = url
-              ? getMatchingRecords(records, url)
-              : records;
-            sendResponse({ success: true, data: filteredRecords });
+            sendResponse({ success: true, data: records });
             break;
           }
 
@@ -240,15 +224,6 @@ chrome.runtime.onMessage.addListener(
           case 'GET_SETTINGS': {
             const settings = await getSettings();
             sendResponse({ success: true, data: settings });
-            break;
-          }
-
-          case 'SAVE_SETTINGS': {
-            const newSettings = message.data;
-            await chrome.storage.sync.set({
-              kintone_authenticator_settings: newSettings,
-            });
-            sendResponse({ success: true });
             break;
           }
 

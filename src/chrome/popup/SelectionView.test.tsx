@@ -140,8 +140,6 @@ describe('SelectionView - URL and Name Matching', () => {
   const renderSelectionView = (props = {}) => {
     const defaultProps = {
       onRegister: jest.fn(),
-      initialRecords: mockRecords,
-      allRecords: mockRecords,
       ...props,
     };
 
@@ -361,10 +359,21 @@ describe('SelectionView - URL and Name Matching', () => {
         },
       ];
 
-      renderSelectionView({
-        initialRecords: recordsWithDomainWildcard,
-        allRecords: recordsWithDomainWildcard,
+      // Mock sendMessage to return the custom records
+      mockChrome.runtime.sendMessage.mockImplementation((message) => {
+        if (message.type === 'GET_SETTINGS') {
+          return Promise.resolve({ success: true, data: mockSettings });
+        }
+        if (message.type === 'GET_RECORDS') {
+          return Promise.resolve({
+            success: true,
+            data: recordsWithDomainWildcard,
+          });
+        }
+        return Promise.resolve({ success: true });
       });
+
+      renderSelectionView();
 
       await waitFor(() => {
         expect(screen.getByText('Example Wildcard')).toBeInTheDocument();
@@ -581,13 +590,7 @@ describe('SelectionView - URL and Name Matching', () => {
     });
 
     it('should only render fields with non-empty values', async () => {
-      render(
-        <SelectionView
-          onRegister={jest.fn()}
-          initialRecords={mockRecordsWithEmptyFields}
-          allRecords={mockRecordsWithEmptyFields}
-        />
-      );
+      render(<SelectionView onRegister={jest.fn()} />);
 
       await waitFor(() => {
         expect(screen.getByText('Complete Record')).toBeInTheDocument();
@@ -609,13 +612,21 @@ describe('SelectionView - URL and Name Matching', () => {
     });
 
     it('should not render username field when username is empty', async () => {
-      render(
-        <SelectionView
-          onRegister={jest.fn()}
-          initialRecords={[mockRecordsWithEmptyFields[1]]} // Empty Username record
-          allRecords={[mockRecordsWithEmptyFields[1]]}
-        />
-      );
+      // Mock sendMessage to return only the Empty Username record
+      mockChrome.runtime.sendMessage.mockImplementation((message) => {
+        if (message.type === 'GET_SETTINGS') {
+          return Promise.resolve({ success: true, data: mockSettings });
+        }
+        if (message.type === 'GET_RECORDS') {
+          return Promise.resolve({
+            success: true,
+            data: [mockRecordsWithEmptyFields[1]], // Empty Username record
+          });
+        }
+        return Promise.resolve({ success: true });
+      });
+
+      render(<SelectionView onRegister={jest.fn()} />);
 
       await waitFor(() => {
         expect(screen.getByText('Empty Username')).toBeInTheDocument();
@@ -629,13 +640,21 @@ describe('SelectionView - URL and Name Matching', () => {
     });
 
     it('should not render password field when password is empty', async () => {
-      render(
-        <SelectionView
-          onRegister={jest.fn()}
-          initialRecords={[mockRecordsWithEmptyFields[2]]} // Empty Password record
-          allRecords={[mockRecordsWithEmptyFields[2]]}
-        />
-      );
+      // Mock sendMessage to return only the Empty Password record
+      mockChrome.runtime.sendMessage.mockImplementation((message) => {
+        if (message.type === 'GET_SETTINGS') {
+          return Promise.resolve({ success: true, data: mockSettings });
+        }
+        if (message.type === 'GET_RECORDS') {
+          return Promise.resolve({
+            success: true,
+            data: [mockRecordsWithEmptyFields[2]], // Empty Password record
+          });
+        }
+        return Promise.resolve({ success: true });
+      });
+
+      render(<SelectionView onRegister={jest.fn()} />);
 
       await waitFor(() => {
         expect(screen.getByText('Empty Password')).toBeInTheDocument();
@@ -649,13 +668,21 @@ describe('SelectionView - URL and Name Matching', () => {
     });
 
     it('should not render OTP field when otpAuthUri is empty', async () => {
-      render(
-        <SelectionView
-          onRegister={jest.fn()}
-          initialRecords={[mockRecordsWithEmptyFields[3]]} // Empty OTP record
-          allRecords={[mockRecordsWithEmptyFields[3]]}
-        />
-      );
+      // Mock sendMessage to return only the Empty OTP record
+      mockChrome.runtime.sendMessage.mockImplementation((message) => {
+        if (message.type === 'GET_SETTINGS') {
+          return Promise.resolve({ success: true, data: mockSettings });
+        }
+        if (message.type === 'GET_RECORDS') {
+          return Promise.resolve({
+            success: true,
+            data: [mockRecordsWithEmptyFields[3]], // Empty OTP record
+          });
+        }
+        return Promise.resolve({ success: true });
+      });
+
+      render(<SelectionView onRegister={jest.fn()} />);
 
       await waitFor(() => {
         expect(screen.getByText('Empty OTP')).toBeInTheDocument();
@@ -671,13 +698,21 @@ describe('SelectionView - URL and Name Matching', () => {
     });
 
     it('should not display records when all fields are empty', async () => {
-      render(
-        <SelectionView
-          onRegister={jest.fn()}
-          initialRecords={[mockRecordsWithEmptyFields[4]]} // All Empty record
-          allRecords={[mockRecordsWithEmptyFields[4]]}
-        />
-      );
+      // Mock sendMessage to return only the All Empty record
+      mockChrome.runtime.sendMessage.mockImplementation((message) => {
+        if (message.type === 'GET_SETTINGS') {
+          return Promise.resolve({ success: true, data: mockSettings });
+        }
+        if (message.type === 'GET_RECORDS') {
+          return Promise.resolve({
+            success: true,
+            data: [mockRecordsWithEmptyFields[4]], // All Empty record
+          });
+        }
+        return Promise.resolve({ success: true });
+      });
+
+      render(<SelectionView onRegister={jest.fn()} />);
 
       await waitFor(() => {
         expect(
@@ -696,13 +731,21 @@ describe('SelectionView - URL and Name Matching', () => {
     });
 
     it('should render OTP field for HOTP records', async () => {
-      render(
-        <SelectionView
-          onRegister={jest.fn()}
-          initialRecords={[mockRecordsWithEmptyFields[5]]} // HOTP Record
-          allRecords={[mockRecordsWithEmptyFields[5]]}
-        />
-      );
+      // Mock sendMessage to return only the HOTP record
+      mockChrome.runtime.sendMessage.mockImplementation((message) => {
+        if (message.type === 'GET_SETTINGS') {
+          return Promise.resolve({ success: true, data: mockSettings });
+        }
+        if (message.type === 'GET_RECORDS') {
+          return Promise.resolve({
+            success: true,
+            data: [mockRecordsWithEmptyFields[5]], // HOTP Record
+          });
+        }
+        return Promise.resolve({ success: true });
+      });
+
+      render(<SelectionView onRegister={jest.fn()} />);
 
       await waitFor(() => {
         expect(screen.getByText('HOTP Record')).toBeInTheDocument();
@@ -715,13 +758,7 @@ describe('SelectionView - URL and Name Matching', () => {
     });
 
     it('should exclude all-empty records from mixed record list', async () => {
-      render(
-        <SelectionView
-          onRegister={jest.fn()}
-          initialRecords={mockRecordsWithEmptyFields}
-          allRecords={mockRecordsWithEmptyFields}
-        />
-      );
+      render(<SelectionView onRegister={jest.fn()} />);
 
       await waitFor(() => {
         expect(screen.getByText('Complete Record')).toBeInTheDocument();

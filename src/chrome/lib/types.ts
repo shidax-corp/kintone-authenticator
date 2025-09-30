@@ -7,24 +7,15 @@ export interface ExtensionSettings {
 }
 
 export type MessageType =
-  | 'READ_QR'
   | 'REGISTER_OTP'
   | 'GET_RECORDS'
   | 'GET_OTP'
   | 'GET_SETTINGS'
-  | 'SAVE_SETTINGS'
   | 'TEST_CONNECTION';
 
 export interface Message {
   type: MessageType;
   data?: unknown;
-}
-
-export interface ReadQRMessage extends Message {
-  type: 'READ_QR';
-  data: {
-    imageUrl: string;
-  };
 }
 
 export interface RegisterOTPMessage extends Message {
@@ -41,7 +32,6 @@ export interface RegisterOTPMessage extends Message {
 export interface GetRecordsMessage extends Message {
   type: 'GET_RECORDS';
   data?: {
-    url?: string;
     forceRefresh?: boolean;
   };
 }
