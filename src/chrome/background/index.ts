@@ -150,7 +150,7 @@ const handleFillFromKintone = async (
     chrome.tabs.sendMessage(tabId, {
       type: 'SHOW_FILL_OPTIONS',
       data: {
-        allRecords: records,
+        records: records,
         currentUrl: url,
       },
     });

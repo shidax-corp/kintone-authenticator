@@ -125,7 +125,7 @@ const fillInputField = (element: HTMLElement, value: string) => {
 const { showToast } = setupNotificationCenter();
 
 const showFillOptionsModal = async (
-  allRecords: kintone.types.SavedFields[],
+  records: kintone.types.SavedFields[],
   currentUrl: string
 ) => {
   try {
@@ -172,8 +172,8 @@ const showFillOptionsModal = async (
     const selectorElement = createElement(SelectorModal, {
       onClose: handleClose,
       onFieldSelect: handleFieldSelect,
-      allRecords: allRecords, // すべてのレコードデータを渡す
-      initialSearchQuery: initialSearchQuery, // 初期検索クエリを渡す
+      records, // レコードデータを渡す
+      initialSearchQuery, // 初期検索クエリを渡す
     });
 
     renderModalComponent(selectorElement);
@@ -222,7 +222,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       break;
 
     case 'SHOW_FILL_OPTIONS':
-      showFillOptionsModal(message.data.allRecords, message.data.currentUrl);
+      showFillOptionsModal(message.data.records, message.data.currentUrl);
       break;
 
     case 'FILL_OTP':

@@ -18,7 +18,7 @@ interface SelectorModalProps {
     value: string,
     recordId?: string
   ) => void;
-  allRecords?: kintone.types.SavedFields[];
+  records: kintone.types.SavedFields[];
   initialSearchQuery?: string;
 }
 
@@ -29,7 +29,7 @@ interface SelectorModalProps {
 export const SelectorModal = ({
   onClose,
   onFieldSelect,
-  allRecords,
+  records: recordsFromProps,
   initialSearchQuery = '',
 }: SelectorModalProps) => {
   const [records, setRecords] = useState<kintone.types.SavedFields[]>([]);
@@ -42,46 +42,30 @@ export const SelectorModal = ({
   const [settings, setSettings] = useState<ExtensionSettings | null>(null);
   const [fetchError, setFetchError] = useState<boolean>(false);
 
-  const loadInitialData = useCallback(async () => {
-    try {
-      setFetchError(false);
-
-      // allRecordsが渡されている場合はそれを使用
-      if (allRecords) {
+  // 設定情報の取得（初回マウント時のみ）
+  useEffect(() => {
+    const loadSettings = async () => {
+      try {
         const settingsResponse = await chrome.runtime.sendMessage({
           type: 'GET_SETTINGS',
         });
         if (settingsResponse.success) {
           setSettings(settingsResponse.data);
         }
-
-        // allRecordsをrecordsに設定
-        setRecords(allRecords);
-      } else {
-        // 従来通りの処理
-        const [settingsResponse, recordsResponse] = await Promise.all([
-          chrome.runtime.sendMessage({ type: 'GET_SETTINGS' }),
-          chrome.runtime.sendMessage({ type: 'GET_RECORDS' }),
-        ]);
-
-        if (settingsResponse.success) {
-          setSettings(settingsResponse.data);
-        }
-
-        if (recordsResponse.success) {
-          setRecords(recordsResponse.data);
-        } else {
-          setFetchError(true);
-          setRecords([]);
-        }
+      } catch {
+        setFetchError(true);
+      } finally {
+        setLoading(false);
       }
-    } catch {
-      setFetchError(true);
-      setRecords([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [allRecords]);
+    };
+
+    loadSettings();
+  }, []);
+
+  // レコードの同期（recordsFromPropsが変更されたとき）
+  useEffect(() => {
+    setRecords(recordsFromProps);
+  }, [recordsFromProps]);
 
   const refreshRecords = async () => {
     setRefreshing(true);
@@ -116,11 +100,8 @@ export const SelectorModal = ({
   };
 
   const filterRecordsCallback = useCallback(() => {
-    // 検索に使用するレコードを決定（allRecordsが利用可能ならそれを使用、そうでなければrecords）
-    const searchableRecords = allRecords || records;
-
     // まず有効なフィールドを持つレコードのみに絞り込み
-    const recordsWithValidFields = searchableRecords.filter(hasAnyValidField);
+    const recordsWithValidFields = records.filter(hasAnyValidField);
 
     if (!searchQuery.trim()) {
       setFilteredRecords(recordsWithValidFields);
@@ -130,11 +111,7 @@ export const SelectorModal = ({
     // @lib/searchのfilterRecordsを使用して検索処理
     const filtered = filterRecords(recordsWithValidFields, searchQuery);
     setFilteredRecords(filtered);
-  }, [allRecords, records, searchQuery]);
-
-  useEffect(() => {
-    loadInitialData();
-  }, [loadInitialData]);
+  }, [records, searchQuery]);
 
   useEffect(() => {
     filterRecordsCallback();
