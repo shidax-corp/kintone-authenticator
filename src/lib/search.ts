@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 /**
  * URLパターンがクエリにマッチするかどうかを判定する。
@@ -108,12 +108,8 @@ export function useSearch<T extends kintone.types.Fields>(
   queryCondition: string = ''
 ): SearchResult<T> {
   const [query, setQuery] = useState('');
-  // 初期レコードをメモ化して無限ループを防ぐ
-  const initialRecords = useMemo(
-    () => fetcher.getInitialRecords(),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
-  );
+  // 初期レコードを一度だけ取得
+  const [initialRecords] = useState(() => fetcher.getInitialRecords());
   const [records, setRecords] = useState<T[]>(initialRecords);
   const { allRecords, fetchAllRecords } = useAllRecords(fetcher);
 
@@ -129,9 +125,7 @@ export function useSearch<T extends kintone.types.Fields>(
 
     // 全レコードの取得がまだの場合は、とりあえず初期から表示されているレコードの中から検索する。
     setRecords(filterRecords(allRecords ?? initialRecords, query));
-    // fetchAllRecordsは副作用として呼ばれるだけなので、依存配列に含めない
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [query, allRecords, initialRecords]);
+  }, [query, allRecords, initialRecords, fetchAllRecords]);
 
   // メッセージの決定
   let message = '';
@@ -159,15 +153,16 @@ const useAllRecords = <T extends kintone.types.Fields>(
 ) => {
   const [allRecords, setAllRecords] = useState<T[] | null>(null);
   const [fetching, setFetching] = useState(false);
+  const [shouldRetry, setShouldRetry] = useState(false);
   const retryCount = useRef(0);
 
+  const getAllRecords = fetcher.getAllRecords;
   const fetchAllRecords = useCallback(() => {
-    if (allRecords != null || fetching || !fetcher.getAllRecords) return;
+    if (allRecords != null || fetching || !getAllRecords) return;
 
     setFetching(true);
 
-    fetcher
-      .getAllRecords()
+    getAllRecords()
       .then((result) => {
         setAllRecords(result);
         setFetching(false);
@@ -179,14 +174,23 @@ const useAllRecords = <T extends kintone.types.Fields>(
         if (retryCount.current < 5) {
           retryCount.current += 1;
           setFetching(false);
-          setTimeout(() => {
-            fetchAllRecords();
-          }, 1000);
+          setShouldRetry(true);
         } else {
           setFetching(false);
         }
       });
-  }, [fetcher, allRecords, fetching]);
+  }, [getAllRecords, allRecords, fetching]);
+
+  // リトライ処理を別の useEffect に分離
+  useEffect(() => {
+    if (shouldRetry) {
+      setShouldRetry(false);
+      const timer = setTimeout(() => {
+        fetchAllRecords();
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [shouldRetry, fetchAllRecords]);
 
   return {
     allRecords,
