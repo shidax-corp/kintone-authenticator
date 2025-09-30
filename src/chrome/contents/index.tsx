@@ -1,5 +1,6 @@
 import { createElement } from 'react';
 
+import { matchURL } from '@lib/search';
 import { extractOriginURL } from '@lib/url';
 
 import { getFieldType, isInputField, normalizeURL } from '../lib/form-utils';
@@ -8,10 +9,47 @@ import { SelectorModal } from './SelectorModal';
 import { closeModal, renderModalComponent } from './modal-renderer';
 import setupNotificationCenter from './notification';
 import { getPageSiteName } from './page-info';
-import { getBestMatch } from './record-matcher';
 
 let currentInputElement: HTMLElement | null = null;
 let autoFillExecuted = false;
+
+/**
+ * 指定されたURLに最もマッチするレコードを取得する。
+ * URLの長さが長いレコードを優先し、同じ長さの場合は更新日時が新しいレコードを優先する。
+ */
+const getBestMatch = (
+  records: kintone.types.SavedFields[],
+  url: string
+): kintone.types.SavedFields | null => {
+  let bestMatch: kintone.types.SavedFields | null = null;
+
+  for (const record of records) {
+    if (!matchURL(record.url.value, url)) {
+      continue;
+    }
+
+    if (bestMatch === null) {
+      bestMatch = record;
+      continue;
+    }
+
+    const lengthCurrent = record.url.value.length;
+    const lengthBest = bestMatch.url.value.length;
+
+    if (lengthCurrent > lengthBest) {
+      bestMatch = record;
+    } else if (lengthCurrent === lengthBest) {
+      const timeCurrent = new Date(record.更新日時.value).getTime();
+      const timeBest = new Date(bestMatch.更新日時.value).getTime();
+
+      if (timeCurrent > timeBest) {
+        bestMatch = record;
+      }
+    }
+  }
+
+  return bestMatch;
+};
 
 const performAutoFill = async () => {
   if (autoFillExecuted) return;
