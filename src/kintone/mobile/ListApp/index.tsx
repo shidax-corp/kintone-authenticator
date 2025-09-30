@@ -17,7 +17,7 @@ export default function ListApp({
   viewId,
   records: pageRecords,
 }: ListAppProps) {
-  const { query, setQuery, records, fetchedAll } = useListSearcher(
+  const { query, setQuery, records, fetchedAll, message } = useListSearcher(
     appId,
     pageRecords,
     kintone.mobile.app.getQueryCondition()
@@ -56,16 +56,22 @@ export default function ListApp({
       <div>
         <SearchField value={query} onChange={setQuery} />
       </div>
-      <ul>
-        {records.map((record) => (
-          <Item
-            key={record.$id.value}
-            appId={appId}
-            viewId={viewId}
-            account={record}
-          />
-        ))}
-      </ul>
+      {message ? (
+        <div className="empty-message">
+          <p>{message}</p>
+        </div>
+      ) : (
+        <ul>
+          {records.map((record) => (
+            <Item
+              key={record.$id.value}
+              appId={appId}
+              viewId={viewId}
+              account={record}
+            />
+          ))}
+        </ul>
+      )}
       <style jsx>{`
         & {
           max-width: 800px;
@@ -91,6 +97,17 @@ export default function ListApp({
         }
         ul > :global(li:last-child) {
           border-bottom: none;
+        }
+
+        .empty-message {
+          text-align: center;
+          padding: 48px 16px;
+          color: #666;
+        }
+
+        .empty-message p {
+          margin: 0;
+          font-size: 1rem;
         }
       `}</style>
     </div>

@@ -422,7 +422,7 @@ describe('SelectionView - URL and Name Matching', () => {
       await waitFor(() => {
         // Should show no results message
         expect(
-          screen.getByText('検索条件に一致するレコードがありません')
+          screen.getByText('一致するものがありません')
         ).toBeInTheDocument();
         // Should not show any records
         expect(screen.queryByText('GitHub Main')).not.toBeInTheDocument();
@@ -444,7 +444,7 @@ describe('SelectionView - URL and Name Matching', () => {
         // Should not crash and perform text search instead
         // This might match records that contain this text in name or URL
         const hasResults =
-          screen.queryByText('検索条件に一致するレコードがありません') !== null;
+          screen.queryByText('一致するものがありません') !== null;
         // Should either show no results or perform safe text matching
         expect(hasResults || screen.queryByText('GitHub Main')).toBeTruthy();
       });
@@ -680,7 +680,9 @@ describe('SelectionView - URL and Name Matching', () => {
       );
 
       await waitFor(() => {
-        expect(screen.getByText('レコードがありません')).toBeInTheDocument();
+        expect(
+          screen.getByText('まだ何も登録されていません')
+        ).toBeInTheDocument();
       });
 
       // Should not display the "All Empty" record at all
