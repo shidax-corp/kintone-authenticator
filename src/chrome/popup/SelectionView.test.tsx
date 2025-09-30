@@ -1,13 +1,13 @@
 import '@testing-library/jest-dom';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 
+import { useRecords } from '../lib/records';
+import { SelectionView } from './SelectionView';
+
 // Mock useRecords before importing SelectionView
 jest.mock('../lib/records', () => ({
   useRecords: jest.fn(),
 }));
-
-import { useRecords } from '../lib/records';
-import { SelectionView } from './SelectionView';
 
 // Mock chrome runtime
 const mockChrome = {
