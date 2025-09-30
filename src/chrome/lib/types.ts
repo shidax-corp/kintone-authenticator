@@ -32,7 +32,6 @@ export interface RegisterOTPMessage extends Message {
 export interface GetRecordsMessage extends Message {
   type: 'GET_RECORDS';
   data?: {
-    url?: string;
     forceRefresh?: boolean;
   };
 }

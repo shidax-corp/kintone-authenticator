@@ -3,6 +3,7 @@ import { createElement } from 'react';
 import { extractOriginURL } from '@lib/url';
 
 import { getFieldType, isInputField, normalizeURL } from '../lib/form-utils';
+import { getBestMatch } from '../lib/record-matcher';
 import { RegisterModal } from './RegisterModal';
 import { SelectorModal } from './SelectorModal';
 import { closeModal, renderModalComponent } from './modal-renderer';
@@ -28,14 +29,18 @@ const performAutoFill = async () => {
 
     const recordsResponse = await chrome.runtime.sendMessage({
       type: 'GET_RECORDS',
-      data: { url: currentUrl },
     });
 
-    if (!recordsResponse.success || recordsResponse.data.length === 0) {
+    if (!recordsResponse.success || !recordsResponse.data) {
       return;
     }
 
-    const record = recordsResponse.data[0];
+    const record = getBestMatch(recordsResponse.data, currentUrl);
+
+    if (!record) {
+      return;
+    }
+
     autoFillExecuted = true;
 
     const usernameFields = document.querySelectorAll(
