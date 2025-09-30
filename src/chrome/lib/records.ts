@@ -53,8 +53,12 @@ export function useRecords(options?: {
   initialRecords?: kintone.types.SavedFields[];
   allRecords?: kintone.types.SavedFields[];
 }): UseRecordsResult {
-  const [records, setRecords] = useState<kintone.types.SavedFields[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [records, setRecords] = useState<kintone.types.SavedFields[]>(
+    options?.allRecords || options?.initialRecords || []
+  );
+  const [loading, setLoading] = useState(
+    !(options?.allRecords || options?.initialRecords)
+  );
   const [refreshing, setRefreshing] = useState(false);
   const [fetchError, setFetchError] = useState(false);
 
@@ -85,8 +89,11 @@ export function useRecords(options?: {
   );
 
   useEffect(() => {
-    loadRecords();
-  }, [loadRecords]);
+    // 初期レコードが既にある場合は非同期ロードをスキップ
+    if (!options?.allRecords && !options?.initialRecords) {
+      loadRecords();
+    }
+  }, [loadRecords, options?.allRecords, options?.initialRecords]);
 
   const refresh = useCallback(async () => {
     await loadRecords(true);
