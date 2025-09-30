@@ -89,7 +89,7 @@ export default function ListApp({
         .message {
           text-align: center;
           padding: 48px 16px;
-          color: #666;
+          color: var(--ka-fg-light-color);
         }
 
         .message p {
