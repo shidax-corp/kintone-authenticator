@@ -240,10 +240,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   sendResponse({ success: true });
 });
 
-document.addEventListener('DOMContentLoaded', () => {
-  setTimeout(performAutoFill, 1000);
-});
-
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
     setTimeout(performAutoFill, 1000);
