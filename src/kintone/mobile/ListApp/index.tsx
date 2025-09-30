@@ -57,7 +57,7 @@ export default function ListApp({
         <SearchField value={query} onChange={setQuery} />
       </div>
       {message ? (
-        <div className="empty-message">
+        <div className="message">
           <p>{message}</p>
         </div>
       ) : (
@@ -99,13 +99,13 @@ export default function ListApp({
           border-bottom: none;
         }
 
-        .empty-message {
+        .message {
           text-align: center;
           padding: 48px 16px;
           color: #666;
         }
 
-        .empty-message p {
+        .message p {
           margin: 0;
           font-size: 1rem;
         }

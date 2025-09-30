@@ -205,7 +205,7 @@ describe('ListApp - Mobile', () => {
 
       const messageDiv =
         screen.getByText('まだ何も登録されていません').parentElement;
-      expect(messageDiv).toHaveClass('empty-message');
+      expect(messageDiv).toHaveClass('message');
 
       // Check if styled-jsx styles are present (they should be in a style tag)
       const styleTag = container.querySelector('style');
