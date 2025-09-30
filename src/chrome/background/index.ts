@@ -1,7 +1,6 @@
 import { generateTOTP } from '@lib/gen-otp';
 import { decodeOTPAuthURI, isValidOTPAuthURI } from '@lib/otpauth-uri';
 
-import { getMatchingRecords } from '../lib/record-matcher';
 import { getSettings, isSettingsComplete } from '../lib/storage';
 import type {
   ExtensionSettings,
@@ -147,15 +146,12 @@ const handleFillFromKintone = async (
 ) => {
   try {
     const records = await client.getRecords();
-    const matchingRecords = getMatchingRecords(records, url);
 
     chrome.tabs.sendMessage(tabId, {
       type: 'SHOW_FILL_OPTIONS',
       data: {
-        records: matchingRecords,
         allRecords: records,
         currentUrl: url,
-        isGeneral: false,
       },
     });
   } catch {
