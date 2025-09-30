@@ -8,7 +8,6 @@ import type {
   GetOTPMessage,
   GetRecordsMessage,
   Message,
-  ReadQRMessage,
   RegisterOTPMessage,
 } from '../lib/types';
 import { KintoneClient } from './kintone-client';
@@ -195,13 +194,6 @@ chrome.runtime.onMessage.addListener(
         };
 
         switch (message.type) {
-          case 'READ_QR': {
-            const { imageUrl } = (message as ReadQRMessage).data;
-            const qrData = await readQRFromImageInServiceWorker(imageUrl);
-            sendResponse({ success: true, data: qrData });
-            break;
-          }
-
           case 'REGISTER_OTP': {
             const client = await getClient();
             const recordData = (message as RegisterOTPMessage).data;
@@ -240,15 +232,6 @@ chrome.runtime.onMessage.addListener(
           case 'GET_SETTINGS': {
             const settings = await getSettings();
             sendResponse({ success: true, data: settings });
-            break;
-          }
-
-          case 'SAVE_SETTINGS': {
-            const newSettings = message.data;
-            await chrome.storage.sync.set({
-              kintone_authenticator_settings: newSettings,
-            });
-            sendResponse({ success: true });
             break;
           }
 
