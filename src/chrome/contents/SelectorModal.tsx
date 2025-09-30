@@ -18,7 +18,6 @@ interface SelectorModalProps {
     value: string,
     recordId?: string
   ) => void;
-  initialRecords?: kintone.types.SavedFields[];
   allRecords?: kintone.types.SavedFields[];
   initialSearchQuery?: string;
 }
@@ -30,7 +29,6 @@ interface SelectorModalProps {
 export const SelectorModal = ({
   onClose,
   onFieldSelect,
-  initialRecords,
   allRecords,
   initialSearchQuery = '',
 }: SelectorModalProps) => {
@@ -48,8 +46,8 @@ export const SelectorModal = ({
     try {
       setFetchError(false);
 
-      // 初期レコードが渡されている場合はそれを使用
-      if (initialRecords || allRecords) {
+      // allRecordsが渡されている場合はそれを使用
+      if (allRecords) {
         const settingsResponse = await chrome.runtime.sendMessage({
           type: 'GET_SETTINGS',
         });
@@ -57,8 +55,8 @@ export const SelectorModal = ({
           setSettings(settingsResponse.data);
         }
 
-        // allRecordsが利用可能な場合はそれをrecordsに設定、そうでなければinitialRecordsを使用
-        setRecords(allRecords || initialRecords || []);
+        // allRecordsをrecordsに設定
+        setRecords(allRecords);
       } else {
         // 従来通りの処理
         const [settingsResponse, recordsResponse] = await Promise.all([
@@ -83,7 +81,7 @@ export const SelectorModal = ({
     } finally {
       setLoading(false);
     }
-  }, [initialRecords, allRecords]);
+  }, [allRecords]);
 
   const refreshRecords = async () => {
     setRefreshing(true);
