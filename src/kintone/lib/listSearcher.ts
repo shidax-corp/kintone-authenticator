@@ -7,6 +7,7 @@ export type ListSearcher = {
   setQuery: (query: string) => void;
   records: kintone.types.SavedFields[];
   fetchedAll: boolean;
+  message: string;
 };
 
 /** レコード一覧画面での検索機能を提供する関数。
@@ -38,7 +39,17 @@ export default function useListSearcher(
     setRecords(filterRecords(allRecords ?? initialRecords, query));
   }, [query, allRecords, initialRecords, fetchAllRecords]);
 
-  return { query, setQuery, records, fetchedAll: allRecords != null };
+  // メッセージの決定
+  let message = '';
+  if (records.length === 0) {
+    if (query.trim() === '' && queryCondition.trim() === '') {
+      message = 'まだ何も登録されていません';
+    } else {
+      message = '一致するものがありません';
+    }
+  }
+
+  return { query, setQuery, records, fetchedAll: allRecords != null, message };
 }
 
 /** 全レコードを取得するカスタムフック。

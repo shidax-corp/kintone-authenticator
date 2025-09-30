@@ -19,3 +19,8 @@ Following the steps below to fix the issue:
 Please include `Fixes #<issue_number>` in the pull request description to automatically close the issue when the pull request is merged.
 
 think
+
+# Issue #$ARGUMENTS
+
+!gh issue view $ARGUMENTS
+!gh issue view --comments $ARGUMENTS

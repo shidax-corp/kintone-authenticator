@@ -287,8 +287,8 @@ export const SelectorModal = ({
           ) : filteredRecords.length === 0 ? (
             <div className="empty-state">
               {searchQuery
-                ? '検索条件に一致するレコードがありません'
-                : 'レコードがありません'}
+                ? '一致するものがありません'
+                : 'まだ何も登録されていません'}
             </div>
           ) : (
             <ul className="records-list">
