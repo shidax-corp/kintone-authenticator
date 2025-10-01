@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom';
-import { renderHook, waitFor } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 
 import { fetchRecords, useRecords } from './records';
 
@@ -15,8 +15,8 @@ describe('fetchRecords', () => {
     jest.clearAllMocks();
   });
 
-  it('should return allRecords when provided', async () => {
-    const allRecords: kintone.types.SavedFields[] = [
+  it('should return cachedRecords when provided', async () => {
+    const cachedRecords: kintone.types.SavedFields[] = [
       {
         $id: { value: '1' },
         name: { value: 'Test' },
@@ -24,22 +24,8 @@ describe('fetchRecords', () => {
       } as kintone.types.SavedFields,
     ];
 
-    const result = await fetchRecords({ allRecords });
-    expect(result).toEqual(allRecords);
-    expect(chrome.runtime.sendMessage).not.toHaveBeenCalled();
-  });
-
-  it('should return initialRecords when allRecords is not provided', async () => {
-    const initialRecords: kintone.types.SavedFields[] = [
-      {
-        $id: { value: '1' },
-        name: { value: 'Test' },
-        url: { value: 'https://example.com' },
-      } as kintone.types.SavedFields,
-    ];
-
-    const result = await fetchRecords({ initialRecords });
-    expect(result).toEqual(initialRecords);
+    const result = await fetchRecords({ cachedRecords });
+    expect(result).toEqual(cachedRecords);
     expect(chrome.runtime.sendMessage).not.toHaveBeenCalled();
   });
 
@@ -80,7 +66,7 @@ describe('fetchRecords', () => {
     });
 
     const result = await fetchRecords({
-      allRecords: mockRecords,
+      cachedRecords: mockRecords,
       forceRefresh: true,
     });
     expect(result).toEqual(mockRecords);
@@ -104,7 +90,11 @@ describe('useRecords', () => {
     jest.clearAllMocks();
   });
 
-  it('should initialize with loading state', () => {
+  afterEach(() => {
+    jest.clearAllTimers();
+  });
+
+  it('should initialize with loading state', async () => {
     const mockRecords: kintone.types.SavedFields[] = [
       {
         $id: { value: '1' },
@@ -122,6 +112,11 @@ describe('useRecords', () => {
 
     expect(result.current.loading).toBe(true);
     expect(result.current.records).toEqual([]);
+
+    // Wait for async operations to complete
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
   });
 
   it('should load records on mount', async () => {
@@ -148,7 +143,7 @@ describe('useRecords', () => {
     expect(result.current.fetchError).toBe(false);
   });
 
-  it('should use initialRecords when provided', async () => {
+  it('should use cachedRecords when provided', async () => {
     const mockRecords: kintone.types.SavedFields[] = [
       {
         $id: { value: '1' },
@@ -157,9 +152,7 @@ describe('useRecords', () => {
       } as kintone.types.SavedFields,
     ];
 
-    const { result } = renderHook(() =>
-      useRecords({ initialRecords: mockRecords })
-    );
+    const { result } = renderHook(() => useRecords(mockRecords));
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
@@ -220,7 +213,9 @@ describe('useRecords', () => {
     expect(result.current.records).toEqual(mockRecords);
 
     // Call refresh
-    await result.current.refresh();
+    await act(async () => {
+      await result.current.refresh();
+    });
 
     await waitFor(() => {
       expect(result.current.refreshing).toBe(false);

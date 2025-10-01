@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 
 import RefreshIcon from '@mui/icons-material/Refresh';
 
@@ -7,9 +7,10 @@ import { useSearch } from '@lib/search';
 import SearchField from '@components/SearchField';
 
 import { RecordItem } from '../lib/RecordItem';
+import { hasAnyValidField } from '../lib/record-utils';
 import { useRecords } from '../lib/records';
 import { isSettingsComplete } from '../lib/storage';
-import type { ExtensionSettings } from '../lib/types';
+import { useSettings } from '../lib/use-settings';
 import ModalBase from './ModalBase';
 
 interface SelectorModalProps {
@@ -33,41 +34,12 @@ export const SelectorModal = ({
   records: recordsFromProps,
   initialSearchQuery = '',
 }: SelectorModalProps) => {
-  // 設定取得
-  const [settings, setSettings] = useState<ExtensionSettings | null>(null);
-  const [settingsLoading, setSettingsLoading] = useState(true);
-
-  // 設定情報の取得（初回マウント時のみ）
-  useEffect(() => {
-    const loadSettings = async () => {
-      try {
-        const settingsResponse = await chrome.runtime.sendMessage({
-          type: 'GET_SETTINGS',
-        });
-        if (settingsResponse.success) {
-          setSettings(settingsResponse.data);
-        }
-      } finally {
-        setSettingsLoading(false);
-      }
-    };
-
-    loadSettings();
-  }, []);
+  // 設定情報の取得
+  const { settings, loading: settingsLoading } = useSettings();
 
   // レコード取得と状態管理（useRecordsフックを使用）
-  const { records, loading, refreshing, fetchError, refresh } = useRecords({
-    initialRecords: recordsFromProps,
-  });
-
-  // 有効なフィールドを持つレコードのみをフィルタ
-  const hasAnyValidField = (record: kintone.types.SavedFields): boolean => {
-    return !!(
-      record.username?.value ||
-      record.password?.value ||
-      record.otpuri?.value
-    );
-  };
+  const { records, loading, refreshing, fetchError, refresh } =
+    useRecords(recordsFromProps);
 
   // 検索機能（useSearchフックを使用）
   const {

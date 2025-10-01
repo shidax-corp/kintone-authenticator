@@ -1,6 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 /**
+ * 検索可能なフィールドを持つレコードの型
+ */
+export type SearchableFields = {
+  name: { value: string };
+  url: { value: string };
+};
+
+/**
  * URLパターンがクエリにマッチするかどうかを判定する。
  *
  * クエリがURLパターンに含まれている場合は `true` を返す。
@@ -60,7 +68,7 @@ export const matchURL = (urlPattern: string, query: string): boolean => {
  * @param query - 検索クエリ
  * @returns 一致するレコードの配列
  */
-export const filterRecords = <T extends kintone.types.Fields>(
+export const filterRecords = <T extends SearchableFields>(
   records: T[],
   query: string
 ): T[] => {
@@ -72,13 +80,10 @@ export const filterRecords = <T extends kintone.types.Fields>(
 
   return records.filter((record) => {
     return lowerQueries.every((q) => {
-      if (record.name.value.toLowerCase().includes(q)) {
-        return true;
-      }
-      if (matchURL(record.url.value, q)) {
-        return true;
-      }
-      return false;
+      return (
+        record.name.value.toLowerCase().includes(q) ||
+        matchURL(record.url.value, q)
+      );
     });
   });
 };
@@ -128,14 +133,15 @@ export function useSearch<T extends kintone.types.Fields>(
   }, [query, allRecords, initialRecords, fetchAllRecords]);
 
   // メッセージの決定
-  let message = '';
-  if (records.length === 0) {
-    if (query.trim() === '' && queryCondition.trim() === '') {
-      message = 'まだ何も登録されていません';
-    } else {
-      message = '一致するものがありません';
-    }
-  }
+  const hasNoRecords = records.length === 0;
+  const hasNoSearchConditions =
+    query.trim() === '' && queryCondition.trim() === '';
+
+  const message = hasNoRecords
+    ? hasNoSearchConditions
+      ? 'まだ何も登録されていません'
+      : '一致するものがありません'
+    : '';
 
   return { query, setQuery, records, fetchedAll: allRecords != null, message };
 }

@@ -3,22 +3,17 @@ import { useCallback, useEffect, useState } from 'react';
 /**
  * Chrome拡張でレコードを取得する純粋関数。
  *
- * @param options.initialRecords - 既に取得済みのレコード
- * @param options.allRecords - 全レコード（既取得の場合）
+ * @param options.cachedRecords - 既にキャッシュされているレコード
  * @param options.forceRefresh - 強制的に再取得するか
  * @returns レコードの配列
  */
 export async function fetchRecords(options?: {
-  initialRecords?: kintone.types.SavedFields[];
-  allRecords?: kintone.types.SavedFields[];
+  cachedRecords?: kintone.types.SavedFields[];
   forceRefresh?: boolean;
 }): Promise<kintone.types.SavedFields[]> {
   // 既にレコードがある場合はそれを返す
-  if (
-    !options?.forceRefresh &&
-    (options?.allRecords || options?.initialRecords)
-  ) {
-    return options.allRecords || options.initialRecords || [];
+  if (!options?.forceRefresh && options?.cachedRecords) {
+    return options.cachedRecords;
   }
 
   // chrome.runtime.sendMessage でレコード取得
@@ -45,20 +40,18 @@ export type UseRecordsResult = {
 /**
  * Chrome拡張でレコードを取得し、状態を管理するReactフック。
  *
- * @param options.initialRecords - 既に取得済みのレコード
- * @param options.allRecords - 全レコード（既取得の場合）
+ * @param cachedRecords - 既にキャッシュされているレコード
  * @returns レコード、loading状態、refresh関数等
  */
-export function useRecords(options?: {
-  initialRecords?: kintone.types.SavedFields[];
-  allRecords?: kintone.types.SavedFields[];
-}): UseRecordsResult {
+export function useRecords(
+  cachedRecords?: kintone.types.SavedFields[]
+): UseRecordsResult {
+  const hasCachedRecords = !!cachedRecords;
+
   const [records, setRecords] = useState<kintone.types.SavedFields[]>(
-    options?.allRecords || options?.initialRecords || []
+    cachedRecords || []
   );
-  const [loading, setLoading] = useState(
-    !(options?.allRecords || options?.initialRecords)
-  );
+  const [loading, setLoading] = useState(!hasCachedRecords);
   const [refreshing, setRefreshing] = useState(false);
   const [fetchError, setFetchError] = useState(false);
 
@@ -71,8 +64,7 @@ export function useRecords(options?: {
         }
 
         const data = await fetchRecords({
-          initialRecords: options?.initialRecords,
-          allRecords: options?.allRecords,
+          cachedRecords,
           forceRefresh,
         });
 
@@ -85,15 +77,15 @@ export function useRecords(options?: {
         setRefreshing(false);
       }
     },
-    [options?.initialRecords, options?.allRecords]
+    [cachedRecords]
   );
 
   useEffect(() => {
     // 初期レコードが既にある場合は非同期ロードをスキップ
-    if (!options?.allRecords && !options?.initialRecords) {
+    if (!cachedRecords) {
       loadRecords();
     }
-  }, [loadRecords, options?.allRecords, options?.initialRecords]);
+  }, [loadRecords, cachedRecords]);
 
   const refresh = useCallback(async () => {
     await loadRecords(true);
