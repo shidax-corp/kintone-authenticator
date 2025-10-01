@@ -14,41 +14,37 @@ export function useSearch(
   initialRecords: kintone.types.SavedFields[],
   queryCondition: string
 ): SearchResult<kintone.types.SavedFields> {
-  return useSearchBase(
-    {
-      getInitialRecords: () => initialRecords,
-      getAllRecords: async () => {
-        // カーソルAPIで全レコード取得（500件ずつ）
-        const { id } = await kintone.api('/k/v1/records/cursor.json', 'POST', {
-          app: appId,
-          query: queryCondition,
-          size: 500,
+  const getAllRecords = async () => {
+    // カーソルAPIで全レコード取得（500件ずつ）
+    const { id } = await kintone.api('/k/v1/records/cursor.json', 'POST', {
+      app: appId,
+      query: queryCondition,
+      size: 500,
+    });
+
+    const result: kintone.types.SavedFields[] = [];
+    try {
+      while (true) {
+        const resp = await kintone.api('/k/v1/records/cursor.json', 'GET', {
+          id,
         });
-
-        const result: kintone.types.SavedFields[] = [];
-        try {
-          while (true) {
-            const resp = await kintone.api('/k/v1/records/cursor.json', 'GET', {
-              id,
-            });
-            result.push(...resp.records);
-            if (!resp.next) {
-              break;
-            }
-          }
-        } catch (e) {
-          // カーソルを削除
-          try {
-            await kintone.api('/k/v1/records/cursor.json', 'DELETE', { id });
-          } catch (deleteError) {
-            console.error('Failed to delete cursor:', deleteError);
-          }
-          throw e;
+        result.push(...resp.records);
+        if (!resp.next) {
+          break;
         }
+      }
+    } catch (e) {
+      // カーソルを削除
+      try {
+        await kintone.api('/k/v1/records/cursor.json', 'DELETE', { id });
+      } catch (deleteError) {
+        console.error('Failed to delete cursor:', deleteError);
+      }
+      throw e;
+    }
 
-        return result;
-      },
-    },
-    queryCondition
-  );
+    return result;
+  };
+
+  return useSearchBase(initialRecords, getAllRecords, queryCondition);
 }

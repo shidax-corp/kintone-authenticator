@@ -88,11 +88,6 @@ export const filterRecords = <T extends SearchableFields>(
   });
 };
 
-export type RecordFetcher<T extends kintone.types.Fields> = {
-  getInitialRecords: () => T[];
-  getAllRecords?: () => Promise<T[]>;
-};
-
 export type SearchResult<T extends kintone.types.Fields> = {
   query: string;
   setQuery: (query: string) => void;
@@ -104,23 +99,25 @@ export type SearchResult<T extends kintone.types.Fields> = {
 /**
  * レコード検索機能を提供するReactフック。
  *
- * @param fetcher - レコード取得を行う関数群
+ * @param initialRecords - 初期表示するレコードの配列
+ * @param getAllRecords - 全レコードを取得する関数（オプション）
  * @param queryCondition - kintoneのクエリ条件（空状態メッセージの判定に使用）
  * @returns 検索クエリ、フィルタ済みレコード、メッセージ等
  */
 export function useSearch<T extends kintone.types.Fields>(
-  fetcher: RecordFetcher<T>,
+  initialRecords: T[],
+  getAllRecords?: () => Promise<T[]>,
   queryCondition: string = ''
 ): SearchResult<T> {
   const [query, setQuery] = useState('');
-  // 初期レコードを一度だけ取得
-  const [initialRecords] = useState(() => fetcher.getInitialRecords());
-  const [records, setRecords] = useState<T[]>(initialRecords);
-  const { allRecords, fetchAllRecords } = useAllRecords(fetcher);
+  // 初期レコードを保持（再レンダリング時に変更されないようにする）
+  const [storedInitialRecords] = useState(initialRecords);
+  const [records, setRecords] = useState<T[]>(storedInitialRecords);
+  const { allRecords, fetchAllRecords } = useAllRecords(getAllRecords);
 
   useEffect(() => {
     if (query.trim() === '') {
-      setRecords(initialRecords);
+      setRecords(storedInitialRecords);
       return;
     }
 
@@ -129,8 +126,8 @@ export function useSearch<T extends kintone.types.Fields>(
     fetchAllRecords();
 
     // 全レコードの取得がまだの場合は、とりあえず初期から表示されているレコードの中から検索する。
-    setRecords(filterRecords(allRecords ?? initialRecords, query));
-  }, [query, allRecords, initialRecords, fetchAllRecords]);
+    setRecords(filterRecords(allRecords ?? storedInitialRecords, query));
+  }, [query, allRecords, storedInitialRecords, fetchAllRecords]);
 
   // メッセージの決定
   const hasNoRecords = records.length === 0;
@@ -150,19 +147,18 @@ export function useSearch<T extends kintone.types.Fields>(
  * 全レコードを取得するカスタムフック。
  * 取得に失敗した場合の自動リトライ機能が付いている。
  *
- * @param fetcher - レコード取得を行う関数群
+ * @param getAllRecords - 全レコードを取得する関数（オプション）
  * @returns allRecords - 取得した全レコードの配列。まだ取得されていない場合は null。
  * @returns fetchAllRecords - 全レコードを取得する関数。すでに取得されている場合は何もしない。
  */
 const useAllRecords = <T extends kintone.types.Fields>(
-  fetcher: RecordFetcher<T>
+  getAllRecords?: () => Promise<T[]>
 ) => {
   const [allRecords, setAllRecords] = useState<T[] | null>(null);
   const [fetching, setFetching] = useState(false);
   const [shouldRetry, setShouldRetry] = useState(false);
   const retryCount = useRef(0);
 
-  const getAllRecords = fetcher.getAllRecords;
   const fetchAllRecords = useCallback(() => {
     if (allRecords != null || fetching || !getAllRecords) return;
 

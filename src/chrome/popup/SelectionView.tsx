@@ -1,3 +1,5 @@
+import { useMemo } from 'react';
+
 import RefreshIcon from '@mui/icons-material/Refresh';
 
 import { useSearch } from '@lib/search';
@@ -21,15 +23,19 @@ export const SelectionView = ({ onRegister }: SelectionViewProps) => {
   // レコード取得と状態管理（useRecordsフックを使用）
   const { records, loading, refreshing, fetchError, refresh } = useRecords();
 
+  // 有効なフィールドを持つレコードのみをフィルタリング
+  const validRecords = useMemo(
+    () => records.filter(hasAnyValidField),
+    [records]
+  );
+
   // 検索機能（useSearchフックを使用）
   const {
     query: searchQuery,
     setQuery: setSearchQuery,
     records: filteredRecords,
     message,
-  } = useSearch({
-    getInitialRecords: () => records.filter(hasAnyValidField),
-  });
+  } = useSearch(validRecords);
 
   if (loading || settingsLoading) {
     return (

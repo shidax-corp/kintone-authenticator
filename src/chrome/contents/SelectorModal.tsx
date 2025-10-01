@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 
 import RefreshIcon from '@mui/icons-material/Refresh';
 
@@ -41,18 +41,19 @@ export const SelectorModal = ({
   const { records, loading, refreshing, fetchError, refresh } =
     useRecords(recordsFromProps);
 
+  // 有効なフィールドを持つレコードのみをフィルタリング
+  const validRecords = useMemo(
+    () => records.filter(hasAnyValidField),
+    [records]
+  );
+
   // 検索機能（useSearchフックを使用）
   const {
     query: searchQuery,
     setQuery: setSearchQuery,
     records: filteredRecords,
     message,
-  } = useSearch(
-    {
-      getInitialRecords: () => records.filter(hasAnyValidField),
-    },
-    '' // queryCondition
-  );
+  } = useSearch(validRecords);
 
   // 初期検索クエリの設定
   useEffect(() => {

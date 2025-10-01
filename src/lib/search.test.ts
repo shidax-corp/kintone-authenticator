@@ -155,12 +155,7 @@ describe('useSearch', () => {
   describe('message field', () => {
     it('should return empty message when records exist and no search query', () => {
       const { result } = renderHook(() =>
-        useSearch(
-          {
-            getInitialRecords: () => mockRecords,
-          },
-          ''
-        )
+        useSearch(mockRecords, undefined, '')
       );
 
       expect(result.current.message).toBe('');
@@ -168,14 +163,7 @@ describe('useSearch', () => {
     });
 
     it('should return "まだ何も登録されていません" when no records and no search conditions', () => {
-      const { result } = renderHook(() =>
-        useSearch(
-          {
-            getInitialRecords: () => [],
-          },
-          ''
-        )
-      );
+      const { result } = renderHook(() => useSearch([], undefined, ''));
 
       expect(result.current.message).toBe('まだ何も登録されていません');
       expect(result.current.records).toEqual([]);
@@ -183,12 +171,7 @@ describe('useSearch', () => {
 
     it('should return "一致するものがありません" when no records and search query exists', async () => {
       const { result } = renderHook(() =>
-        useSearch(
-          {
-            getInitialRecords: () => mockRecords,
-          },
-          ''
-        )
+        useSearch(mockRecords, undefined, '')
       );
 
       act(() => {
@@ -203,12 +186,7 @@ describe('useSearch', () => {
 
     it('should return "一致するものがありません" when no records and queryCondition exists', () => {
       const { result } = renderHook(() =>
-        useSearch(
-          {
-            getInitialRecords: () => [],
-          },
-          'status = "Active"'
-        )
+        useSearch([], undefined, 'status = "Active"')
       );
 
       expect(result.current.message).toBe('一致するものがありません');
@@ -217,12 +195,7 @@ describe('useSearch', () => {
 
     it('should return empty message when search results exist', async () => {
       const { result } = renderHook(() =>
-        useSearch(
-          {
-            getInitialRecords: () => mockRecords,
-          },
-          ''
-        )
+        useSearch(mockRecords, undefined, '')
       );
 
       act(() => {
@@ -238,12 +211,7 @@ describe('useSearch', () => {
 
     it('should clear message when search query is cleared and records exist', async () => {
       const { result } = renderHook(() =>
-        useSearch(
-          {
-            getInitialRecords: () => mockRecords,
-          },
-          ''
-        )
+        useSearch(mockRecords, undefined, '')
       );
 
       act(() => {
@@ -268,12 +236,7 @@ describe('useSearch', () => {
   describe('basic functionality', () => {
     it('should initialize with provided records', () => {
       const { result } = renderHook(() =>
-        useSearch(
-          {
-            getInitialRecords: () => mockRecords,
-          },
-          ''
-        )
+        useSearch(mockRecords, undefined, '')
       );
 
       expect(result.current.query).toBe('');
@@ -283,12 +246,7 @@ describe('useSearch', () => {
 
     it('should filter records based on query', async () => {
       const { result } = renderHook(() =>
-        useSearch(
-          {
-            getInitialRecords: () => mockRecords,
-          },
-          ''
-        )
+        useSearch(mockRecords, undefined, '')
       );
 
       act(() => {
@@ -303,12 +261,7 @@ describe('useSearch', () => {
 
     it('should reset to initial records when query is cleared', async () => {
       const { result } = renderHook(() =>
-        useSearch(
-          {
-            getInitialRecords: () => mockRecords,
-          },
-          ''
-        )
+        useSearch(mockRecords, undefined, '')
       );
 
       act(() => {
@@ -351,13 +304,7 @@ describe('useSearch', () => {
       const getAllRecordsMock = jest.fn().mockResolvedValue(allRecords);
 
       const { result } = renderHook(() =>
-        useSearch(
-          {
-            getInitialRecords: () => mockRecords.slice(0, 2),
-            getAllRecords: getAllRecordsMock,
-          },
-          ''
-        )
+        useSearch(mockRecords.slice(0, 2), getAllRecordsMock, '')
       );
 
       act(() => {
@@ -385,15 +332,7 @@ describe('useSearch', () => {
         .mockRejectedValueOnce(new Error('Network error'))
         .mockResolvedValueOnce(mockRecords);
 
-      const { result } = renderHook(() =>
-        useSearch(
-          {
-            getInitialRecords: () => [],
-            getAllRecords: getAllRecordsMock,
-          },
-          ''
-        )
-      );
+      const { result } = renderHook(() => useSearch([], getAllRecordsMock, ''));
 
       act(() => {
         result.current.setQuery('Test');
