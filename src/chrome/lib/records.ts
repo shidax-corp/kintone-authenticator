@@ -25,7 +25,9 @@ export async function fetchRecords(options?: {
   if (response.success) {
     return response.data;
   } else {
-    throw new Error('Failed to fetch records');
+    throw new Error(
+      `Failed to fetch records. Response: ${JSON.stringify(response)}`
+    );
   }
 }
 
