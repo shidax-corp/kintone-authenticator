@@ -41,7 +41,7 @@ export function useSearch(
           try {
             await kintone.api('/k/v1/records/cursor.json', 'DELETE', { id });
           } catch (deleteError) {
-            console.error(deleteError);
+            console.error('Failed to delete cursor:', deleteError);
           }
           throw e;
         }
