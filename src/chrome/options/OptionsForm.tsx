@@ -21,6 +21,7 @@ export const OptionsForm = () => {
   });
 
   const [kintoneAppUrl, setKintoneAppUrl] = useState('');
+  const [urlError, setUrlError] = useState<string>('');
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -73,13 +74,19 @@ export const OptionsForm = () => {
           kintoneBaseUrl: parsed.kintoneBaseUrl,
           kintoneAppId: parsed.kintoneAppId,
         }));
-      } catch {
+        setUrlError('');
+      } catch (error) {
         // If parsing fails, clear the parsed values but keep the URL for display
         setSettings((prev) => ({
           ...prev,
           kintoneBaseUrl: '',
           kintoneAppId: '',
         }));
+        setUrlError(
+          error instanceof Error
+            ? error.message
+            : 'kintone アプリのURLを入力してください'
+        );
       }
     } else {
       setSettings((prev) => ({
@@ -87,6 +94,7 @@ export const OptionsForm = () => {
         kintoneBaseUrl: '',
         kintoneAppId: '',
       }));
+      setUrlError('');
     }
   };
 
@@ -298,9 +306,9 @@ export const OptionsForm = () => {
             placeholder="https://example.cybozu.com/k/123/"
             value={kintoneAppUrl}
             onChange={handleAppUrlChange}
+            error={urlError}
             required
           />
-          <div className="help-text">例: https://example.cybozu.com/k/123/</div>
         </div>
 
         <div className="form-group">
