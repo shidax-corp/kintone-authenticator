@@ -67,7 +67,7 @@ export default function ListApp({
       <style jsx>{`
         & {
           max-width: 1200px;
-          margin: 0 auto;
+          margin: 24px auto 12px;
         }
 
         & > div {
