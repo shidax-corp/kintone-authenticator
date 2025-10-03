@@ -309,7 +309,6 @@ export const OptionsForm = () => {
             error={urlError}
             required
           />
-          <div className="help-text">例: https://example.cybozu.com/k/123/</div>
         </div>
 
         <div className="form-group">
