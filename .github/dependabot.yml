@@ -5,11 +5,14 @@ updates:
     schedule:
       interval: monthly
     labels:
+      - dependencies
       - priority:low
   - package-ecosystem: npm
     directory: /
     schedule:
       interval: weekly
+    labels:
+      - dependencies
     groups:
       react:
         applies-to: version-updates
