@@ -69,6 +69,36 @@ describe('otpauth-uri', () => {
         }
       });
     });
+
+    it('should decode TOTP URI correctly', () => {
+      const uri =
+        'otpauth://totp/Example:user@example.com?secret=GEZDGNBVGY3TQOJQ&issuer=Example&algorithm=SHA1&digits=6&period=30';
+      const record = decodeOTPAuthURI(uri);
+
+      expect(record.type).toBe('TOTP');
+      expect(record.issuer).toBe('Example');
+      expect(record.accountName).toBe('user@example.com');
+      expect(record.algorithm).toBe('SHA-1');
+      expect(record.digits).toBe(6);
+      if (record.type === 'TOTP') {
+        expect(record.period).toBe(30);
+      }
+    });
+
+    it('should decode HOTP URI correctly', () => {
+      const uri =
+        'otpauth://hotp/Example:user@example.com?secret=GEZDGNBVGY3TQOJQ&issuer=Example&algorithm=SHA1&digits=6&counter=1';
+      const record = decodeOTPAuthURI(uri);
+
+      expect(record.type).toBe('HOTP');
+      expect(record.issuer).toBe('Example');
+      expect(record.accountName).toBe('user@example.com');
+      expect(record.algorithm).toBe('SHA-1');
+      expect(record.digits).toBe(6);
+      if (record.type === 'HOTP') {
+        expect(record.counter).toBe(1);
+      }
+    });
   });
 
   describe('encodeOTPAuthURI', () => {
@@ -107,39 +137,7 @@ describe('otpauth-uri', () => {
         expect(uri).toContain('counter=1');
       });
     });
-  });
 
-  describe('encode and decode round-trip', () => {
-    it('HOTP counter=0のラウンドトリップ', () => {
-      const original = {
-        type: 'HOTP' as const,
-        issuer: 'Test',
-        accountName: 'user@example.com',
-        secret: new Uint8Array([
-          0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x30,
-        ]),
-        algorithm: 'SHA-1' as const,
-        digits: 6,
-        counter: 0,
-      };
-
-      const uri = encodeOTPAuthURI(original);
-      const decoded = decodeOTPAuthURI(uri);
-
-      expect(decoded.type).toBe('HOTP');
-      if (decoded.type === 'HOTP') {
-        expect(decoded.counter).toBe(0);
-        expect(decoded.issuer).toBe(original.issuer);
-        expect(decoded.accountName).toBe(original.accountName);
-        expect(decoded.algorithm).toBe(original.algorithm);
-        expect(decoded.digits).toBe(original.digits);
-      }
-    });
-  });
-});
-
-describe('otpauth-uri', () => {
-  describe('encodeOTPAuthURI', () => {
     it('should not double-encode issuer with spaces', () => {
       const secret = new Uint8Array([
         0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x30,
@@ -237,39 +235,33 @@ describe('otpauth-uri', () => {
     });
   });
 
-  describe('decodeOTPAuthURI', () => {
-    it('should decode TOTP URI correctly', () => {
-      const uri =
-        'otpauth://totp/Example:user@example.com?secret=GEZDGNBVGY3TQOJQ&issuer=Example&algorithm=SHA1&digits=6&period=30';
-      const record = decodeOTPAuthURI(uri);
-
-      expect(record.type).toBe('TOTP');
-      expect(record.issuer).toBe('Example');
-      expect(record.accountName).toBe('user@example.com');
-      expect(record.algorithm).toBe('SHA-1');
-      expect(record.digits).toBe(6);
-      if (record.type === 'TOTP') {
-        expect(record.period).toBe(30);
-      }
-    });
-
-    it('should decode HOTP URI correctly', () => {
-      const uri =
-        'otpauth://hotp/Example:user@example.com?secret=GEZDGNBVGY3TQOJQ&issuer=Example&algorithm=SHA1&digits=6&counter=1';
-      const record = decodeOTPAuthURI(uri);
-
-      expect(record.type).toBe('HOTP');
-      expect(record.issuer).toBe('Example');
-      expect(record.accountName).toBe('user@example.com');
-      expect(record.algorithm).toBe('SHA-1');
-      expect(record.digits).toBe(6);
-      if (record.type === 'HOTP') {
-        expect(record.counter).toBe(1);
-      }
-    });
-  });
-
   describe('round-trip encoding/decoding', () => {
+    it('HOTP counter=0のラウンドトリップ', () => {
+      const original = {
+        type: 'HOTP' as const,
+        issuer: 'Test',
+        accountName: 'user@example.com',
+        secret: new Uint8Array([
+          0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x30,
+        ]),
+        algorithm: 'SHA-1' as const,
+        digits: 6,
+        counter: 0,
+      };
+
+      const uri = encodeOTPAuthURI(original);
+      const decoded = decodeOTPAuthURI(uri);
+
+      expect(decoded.type).toBe('HOTP');
+      if (decoded.type === 'HOTP') {
+        expect(decoded.counter).toBe(0);
+        expect(decoded.issuer).toBe(original.issuer);
+        expect(decoded.accountName).toBe(original.accountName);
+        expect(decoded.algorithm).toBe(original.algorithm);
+        expect(decoded.digits).toBe(original.digits);
+      }
+    });
+
     it('should preserve all fields for TOTP', () => {
       const originalRecord = {
         type: 'TOTP' as const,
