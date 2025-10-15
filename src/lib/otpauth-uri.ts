@@ -81,7 +81,10 @@ export const decodeOTPAuthURI = (uri: string): OTPAuthRecord => {
   const algorithm = url.searchParams.get('algorithm') || 'SHA1';
   const digits = parseInt(url.searchParams.get('digits') || '6', 10) || 6;
   const period = parseInt(url.searchParams.get('period') || '30', 10) || 30;
-  const counter = parseInt(url.searchParams.get('counter') || '1', 10) || 1;
+  const counterParam = url.searchParams.get('counter');
+  const parsedCounter = counterParam !== null ? Number(counterParam) : NaN;
+  const counter =
+    Number.isNaN(parsedCounter) || parsedCounter < 0 ? 1 : parsedCounter;
 
   const issuer = issuerByParams || issuerByLabel;
 
