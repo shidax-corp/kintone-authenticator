@@ -1,4 +1,4 @@
-import { b32encode } from './base32';
+import { b32decode, b32encode } from './base32';
 import { decodeOTPAuthURI, encodeOTPAuthURI } from './otpauth-uri';
 
 describe('otpauth-uri', () => {
