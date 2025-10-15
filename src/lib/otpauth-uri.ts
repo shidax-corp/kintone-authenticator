@@ -29,7 +29,7 @@ export type OTPAuthRecord = Readonly<OTPAuthRecordHOTP | OTPAuthRecordTOTP>;
 export const encodeOTPAuthURI = (record: OTPAuthRecord): string => {
   const params = new URLSearchParams({
     secret: b32encode(record.secret),
-    issuer: encodeURIComponent(record.issuer),
+    issuer: record.issuer,
     algorithm: record.algorithm.toUpperCase().replace(/-/g, ''),
     digits: record.digits.toString(),
   });
@@ -48,7 +48,9 @@ export const encodeOTPAuthURI = (record: OTPAuthRecord): string => {
   }
 
   const label = encodeURIComponent(`${record.issuer}:${record.accountName}`);
-  return `otpauth://${record.type.toLowerCase()}/${label}?${params.toString()}`;
+  // URLSearchParamsは+でスペースをエンコードするが、OTPAuth URIでは%20を使用する
+  const queryString = params.toString().replace(/\+/g, '%20');
+  return `otpauth://${record.type.toLowerCase()}/${label}?${queryString}`;
 };
 
 const parseURL = (uri: string): URL => {
