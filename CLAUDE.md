@@ -168,10 +168,11 @@ This is a kintone authenticator application similar to Google Authenticator, wit
   - `npm run check` runs type checking, lint checking, and format checking.
   - All tests must pass before committing changes.
 - DO NOT use `as unknown` or `as any` in TypeScript. Use proper type definitions.
+- See also @CONTRIBUTING.md for more details.
 
 ## Git guidelines
 
-- For commit message, use the semantic commit messages in Japanese. For example: `feat(kintone): QRコードを読み取る機能を実装` or `fix(chrome): 自動入力の問題を修正 #123`.
+- For commit message, use the conventional commit messages in Japanese. For example: `feat(kintone): QRコードを読み取る機能を実装` or `fix(chrome): 自動入力の問題を修正 #123`.
   - Use the following commit message types:
     - `feat`: about new features or enhancements
     - `fix`: fixes for bugs
