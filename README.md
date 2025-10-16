@@ -3,7 +3,7 @@
 [kintone hack 2025](https://kintonehack.cybozu.co.jp/) 出場作品。
 
 > 弊社では、kintoneアプリを作るときは「kintoneアプリ申請」を貰うルールにしています。
-> ある日、「Google Authenticator」を作ってほしいというという申請が。いやそれスマホアプリですよね？
+> ある日、「Google Authenticator」を作ってほしいという申請が。いやそれスマホアプリですよね？
 > そんなものをkintoneで作っちゃったら、社用スマホがない社員でも使えちゃうし、特権アカウントの共有も簡単になっちゃうし、後任への引き継ぎも楽になっちゃうし、……あれ、これってもしかして……便利？
 
 - [【開催報告】kintone hack 2025 予選会 - cybozu developer network](https://cybozu.dev/ja/blog/2025-08-26-kintonehack-qualifier-result/)
@@ -126,6 +126,6 @@ kintoneアプリに変更が必要な場合はリリースノートに記載し�
 
 非営利目的であれば自由に利用できます。
 ただし、再配布や商用利用はできません。
-詳しくは[LICENSE](./LICENSE.md) を参照してください。
+詳しくは[LICENSE.md](./LICENSE.md) を参照してください。
 
 なお、本ソフトウェアはシダックス株式会社の有志が開発・提供するものであり、シダックス株式会社および開発者は本ソフトウェアに関して一切の責任を負いません。予めご了承ください。
