@@ -6,7 +6,13 @@
 > ある日、「Google Authenticator」を作ってほしいという申請が。いやそれスマホアプリですよね？ \
 > そんなものをkintoneで作っちゃったら、社用スマホがない社員でも使えちゃうし、特権アカウントの共有も簡単になっちゃうし、後任への引き継ぎも楽になっちゃうし、……あれ、これってもしかして……便利？
 
+**予選**
+
 - [【開催報告】kintone hack 2025 予選会 - cybozu developer network](https://cybozu.dev/ja/blog/2025-08-26-kintonehack-qualifier-result/)
+
+**本戦**
+
+- [発表資料](docs/20251027_本戦発表資料（配布用）.pdf)
 
 ---
 
