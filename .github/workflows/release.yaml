@@ -38,6 +38,11 @@ jobs:
           output: ./kintone-authenticator-app.zip
           name: kintone Authenticator
           description: 'ID/パスワードやワンタイムパスワードをまとめて管理するアプリです。'
+      - name: Zip chrome extension
+        run: |
+          cd ./dist
+          mv chrome kintone-authenticator-chrome-extension
+          zip -r ../kintone-authenticator-chrome-extension.zip kintone-authenticator-chrome-extension
       - name: Extract release info
         id: metadata
         run: |
@@ -52,6 +57,7 @@ jobs:
             --notes "${{ steps.metadata.outputs.release_note }}" \
             ./dist/kintone/kintone-authenticator-desktop.js \
             ./dist/kintone/kintone-authenticator-mobile.js \
-            ./kintone-authenticator-app.zip
+            ./kintone-authenticator-app.zip \
+            ./kintone-authenticator-chrome-extension.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
