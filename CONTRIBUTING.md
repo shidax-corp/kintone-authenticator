@@ -45,6 +45,10 @@ npm run deploy:kintone
 
 - コミットメッセージの一行目とPull Requestのタイトルは[Conventional Commits](https://www.conventionalcommits.org/ja/v1.0.0/)の形式に従ってください。
 
+  例:
+  - `feat(kintone): QRコードを読み取る機能を実装`
+  - `fix(chrome): 自動入力の問題を修正 #123`
+
 - Issue, コミットメッセージ, Pull Requestなどはなるべく詳細に分かりやすく書いてください。日本語でも英語でも構いません。
 
 - コミット前に以下のコマンドを実行してコードを整形し、型チェック、Lintチェック、テストを通過させてください。
