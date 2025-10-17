@@ -38,7 +38,7 @@ export default function OTPField({
   const [otp, setOtp] = useState<OTP | null>(null);
   const [calcError, setCalcError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
-  const [toSelectOTP, setToSelectOTP] = useState<string | null>(null); // HOTPを再生成したときに選択するためのフラグ。この値と異なる値に変更された場合にOTPを選択する。
+  const toSelectOTPRef = useRef<string | null>(null); // HOTPを再生成したときに選択するためのフラグ。この値と異なる値に変更された場合にOTPを選択する。
   const ref = useRef<HTMLDivElement>(null);
 
   const { info, decodeError } = useMemo(() => {
@@ -108,15 +108,15 @@ export default function OTPField({
   // HOTPクリック後のDOM更新を監視して選択を実行
   useLayoutEffect(() => {
     if (
-      toSelectOTP &&
+      toSelectOTPRef.current &&
       activeOtp &&
-      activeOtp.otp !== toSelectOTP &&
+      activeOtp.otp !== toSelectOTPRef.current &&
       ref.current
     ) {
       setSelection();
-      setToSelectOTP(null);
+      toSelectOTPRef.current = null;
     }
-  }, [activeOtp, toSelectOTP]);
+  }, [activeOtp]);
 
   const handleCallback = (otp: string) => {
     if (onClick) {
@@ -137,7 +137,7 @@ export default function OTPField({
       // HOTPの場合は非同期処理後に選択する必要があるのでフラグを立てる
       // 今のOTPから変わったことを検知できるように、ここで今の値を保持しておく。
       // 現時点で空欄の場合は何にせよ選択してほしいので、適当な値（anyway)を設定する。
-      setToSelectOTP(activeOtp?.otp ?? 'anyway');
+      toSelectOTPRef.current = activeOtp?.otp ?? 'anyway';
 
       generateHOTP(info, info.counter)
         .then((generatedOtp) => {
@@ -157,7 +157,7 @@ export default function OTPField({
         .catch(() => {
           setCalcError('計算に失敗しました');
           setOtp(null);
-          setToSelectOTP(null);
+          toSelectOTPRef.current = null;
         });
     }
   };
