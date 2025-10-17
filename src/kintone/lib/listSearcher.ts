@@ -73,7 +73,7 @@ const useAllRecords = (appId: number, queryCondition: string) => {
   const [fetching, setFetching] = useState(false);
   const retryCount = useRef(0);
 
-  const fetchAllRecordsRef = useRef<() => void>();
+  const fetchAllRecordsRef = useRef<(() => void) | null>(null);
 
   const fetchAllRecords = useCallback(() => {
     if (allRecords != null || fetching) return;
