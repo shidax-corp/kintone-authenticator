@@ -1,12 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 
 import type { OTP } from '@lib/gen-otp';
 import { generateHOTP, generateTOTP, prettifyOTP } from '@lib/gen-otp';
-import {
-  type OTPAuthRecord,
-  decodeOTPAuthURI,
-  encodeOTPAuthURI,
-} from '@lib/otpauth-uri';
+import { decodeOTPAuthURI, encodeOTPAuthURI } from '@lib/otpauth-uri';
 
 import CopyField, {
   COPIED_MESSAGE_DURATION,
@@ -39,45 +35,62 @@ export default function OTPField({
   fontSize = '1.3rem',
 }: OTPProps) {
   const [uri, setUri] = useState(initialURI);
-  const [info, setInfo] = useState<OTPAuthRecord | null>(null);
   const [otp, setOtp] = useState<OTP | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [calcError, setCalcError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [toSelectOTP, setToSelectOTP] = useState<string | null>(null); // HOTPを再生成したときに選択するためのフラグ。この値と異なる値に変更された場合にOTPを選択する。
   const ref = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    let info: OTPAuthRecord | null = null;
+  const { info, decodeError } = useMemo(() => {
     try {
-      info = decodeOTPAuthURI(uri);
-      setInfo(info);
+      return { info: decodeOTPAuthURI(uri), decodeError: null as string | null };
     } catch {
-      info = null;
-    }
-    if (!info) {
-      setError('読み込めませんでした');
-      return;
-    }
-    setError(null);
-
-    if (info.type === 'TOTP') {
-      const generate = () => {
-        generateTOTP(info)
-          .then((generatedOtp) => {
-            setOtp(generatedOtp);
-            setTimeout(
-              generate,
-              generatedOtp.availableUntil.getTime() - Date.now()
-            );
-          })
-          .catch(() => {
-            setError('計算に失敗しました');
-            setOtp(null);
-          });
-      };
-      generate();
+      return { info: null, decodeError: '読み込めませんでした' };
     }
   }, [uri]);
+
+  useEffect(() => {
+    if (!info || info.type !== 'TOTP') {
+      return undefined;
+    }
+
+    let timeoutId: number | null = null;
+    let active = true;
+
+    const generate = () => {
+      generateTOTP(info)
+        .then((generatedOtp) => {
+          if (!active) return;
+          setCalcError(null);
+          setOtp(generatedOtp);
+          const delay = Math.max(
+            0,
+            generatedOtp.availableUntil.getTime() - Date.now()
+          );
+          timeoutId = window.setTimeout(() => {
+            if (!active) return;
+            generate();
+          }, delay);
+        })
+        .catch(() => {
+          if (!active) return;
+          setCalcError('計算に失敗しました');
+          setOtp(null);
+        });
+    };
+
+    generate();
+
+    return () => {
+      active = false;
+      if (timeoutId != null) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, [info]);
+
+  const error = decodeError ?? calcError;
+  const activeOtp = info && otp?.type === info.type ? otp : null;
 
   const setSelection = () => {
     if (!ref.current) return;
@@ -90,12 +103,12 @@ export default function OTPField({
   };
 
   // HOTPクリック後のDOM更新を監視して選択を実行
-  useEffect(() => {
-    if (toSelectOTP && otp && otp?.otp !== toSelectOTP && ref.current) {
+  useLayoutEffect(() => {
+    if (toSelectOTP && activeOtp && activeOtp.otp !== toSelectOTP && ref.current) {
       setSelection();
       setToSelectOTP(null);
     }
-  }, [otp, toSelectOTP]);
+  }, [activeOtp, toSelectOTP]);
 
   const handleCallback = (otp: string) => {
     if (onClick) {
@@ -109,18 +122,19 @@ export default function OTPField({
   };
 
   const onClickHandler = () => {
-    if (info?.type === 'TOTP' && otp?.otp) {
+    if (info?.type === 'TOTP' && activeOtp?.otp) {
       setSelection();
-      handleCallback(otp.otp);
+      handleCallback(activeOtp.otp);
     } else if (info?.type === 'HOTP') {
       // HOTPの場合は非同期処理後に選択する必要があるのでフラグを立てる
       // 今のOTPから変わったことを検知できるように、ここで今の値を保持しておく。
       // 現時点で空欄の場合は何にせよ選択してほしいので、適当な値（anyway)を設定する。
-      setToSelectOTP(otp?.otp ?? 'anyway');
+      setToSelectOTP(activeOtp?.otp ?? 'anyway');
 
       generateHOTP(info, info.counter)
         .then((generatedOtp) => {
           setOtp(generatedOtp);
+          setCalcError(null);
           handleCallback(generatedOtp.otp);
 
           if (onUpdate) {
@@ -133,7 +147,7 @@ export default function OTPField({
           }
         })
         .catch(() => {
-          setError('計算に失敗しました');
+          setCalcError('計算に失敗しました');
           setOtp(null);
           setToSelectOTP(null);
         });
@@ -151,16 +165,19 @@ export default function OTPField({
           <span ref={ref}>
             {error
               ? error
-              : !otp
+              : !activeOtp
                 ? '●●●●●●'
-                : prettifyOTP(otp.otp)
+                : prettifyOTP(activeOtp.otp)
                     .split(' ')
                     .map((part) => <span key={part}>{part}</span>)}
           </span>
         </CopyField>
 
-        {otp?.type === 'TOTP' && (
-          <Timer from={otp.availableFrom} until={otp.availableUntil} />
+        {activeOtp?.type === 'TOTP' && (
+          <Timer
+            from={activeOtp.availableFrom}
+            until={activeOtp.availableUntil}
+          />
         )}
       </Field>
 

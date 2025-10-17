@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { filterRecords } from '@lib/search';
 
@@ -22,22 +22,28 @@ export default function useListSearcher(
   queryCondition: string
 ): ListSearcher {
   const [query, setQuery] = useState('');
-  const [records, setRecords] = useState(initialRecords);
   const { allRecords, fetchAllRecords } = useAllRecords(appId, queryCondition);
 
+  const trimmedQuery = query.trim();
+
+  const records = useMemo(() => {
+    if (trimmedQuery === '') {
+      return initialRecords;
+    }
+
+    const sourceRecords = allRecords ?? initialRecords;
+    return filterRecords(sourceRecords, trimmedQuery);
+  }, [trimmedQuery, allRecords, initialRecords]);
+
   useEffect(() => {
-    if (query.trim() === '') {
-      setRecords(initialRecords);
+    if (trimmedQuery === '') {
       return;
     }
 
     // 全レコードがまだ取得されていなければ取得する。
     // レコードの取得に成功したらallRecordsが更新されてこのuseEffectが再実行されるので、ここで条件分けはしなくても動く。
     fetchAllRecords();
-
-    // 全レコードの取得がまだの場合は、とりあえず初期から表示されているレコードの中から検索する。
-    setRecords(filterRecords(allRecords ?? initialRecords, query));
-  }, [query, allRecords, initialRecords, fetchAllRecords]);
+  }, [trimmedQuery, fetchAllRecords]);
 
   // メッセージの決定
   let message = '';
@@ -66,6 +72,8 @@ const useAllRecords = (appId: number, queryCondition: string) => {
   >(null);
   const [fetching, setFetching] = useState(false);
   const retryCount = useRef(0);
+
+  const fetchAllRecordsRef = useRef<() => void>();
 
   const fetchAllRecords = useCallback(() => {
     if (allRecords != null || fetching) return;
@@ -113,13 +121,17 @@ const useAllRecords = (appId: number, queryCondition: string) => {
         if (retryCount.current < 5) {
           retryCount.current += 1;
           setTimeout(() => {
-            fetchAllRecords();
+            fetchAllRecordsRef.current?.();
           }, 1000);
         } else {
           setFetching(false);
         }
       });
-  }, [appId, queryCondition, setAllRecords, allRecords, fetching, setFetching]);
+  }, [appId, queryCondition, allRecords, fetching]);
+
+  useEffect(() => {
+    fetchAllRecordsRef.current = fetchAllRecords;
+  }, [fetchAllRecords]);
 
   return {
     allRecords,

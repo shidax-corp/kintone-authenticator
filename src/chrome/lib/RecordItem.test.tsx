@@ -1,6 +1,11 @@
 import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
 
+jest.mock('@components/OTPField', () => ({
+  __esModule: true,
+  default: () => <div>ワンタイムパスワード</div>,
+}));
+
 import { RecordItem } from './RecordItem';
 
 describe('RecordItem', () => {
