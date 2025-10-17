@@ -2,7 +2,8 @@
   "manifest_version": 3,
   "name": "kintone Authenticator",
   "version": "1.0.0",
-  "description": "kintoneと連携する認証アプリ。ワンタイムパスワードの生成と自動入力を提供します。",
+  "description": "kintoneでID・パスワード・ワンタイムパスワードを管理します。kintone hack 2025 出場作品。",
+  "homepage_url": "https://github.com/shidax-corp/kintone-authenticator",
   "permissions": [
     "contextMenus",
     "storage",
@@ -12,12 +13,7 @@
     "offscreen",
     "scripting"
   ],
-  "host_permissions": [
-    "https://*.cybozu.com/*",
-    "https://*.kintone.com/*",
-    "https://*.cybozu-dev.com/*",
-    "https://*.kintone-dev.com/*"
-  ],
+  "host_permissions": ["https://*.cybozu.com/*"],
   "background": {
     "service_worker": "background.js"
   },
