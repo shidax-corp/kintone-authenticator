@@ -43,7 +43,10 @@ export default function OTPField({
 
   const { info, decodeError } = useMemo(() => {
     try {
-      return { info: decodeOTPAuthURI(uri), decodeError: null as string | null };
+      return {
+        info: decodeOTPAuthURI(uri),
+        decodeError: null as string | null,
+      };
     } catch {
       return { info: null, decodeError: '読み込めませんでした' };
     }
@@ -104,7 +107,12 @@ export default function OTPField({
 
   // HOTPクリック後のDOM更新を監視して選択を実行
   useLayoutEffect(() => {
-    if (toSelectOTP && activeOtp && activeOtp.otp !== toSelectOTP && ref.current) {
+    if (
+      toSelectOTP &&
+      activeOtp &&
+      activeOtp.otp !== toSelectOTP &&
+      ref.current
+    ) {
       setSelection();
       setToSelectOTP(null);
     }
