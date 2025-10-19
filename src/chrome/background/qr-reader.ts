@@ -45,7 +45,7 @@ export async function readQRFromImageInServiceWorker(
     const response = await chrome.runtime.sendMessage({
       type: 'READ_QR_FROM_IMAGE',
       data: {
-        imageUrl: imageUrl,
+        imageUrl,
       },
     });
 
