@@ -33,21 +33,12 @@ chrome.runtime.onMessage.addListener(
 );
 
 async function readQRFromImage(imageUrl: string): Promise<string> {
-  console.log('[Offscreen] Reading QR from image URL:', imageUrl);
-
   const img = new Image();
   img.crossOrigin = 'anonymous';
   let objectUrl: string | null = null;
 
   return new Promise((resolve, reject) => {
     img.onload = () => {
-      console.log(
-        '[Offscreen] Image loaded, dimensions:',
-        img.width,
-        'x',
-        img.height
-      );
-
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
 
@@ -68,7 +59,6 @@ async function readQRFromImage(imageUrl: string): Promise<string> {
       if (objectUrl) URL.revokeObjectURL(objectUrl);
 
       if (code) {
-        console.log('[Offscreen] QR code found:', code.data);
         resolve(code.data);
       } else {
         console.error('[Offscreen] No QR code found in image');

@@ -1,3 +1,5 @@
+import type { TOTP } from '@lib/gen-otp';
+
 export interface ExtensionSettings {
   kintoneBaseUrl: string;
   kintoneAppId: string;
@@ -88,3 +90,12 @@ export interface ReadQRFromImageMessage extends Message {
     imageUrl: string;
   };
 }
+// Response types
+export interface MessageResponse<T = unknown> {
+  success: boolean;
+  data?: T;
+  error?: string;
+}
+
+// GET_OTP response is a TOTP object
+export type GetOTPResponse = TOTP;
