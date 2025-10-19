@@ -155,7 +155,7 @@ export default function OTPField({
                 ? '●●●●●●'
                 : prettifyOTP(otp.otp)
                     .split(' ')
-                    .map((part) => <span key={part}>{part}</span>)}
+                    .map((part, index) => <span key={index}>{part}</span>)}
           </span>
         </CopyField>
 
