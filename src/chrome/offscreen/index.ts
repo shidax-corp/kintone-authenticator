@@ -1,6 +1,6 @@
 import jsQR from 'jsqr';
 
-import type { ReadQRFromImageMessage } from '../lib/types';
+import type { Message, ReadQRFromImageMessage } from '../lib/types';
 
 interface QRReadResponse {
   success: boolean;
@@ -11,12 +11,12 @@ interface QRReadResponse {
 // Service Workerからのメッセージを受信
 chrome.runtime.onMessage.addListener(
   (
-    request: ReadQRFromImageMessage,
+    request: Message,
     sender: chrome.runtime.MessageSender,
     sendResponse: (response: QRReadResponse) => void
   ) => {
     if (request.type === 'READ_QR_FROM_IMAGE') {
-      readQRFromImage(request.data.imageUrl)
+      readQRFromImage((request as ReadQRFromImageMessage).data.imageUrl)
         .then((data) => {
           sendResponse({ success: true, data });
         })
