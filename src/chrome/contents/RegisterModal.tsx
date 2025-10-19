@@ -148,14 +148,23 @@ export const RegisterModal = ({
             });
 
             if (otpResponse.success && otpResponse.data?.otp) {
-              // OTPをクリップボードにコピー
-              await navigator.clipboard.writeText(otpResponse.data.otp);
+              try {
+                // OTPをクリップボードにコピー
+                await navigator.clipboard.writeText(otpResponse.data.otp);
 
-              // Toast表示
-              showToast(
-                'success',
-                `OTPが登録され、クリップボードにコピーされました: ${otpResponse.data.otp}`
-              );
+                // Toast表示（コピー成功時のみ）
+                showToast(
+                  'success',
+                  `OTPが登録され、クリップボードにコピーされました: ${otpResponse.data.otp}`
+                );
+              } catch (clipboardError) {
+                // クリップボードへのコピーに失敗した場合
+                console.error('クリップボードコピーエラー:', clipboardError);
+                showToast(
+                  'success',
+                  `OTPが登録されました: ${otpResponse.data.otp}`
+                );
+              }
             }
           } catch (error) {
             console.error('OTP生成エラー:', error);
