@@ -130,7 +130,13 @@ describe('SelectionView - URL and Name Matching', () => {
       if (message.type === 'GET_OTP') {
         return Promise.resolve({
           success: true,
-          data: { otp: '123456' },
+          data: {
+            type: 'TOTP',
+            otp: '123456',
+            timestamp: new Date('2025-10-19T10:00:00Z'),
+            availableFrom: new Date('2025-10-19T10:00:00Z'),
+            availableUntil: new Date('2025-10-19T10:00:30Z'),
+          },
         });
       }
       return Promise.resolve({ success: true });
@@ -582,7 +588,13 @@ describe('SelectionView - URL and Name Matching', () => {
         if (message.type === 'GET_OTP') {
           return Promise.resolve({
             success: true,
-            data: { otp: '123456' },
+            data: {
+              type: 'TOTP',
+              otp: '123456',
+              timestamp: new Date('2025-10-19T10:00:00Z'),
+              availableFrom: new Date('2025-10-19T10:00:00Z'),
+              availableUntil: new Date('2025-10-19T10:00:30Z'),
+            },
           });
         }
         return Promise.resolve({ success: true });

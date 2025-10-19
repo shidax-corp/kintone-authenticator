@@ -1,3 +1,5 @@
+import type { TOTP } from '@lib/gen-otp';
+
 export interface ExtensionSettings {
   kintoneBaseUrl: string;
   kintoneAppId: string;
@@ -55,6 +57,5 @@ export interface MessageResponse<T = unknown> {
   error?: string;
 }
 
-export interface GetOTPResponse {
-  otp: string;
-}
+// GET_OTP response is a TOTP object
+export type GetOTPResponse = TOTP;

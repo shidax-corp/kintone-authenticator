@@ -5,7 +5,6 @@ import { getSettings, isSettingsComplete } from '../lib/storage';
 import type {
   ExtensionSettings,
   GetOTPMessage,
-  GetOTPResponse,
   GetRecordsMessage,
   Message,
   RegisterOTPMessage,
@@ -163,19 +162,16 @@ const handleFillFromKintone = async (
   }
 };
 
-const generateOTPFromRecord = async (
-  record: kintone.types.SavedFields
-): Promise<GetOTPResponse> => {
+const generateOTPFromRecord = async (record: kintone.types.SavedFields) => {
   const otpAuthRecord = decodeOTPAuthURI(record.otpuri.value);
 
   if (otpAuthRecord.type === 'TOTP') {
-    const totp = await generateTOTP({
+    return await generateTOTP({
       secret: otpAuthRecord.secret,
       algorithm: otpAuthRecord.algorithm,
       digits: otpAuthRecord.digits,
       period: otpAuthRecord.period,
     });
-    return { otp: totp.otp };
   }
 
   throw new Error('HOTP is not supported yet');
