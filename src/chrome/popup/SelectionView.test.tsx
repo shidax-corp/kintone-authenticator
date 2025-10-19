@@ -130,7 +130,7 @@ describe('SelectionView - URL and Name Matching', () => {
       if (message.type === 'GET_OTP') {
         return Promise.resolve({
           success: true,
-          data: { otp: '123456', remainingTime: 25 },
+          data: { otp: '123456' },
         });
       }
       return Promise.resolve({ success: true });
@@ -582,7 +582,7 @@ describe('SelectionView - URL and Name Matching', () => {
         if (message.type === 'GET_OTP') {
           return Promise.resolve({
             success: true,
-            data: { otp: '123456', remainingTime: 25 },
+            data: { otp: '123456' },
           });
         }
         return Promise.resolve({ success: true });

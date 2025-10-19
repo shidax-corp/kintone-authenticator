@@ -47,3 +47,14 @@ export interface TestConnectionMessage extends Message {
   type: 'TEST_CONNECTION';
   data: ExtensionSettings;
 }
+
+// Response types
+export interface MessageResponse<T = unknown> {
+  success: boolean;
+  data?: T;
+  error?: string;
+}
+
+export interface GetOTPResponse {
+  otp: string;
+}
