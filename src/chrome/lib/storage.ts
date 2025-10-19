@@ -11,7 +11,7 @@ const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
 export const getSettings = async (): Promise<ExtensionSettings | null> => {
   try {
-    const result = await chrome.storage.sync.get(SETTINGS_KEY);
+    const result = await chrome.storage.local.get(SETTINGS_KEY);
     return result[SETTINGS_KEY] || null;
   } catch {
     return null;
@@ -22,7 +22,7 @@ export const saveSettings = async (
   settings: ExtensionSettings
 ): Promise<void> => {
   try {
-    await chrome.storage.sync.set({ [SETTINGS_KEY]: settings });
+    await chrome.storage.local.set({ [SETTINGS_KEY]: settings });
   } catch {
     throw new Error('Failed to save settings');
   }
@@ -81,7 +81,6 @@ export const clearCache = async (): Promise<void> => {
 
 export const clearAllData = async (): Promise<void> => {
   try {
-    await chrome.storage.sync.clear();
     await chrome.storage.local.clear();
   } catch (error) {
     throw new Error(`Failed to clear all data: ${error}`);
