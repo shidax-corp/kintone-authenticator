@@ -30,9 +30,10 @@ describe('types', () => {
       ];
 
       // 型チェックのためのコンパイル時検証
-      messageTypes.forEach((type) => {
-        expect(typeof type).toBe('string');
-      });
+      const allTypesAreStrings = messageTypes.every(
+        (type) => typeof type === 'string'
+      );
+      expect(allTypesAreStrings).toBe(true);
     });
   });
 
@@ -166,11 +167,13 @@ describe('types', () => {
     it('should validate ReadQRFromImageMessage structure', () => {
       const message: ReadQRFromImageMessage = {
         type: 'READ_QR_FROM_IMAGE',
-        imageUrl: 'https://example.com/qr.png',
+        data: {
+          imageUrl: 'https://example.com/qr.png',
+        },
       };
 
       expect(message.type).toBe('READ_QR_FROM_IMAGE');
-      expect(message.imageUrl).toBe('https://example.com/qr.png');
+      expect(message.data.imageUrl).toBe('https://example.com/qr.png');
     });
 
     it('should allow Message type for generic messages', () => {

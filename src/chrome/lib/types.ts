@@ -82,7 +82,9 @@ export interface FillOTPMessage extends Message {
   };
 }
 
-export interface ReadQRFromImageMessage {
+export interface ReadQRFromImageMessage extends Message {
   type: 'READ_QR_FROM_IMAGE';
-  imageUrl: string;
+  data: {
+    imageUrl: string;
+  };
 }

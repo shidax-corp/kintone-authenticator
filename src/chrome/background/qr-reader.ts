@@ -59,7 +59,9 @@ export async function readQRFromImageInServiceWorker(
     console.log('[QR Reader SW] Sending message to offscreen document...');
     const response = await chrome.runtime.sendMessage({
       type: 'READ_QR_FROM_IMAGE',
-      imageUrl: imageUrl,
+      data: {
+        imageUrl: imageUrl,
+      },
     });
 
     console.log('[QR Reader SW] Received response:', response);
