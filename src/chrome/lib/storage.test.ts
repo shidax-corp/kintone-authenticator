@@ -1,6 +1,4 @@
 import {
-  clearAllData,
-  clearCache,
   getCachedRecords,
   getSettings,
   isSettingsComplete,
@@ -350,34 +348,6 @@ describe('storage', () => {
           timestamp: expect.any(Number),
         },
       });
-    });
-  });
-
-  describe('clearCache', () => {
-    it('should remove cache from storage', async () => {
-      mockChrome.storage.local.remove.mockResolvedValue(undefined);
-
-      await clearCache();
-      expect(mockChrome.storage.local.remove).toHaveBeenCalledWith(
-        'kintone_authenticator_cache'
-      );
-    });
-  });
-
-  describe('clearAllData', () => {
-    it('should clear both sync and local storage', async () => {
-      mockChrome.storage.local.clear.mockResolvedValue(undefined);
-
-      await clearAllData();
-      expect(mockChrome.storage.local.clear).toHaveBeenCalled();
-    });
-
-    it('should throw error on failure', async () => {
-      mockChrome.storage.local.clear.mockRejectedValue(
-        new Error('Clear error')
-      );
-
-      await expect(clearAllData()).rejects.toThrow('Failed to clear all data');
     });
   });
 });

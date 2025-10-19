@@ -100,58 +100,6 @@ export class KintoneClient {
     }
   }
 
-  async updateRecord(
-    recordId: string,
-    data: {
-      name?: string;
-      url?: string;
-      username?: string;
-      password?: string;
-      otpAuthUri?: string;
-    }
-  ): Promise<void> {
-    try {
-      const record: Record<string, { value: unknown }> = {};
-      if (data.name !== undefined) record.name = { value: data.name };
-      if (data.url !== undefined) record.url = { value: data.url };
-      if (data.username !== undefined)
-        record.username = { value: data.username };
-      if (data.password !== undefined)
-        record.password = { value: data.password };
-      if (data.otpAuthUri !== undefined)
-        record.otpuri = { value: data.otpAuthUri };
-
-      await this.client.record.updateRecord({
-        app: this.appId,
-        id: recordId,
-        record,
-      });
-
-      // Clear cache to force refresh
-      await this.getRecords(false);
-    } catch (error) {
-      throw new KintoneClientError(
-        `Failed to update record: ${error instanceof Error ? error.message : 'Unknown error'}`
-      );
-    }
-  }
-
-  async deleteRecord(recordId: string): Promise<void> {
-    try {
-      await this.client.record.deleteRecords({
-        app: this.appId,
-        ids: [recordId],
-      });
-
-      // Clear cache to force refresh
-      await this.getRecords(false);
-    } catch (error) {
-      throw new KintoneClientError(
-        `Failed to delete record: ${error instanceof Error ? error.message : 'Unknown error'}`
-      );
-    }
-  }
-
   async testConnection(): Promise<boolean> {
     try {
       await this.client.app.getApp({ id: this.appId });
