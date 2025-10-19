@@ -67,7 +67,7 @@ chrome.runtime.onStartup.addListener(async () => {
 });
 
 chrome.storage.onChanged.addListener(async (changes, area) => {
-  if (area === 'sync' && changes.kintone_authenticator_settings) {
+  if (area === 'local' && changes.kintone_authenticator_settings) {
     const settings = changes.kintone_authenticator_settings.newValue;
     if (isSettingsComplete(settings)) {
       await createContextMenus();

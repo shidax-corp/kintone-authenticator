@@ -42,26 +42,28 @@ describe('storage', () => {
         autoFillEnabled: true,
       };
 
-      mockChrome.storage.sync.get.mockResolvedValue({
+      mockChrome.storage.local.get.mockResolvedValue({
         kintone_authenticator_settings: mockSettings,
       });
 
       const result = await getSettings();
       expect(result).toEqual(mockSettings);
-      expect(mockChrome.storage.sync.get).toHaveBeenCalledWith(
+      expect(mockChrome.storage.local.get).toHaveBeenCalledWith(
         'kintone_authenticator_settings'
       );
     });
 
     it('should return null when no settings exist', async () => {
-      mockChrome.storage.sync.get.mockResolvedValue({});
+      mockChrome.storage.local.get.mockResolvedValue({});
 
       const result = await getSettings();
       expect(result).toBeNull();
     });
 
     it('should return null on error', async () => {
-      mockChrome.storage.sync.get.mockRejectedValue(new Error('Storage error'));
+      mockChrome.storage.local.get.mockRejectedValue(
+        new Error('Storage error')
+      );
 
       const result = await getSettings();
       expect(result).toBeNull();
@@ -78,10 +80,10 @@ describe('storage', () => {
         autoFillEnabled: true,
       };
 
-      mockChrome.storage.sync.set.mockResolvedValue(undefined);
+      mockChrome.storage.local.set.mockResolvedValue(undefined);
 
       await saveSettings(settings);
-      expect(mockChrome.storage.sync.set).toHaveBeenCalledWith({
+      expect(mockChrome.storage.local.set).toHaveBeenCalledWith({
         kintone_authenticator_settings: settings,
       });
     });
@@ -95,7 +97,9 @@ describe('storage', () => {
         autoFillEnabled: true,
       };
 
-      mockChrome.storage.sync.set.mockRejectedValue(new Error('Storage error'));
+      mockChrome.storage.local.set.mockRejectedValue(
+        new Error('Storage error')
+      );
 
       await expect(saveSettings(settings)).rejects.toThrow(
         'Failed to save settings'
@@ -247,16 +251,16 @@ describe('storage', () => {
 
   describe('clearAllData', () => {
     it('should clear both sync and local storage', async () => {
-      mockChrome.storage.sync.clear.mockResolvedValue(undefined);
       mockChrome.storage.local.clear.mockResolvedValue(undefined);
 
       await clearAllData();
-      expect(mockChrome.storage.sync.clear).toHaveBeenCalled();
       expect(mockChrome.storage.local.clear).toHaveBeenCalled();
     });
 
     it('should throw error on failure', async () => {
-      mockChrome.storage.sync.clear.mockRejectedValue(new Error('Clear error'));
+      mockChrome.storage.local.clear.mockRejectedValue(
+        new Error('Clear error')
+      );
 
       await expect(clearAllData()).rejects.toThrow('Failed to clear all data');
     });
