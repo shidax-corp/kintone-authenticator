@@ -122,7 +122,9 @@ const handleReadQR = async (tabId: number, imageUrl: string) => {
     // これにより、*.cybozu.com以外のドメインでも動作する
     const response = await fetch(imageUrl);
     if (!response.ok) {
-      throw new Error(`画像の取得に失敗しました: ${imageUrl} (HTTP ${response.status})`);
+      throw new Error(
+        `画像の取得に失敗しました: ${imageUrl} (HTTP ${response.status})`
+      );
     }
 
     const blob = await response.blob();
