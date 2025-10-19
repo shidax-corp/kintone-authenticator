@@ -22,11 +22,11 @@ export default function OTPInputField({
   const [opened, setOpened] = useState<boolean>(
     openScannerByDefault && uri === ''
   );
-  const viewpanel = useRef<viewpanelConqueror | null>(null);
+  const viewpanel = useRef<ViewpanelConqueror | null>(null);
 
   useEffect(() => {
     const firstTime = viewpanel.current === null;
-    viewpanel.current = new viewpanelConqueror();
+    viewpanel.current = new ViewpanelConqueror();
 
     if (firstTime && openScannerByDefault) {
       // レコード作成画面を最初に開いたときは、ボタンを以下のような挙動にしたい。
@@ -110,7 +110,7 @@ export default function OTPInputField({
  *
  * @param onCancel - キャンセルボタンが押されたときのコールバック関数。
  */
-class viewpanelConqueror {
+class ViewpanelConqueror {
   private leftArea: HTMLDivElement;
   private cancelButton: HTMLButtonElement;
   private saveButton: HTMLButtonElement;

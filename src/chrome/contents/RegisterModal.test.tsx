@@ -85,7 +85,13 @@ describe('RegisterModal', () => {
       if (message.type === 'GET_OTP') {
         return Promise.resolve({
           success: true,
-          data: { otp: '123456' },
+          data: {
+            type: 'TOTP',
+            otp: '123456',
+            timestamp: new Date('2025-10-19T10:00:00Z'),
+            availableFrom: new Date('2025-10-19T10:00:00Z'),
+            availableUntil: new Date('2025-10-19T10:00:30Z'),
+          },
         });
       }
       return Promise.resolve({ success: true });
@@ -233,5 +239,61 @@ describe('RegisterModal', () => {
 
     // sendMessage should not have been called (button is disabled)
     expect(sendMessageSpy).not.toHaveBeenCalled();
+  });
+
+  it('should show success message without clipboard copy message when clipboard fails', async () => {
+    // Arrange
+    mockClipboard.writeText.mockRejectedValue(
+      new Error('Clipboard write failed')
+    );
+
+    mockChrome.runtime.sendMessage.mockImplementation((message) => {
+      if (message.type === 'REGISTER_OTP') {
+        return Promise.resolve({
+          success: true,
+          data: { recordId: '123' },
+        });
+      }
+      if (message.type === 'GET_OTP') {
+        return Promise.resolve({
+          success: true,
+          data: { otp: '123456' },
+        });
+      }
+      return Promise.resolve({ success: true });
+    });
+
+    // Act
+    render(
+      <RegisterModal
+        onClose={mockOnClose}
+        showToast={mockShowToast}
+        initialPageTitle="Test Site"
+        initialPageUrl="https://example.com"
+      />
+    );
+
+    // Fill out the form
+    const usernameInput =
+      screen.getByPlaceholderText('ユーザー名またはメールアドレス');
+    const passwordInput = screen.getByPlaceholderText('パスワード');
+
+    fireEvent.change(usernameInput, { target: { value: 'testuser' } });
+    fireEvent.change(passwordInput, { target: { value: 'testpass' } });
+
+    // Submit the form
+    const submitButton = screen.getByText('登録');
+    fireEvent.click(submitButton);
+
+    // Assert
+    await waitFor(() => {
+      expect(mockOnClose).toHaveBeenCalled();
+    });
+
+    // Verify success message without clipboard copy mention
+    expect(mockShowToast).toHaveBeenCalledWith(
+      'success',
+      'OTPが登録されました: 123456'
+    );
   });
 });
