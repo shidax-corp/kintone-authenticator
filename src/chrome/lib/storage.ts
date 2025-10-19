@@ -70,20 +70,3 @@ export const setCachedRecords = async (
     // Cache storage failure is not critical, silently ignore
   }
 };
-
-export const clearCache = async (): Promise<void> => {
-  try {
-    await chrome.storage.local.remove(CACHE_KEY);
-  } catch {
-    // Cache removal failure is not critical, silently ignore
-  }
-};
-
-export const clearAllData = async (): Promise<void> => {
-  try {
-    await chrome.storage.sync.clear();
-    await chrome.storage.local.clear();
-  } catch (error) {
-    throw new Error(`Failed to clear all data: ${error}`);
-  }
-};
