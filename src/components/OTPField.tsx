@@ -101,10 +101,14 @@ export default function OTPField({
     if (onClick) {
       onClick(otp);
     } else {
-      copyToClipboard(otp).then(() => {
-        setCopied(true);
-        setTimeout(() => setCopied(false), COPIED_MESSAGE_DURATION);
-      });
+      copyToClipboard(otp)
+        .then(() => {
+          setCopied(true);
+          setTimeout(() => setCopied(false), COPIED_MESSAGE_DURATION);
+        })
+        .catch(() => {
+          // コピーに失敗した場合は何も表示しない
+        });
     }
   };
 
