@@ -58,7 +58,7 @@ describe('CopyField', () => {
     await waitFor(
       () => {
         const message = screen.queryByText('コピーしました');
-        expect(message).not.toBeVisible();
+        expect(message).toBeNull();
       },
       { timeout: 1000 }
     );
