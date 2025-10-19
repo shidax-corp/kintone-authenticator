@@ -199,6 +199,121 @@ describe('storage', () => {
       const result = await getCachedRecords();
       expect(result).toBeNull();
     });
+
+    it('should return null when timestamp is undefined', async () => {
+      const cache = {
+        data: [],
+        timestamp: undefined,
+      };
+
+      mockChrome.storage.local.get.mockResolvedValue({
+        kintone_authenticator_cache: cache,
+      });
+
+      const result = await getCachedRecords();
+      expect(result).toBeNull();
+    });
+
+    it('should return null when timestamp is a string', async () => {
+      const cache = {
+        data: [],
+        timestamp: '1234567890',
+      };
+
+      mockChrome.storage.local.get.mockResolvedValue({
+        kintone_authenticator_cache: cache,
+      });
+
+      const result = await getCachedRecords();
+      expect(result).toBeNull();
+    });
+
+    it('should return null when timestamp is null', async () => {
+      const cache = {
+        data: [],
+        timestamp: null,
+      };
+
+      mockChrome.storage.local.get.mockResolvedValue({
+        kintone_authenticator_cache: cache,
+      });
+
+      const result = await getCachedRecords();
+      expect(result).toBeNull();
+    });
+
+    it('should return null when timestamp is NaN', async () => {
+      const cache = {
+        data: [],
+        timestamp: NaN,
+      };
+
+      mockChrome.storage.local.get.mockResolvedValue({
+        kintone_authenticator_cache: cache,
+      });
+
+      const result = await getCachedRecords();
+      expect(result).toBeNull();
+    });
+
+    it('should return null when timestamp is Infinity', async () => {
+      const cache = {
+        data: [],
+        timestamp: Infinity,
+      };
+
+      mockChrome.storage.local.get.mockResolvedValue({
+        kintone_authenticator_cache: cache,
+      });
+
+      const result = await getCachedRecords();
+      expect(result).toBeNull();
+    });
+
+    it('should return null when data property is missing', async () => {
+      const cache = {
+        timestamp: Date.now(),
+      };
+
+      mockChrome.storage.local.get.mockResolvedValue({
+        kintone_authenticator_cache: cache,
+      });
+
+      const result = await getCachedRecords();
+      expect(result).toBeNull();
+    });
+
+    it('should return null when data is not an array', async () => {
+      const cache = {
+        data: 'not an array',
+        timestamp: Date.now(),
+      };
+
+      mockChrome.storage.local.get.mockResolvedValue({
+        kintone_authenticator_cache: cache,
+      });
+
+      const result = await getCachedRecords();
+      expect(result).toBeNull();
+    });
+
+    it('should return null when cache is a primitive value', async () => {
+      mockChrome.storage.local.get.mockResolvedValue({
+        kintone_authenticator_cache: 'invalid',
+      });
+
+      const result = await getCachedRecords();
+      expect(result).toBeNull();
+    });
+
+    it('should return null when cache is a number', async () => {
+      mockChrome.storage.local.get.mockResolvedValue({
+        kintone_authenticator_cache: 123,
+      });
+
+      const result = await getCachedRecords();
+      expect(result).toBeNull();
+    });
   });
 
   describe('setCachedRecords', () => {

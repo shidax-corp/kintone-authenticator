@@ -41,14 +41,34 @@ export const isSettingsComplete = (
   );
 };
 
+const isCacheEntry = (
+  value: unknown
+): value is CacheEntry<kintone.types.SavedFields[]> => {
+  if (!value || typeof value !== 'object') return false;
+
+  const cache = value as Record<string, unknown>;
+
+  // timestampプロパティが存在し、number型であることを確認
+  if (typeof cache.timestamp !== 'number') return false;
+
+  // timestampが有効な数値であることを確認（NaN、Infinity、-Infinityを除外）
+  if (!Number.isFinite(cache.timestamp)) return false;
+
+  // dataプロパティが存在し、配列型であることを確認
+  if (!Array.isArray(cache.data)) return false;
+
+  return true;
+};
+
 export const getCachedRecords = async (): Promise<
   kintone.types.SavedFields[] | null
 > => {
   try {
     const result = await chrome.storage.local.get(CACHE_KEY);
-    const cache: CacheEntry<kintone.types.SavedFields[]> = result[CACHE_KEY];
+    const cache = result[CACHE_KEY];
 
-    if (!cache) return null;
+    // キャッシュが有効なCacheEntry型であることを検証
+    if (!isCacheEntry(cache)) return null;
 
     const isStale = Date.now() - cache.timestamp > CACHE_DURATION;
     return isStale ? null : cache.data;
