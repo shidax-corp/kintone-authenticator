@@ -11,8 +11,6 @@ const mockKintoneClient = {
   record: {
     getRecords: jest.fn(),
     addRecord: jest.fn(),
-    updateRecord: jest.fn(),
-    deleteRecords: jest.fn(),
   },
   app: {
     getApp: jest.fn(),
@@ -204,62 +202,6 @@ describe('KintoneClient', () => {
       );
 
       await expect(client.createRecord(recordData)).rejects.toThrow(
-        KintoneClientError
-      );
-    });
-  });
-
-  describe('updateRecord', () => {
-    it('should update record with encrypted sensitive data', async () => {
-      const updateData = {
-        name: 'Updated Site',
-        password: 'newpass',
-      };
-
-      mockKintoneClient.record.getRecords.mockResolvedValue({ records: [] });
-
-      await client.updateRecord('123', updateData);
-
-      expect(mockKintoneClient.record.updateRecord).toHaveBeenCalledWith({
-        app: mockSettings.kintoneAppId,
-        id: '123',
-        record: {
-          name: { value: 'Updated Site' },
-          password: { value: 'newpass' },
-        },
-      });
-    });
-
-    it('should throw error on update failure', async () => {
-      mockKintoneClient.record.updateRecord.mockRejectedValue(
-        new Error('Update failed')
-      );
-
-      await expect(
-        client.updateRecord('123', { name: 'Updated' })
-      ).rejects.toThrow(KintoneClientError);
-    });
-  });
-
-  describe('deleteRecord', () => {
-    it('should delete record and refresh cache', async () => {
-      mockKintoneClient.record.getRecords.mockResolvedValue({ records: [] });
-
-      await client.deleteRecord('123');
-
-      expect(mockKintoneClient.record.deleteRecords).toHaveBeenCalledWith({
-        app: mockSettings.kintoneAppId,
-        ids: ['123'],
-      });
-      expect(mockKintoneClient.record.getRecords).toHaveBeenCalled();
-    });
-
-    it('should throw error on deletion failure', async () => {
-      mockKintoneClient.record.deleteRecords.mockRejectedValue(
-        new Error('Delete failed')
-      );
-
-      await expect(client.deleteRecord('123')).rejects.toThrow(
         KintoneClientError
       );
     });

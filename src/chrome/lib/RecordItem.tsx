@@ -37,20 +37,6 @@ export const RecordItem = ({
     }
   };
 
-  const handleOtpUpdate = async (newURI: string) => {
-    try {
-      await chrome.runtime.sendMessage({
-        type: 'UPDATE_OTP_URI',
-        data: {
-          recordId: record.$id.value,
-          otpAuthUri: newURI,
-        },
-      });
-    } catch {
-      // OTP URI update failure is not critical
-    }
-  };
-
   return (
     <li>
       <div>
@@ -95,7 +81,6 @@ export const RecordItem = ({
         <OTPField
           uri={record.otpuri.value}
           onClick={isModal ? handleOtpClick : undefined}
-          onUpdate={handleOtpUpdate}
         />
       ) : null}
       <style jsx>{`
