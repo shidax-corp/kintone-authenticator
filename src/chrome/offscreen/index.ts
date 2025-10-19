@@ -35,7 +35,6 @@ chrome.runtime.onMessage.addListener(
 async function readQRFromImage(imageUrl: string): Promise<string> {
   const img = new Image();
   img.crossOrigin = 'anonymous';
-  let objectUrl: string | null = null;
 
   return new Promise((resolve, reject) => {
     img.onload = () => {
@@ -43,7 +42,6 @@ async function readQRFromImage(imageUrl: string): Promise<string> {
       const ctx = canvas.getContext('2d');
 
       if (!ctx) {
-        if (objectUrl) URL.revokeObjectURL(objectUrl);
         reject(new Error('読み取りに失敗しました'));
         return;
       }
@@ -55,9 +53,6 @@ async function readQRFromImage(imageUrl: string): Promise<string> {
       const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
       const code = jsQR(imageData.data, imageData.width, imageData.height);
 
-      // Clean up object URL if it was created
-      if (objectUrl) URL.revokeObjectURL(objectUrl);
-
       if (code) {
         resolve(code.data);
       } else {
@@ -68,31 +63,11 @@ async function readQRFromImage(imageUrl: string): Promise<string> {
 
     img.onerror = (e) => {
       console.error('[Offscreen] Image load error:', e);
-      if (objectUrl) URL.revokeObjectURL(objectUrl);
       reject(new Error('画像の読み込みに失敗しました'));
     };
 
-    // data URLの場合はそのまま使用、それ以外はfetchで取得
-    if (imageUrl.startsWith('data:')) {
-      img.src = imageUrl;
-    } else {
-      // HTTPやHTTPSのURLの場合はfetch経由で取得
-      fetch(imageUrl)
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error(
-              `画像の取得に失敗しました (HTTP ${response.status})`
-            );
-          }
-          return response.blob();
-        })
-        .then((blob) => {
-          objectUrl = URL.createObjectURL(blob);
-          img.src = objectUrl;
-        })
-        .catch((error) => {
-          reject(error instanceof Error ? error : new Error(String(error)));
-        });
-    }
+    // Data URLをそのまま使用
+    // fetchはbackground scriptで既に実行済み
+    img.src = imageUrl;
   });
 }
