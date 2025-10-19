@@ -20,6 +20,7 @@ export default {
         '<rootDir>/src/lib/**/*.test.ts',
         '<rootDir>/src/chrome/lib/storage.test.ts',
         '<rootDir>/src/chrome/lib/kintone-client.test.ts',
+        '<rootDir>/src/chrome/lib/types.test.ts',
       ],
       transform: {
         ...tsJestTransformCfg,
