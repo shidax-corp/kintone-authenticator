@@ -45,7 +45,9 @@ export async function readQRFromImageInServiceWorker(
     // dataUrlはbackground scriptでfetchして変換されたData URL
     const response = await chrome.runtime.sendMessage({
       type: 'READ_QR_FROM_IMAGE',
-      imageUrl: dataUrl,
+      data: {
+        imageUrl: dataUrl,
+      },
     });
 
     if (!response || !response.success) {
