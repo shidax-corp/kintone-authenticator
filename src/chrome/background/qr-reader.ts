@@ -35,16 +35,17 @@ async function ensureOffscreenDocument(): Promise<void> {
 }
 
 export async function readQRFromImageInServiceWorker(
-  imageUrl: string
+  dataUrl: string
 ): Promise<string> {
   try {
     // Offscreen documentを確保
     await ensureOffscreenDocument();
 
     // Offscreen documentにメッセージを送信してQRコードを読み取る
+    // dataUrlはbackground scriptでfetchして変換されたData URL
     const response = await chrome.runtime.sendMessage({
       type: 'READ_QR_FROM_IMAGE',
-      imageUrl: imageUrl,
+      imageUrl: dataUrl,
     });
 
     if (!response || !response.success) {
