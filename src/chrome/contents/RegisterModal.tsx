@@ -1,4 +1,4 @@
-import { type FormEvent, useEffect, useState } from 'react';
+import { type FormEvent, useCallback, useEffect, useState } from 'react';
 
 import {
   type OTPAuthRecord,
@@ -86,23 +86,26 @@ export const RegisterModal = ({
     setFieldErrors((prev) => ({ ...prev, [field]: '' }));
   };
 
-  const handleOTPChange = (value: string, info: OTPAuthRecord | null) => {
-    setFormData((prev) => ({
-      ...prev,
-      otpAuthUri: value,
-    }));
-    setError(null);
-    setFieldErrors((prev) => ({ ...prev, otpAuthUri: '' }));
-
-    // If valid OTP info is provided, update related fields
-    if (info) {
+  const handleOTPChange = useCallback(
+    (value: string, info: OTPAuthRecord | null) => {
       setFormData((prev) => ({
         ...prev,
-        name: prev.name || info.issuer || info.accountName || '',
-        username: prev.username || info.accountName || '',
+        otpAuthUri: value,
       }));
-    }
-  };
+      setError(null);
+      setFieldErrors((prev) => ({ ...prev, otpAuthUri: '' }));
+
+      // If valid OTP info is provided, update related fields
+      if (info) {
+        setFormData((prev) => ({
+          ...prev,
+          name: prev.name || info.issuer || info.accountName || '',
+          username: prev.username || info.accountName || '',
+        }));
+      }
+    },
+    []
+  );
 
   const validateForm = async (): Promise<boolean> => {
     const errors: { [key: string]: string } = {};

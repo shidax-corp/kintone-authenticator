@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { filterRecords } from '@lib/search';
 
@@ -22,22 +22,28 @@ export default function useListSearcher(
   queryCondition: string
 ): ListSearcher {
   const [query, setQuery] = useState('');
-  const [records, setRecords] = useState(initialRecords);
   const { allRecords, fetchAllRecords } = useAllRecords(appId, queryCondition);
 
+  const trimmedQuery = query.trim();
+
+  const records = useMemo(() => {
+    if (trimmedQuery === '') {
+      return initialRecords;
+    }
+
+    const sourceRecords = allRecords ?? initialRecords;
+    return filterRecords(sourceRecords, trimmedQuery);
+  }, [trimmedQuery, allRecords, initialRecords]);
+
   useEffect(() => {
-    if (query.trim() === '') {
-      setRecords(initialRecords);
+    if (trimmedQuery === '') {
       return;
     }
 
     // 全レコードがまだ取得されていなければ取得する。
     // レコードの取得に成功したらallRecordsが更新されてこのuseEffectが再実行されるので、ここで条件分けはしなくても動く。
     fetchAllRecords();
-
-    // 全レコードの取得がまだの場合は、とりあえず初期から表示されているレコードの中から検索する。
-    setRecords(filterRecords(allRecords ?? initialRecords, query));
-  }, [query, allRecords, initialRecords, fetchAllRecords]);
+  }, [trimmedQuery, fetchAllRecords]);
 
   // メッセージの決定
   let message = '';
@@ -65,64 +71,77 @@ const useAllRecords = (appId: number, queryCondition: string) => {
     kintone.types.SavedFields[] | null
   >(null);
   const [fetching, setFetching] = useState(false);
-  const retryCount = useRef(0);
 
-  const fetchAllRecords = useCallback(() => {
+  const fetchAllRecordsCB = useCallback(() => {
     if (allRecords != null || fetching) return;
 
     setFetching(true);
 
-    kintone
-      .api('/k/v1/records/cursor.json', 'POST', {
-        app: appId,
-        query: queryCondition,
-        size: 500,
-      })
-      .then(async ({ id }) => {
-        const result: kintone.types.SavedFields[] = [];
-
-        try {
-          while (true) {
-            const resp = await kintone.api('/k/v1/records/cursor.json', 'GET', {
-              id,
-            });
-            result.push(...resp.records);
-            if (!resp.next) {
-              break;
-            }
-          }
-        } catch (e) {
-          try {
-            await kintone.api('/k/v1/records/cursor.json', 'DELETE', { id });
-          } catch (e) {
-            console.error(e);
-          }
-          throw e;
-        }
-
-        return result;
-      })
+    fetchAllRecords(appId, queryCondition)
       .then((result) => {
         setAllRecords(result);
         setFetching(false);
-        retryCount.current = 0;
       })
-      .catch((err) => {
-        console.error(err);
-
-        if (retryCount.current < 5) {
-          retryCount.current += 1;
-          setTimeout(() => {
-            fetchAllRecords();
-          }, 1000);
-        } else {
-          setFetching(false);
-        }
+      .catch((e) => {
+        console.error(e);
+        setFetching(false);
       });
-  }, [appId, queryCondition, setAllRecords, allRecords, fetching, setFetching]);
+  }, [appId, queryCondition, allRecords, fetching]);
 
   return {
     allRecords,
-    fetchAllRecords,
+    fetchAllRecords: fetchAllRecordsCB,
   } as const;
 };
+
+const fetchAllRecords = async (
+  appId: number,
+  queryCondition: string
+): Promise<kintone.types.SavedFields[]> => {
+  for (let retry = 0; retry < 5; retry++) {
+    let id: string = '';
+
+    try {
+      id = (
+        await kintone.api('/k/v1/records/cursor.json', 'POST', {
+          app: appId,
+          query: queryCondition,
+          size: 500,
+        })
+      ).id;
+    } catch (e) {
+      console.error(e);
+      await sleep(1000 * Math.pow(2, retry)); // Exponential backoff
+      continue;
+    }
+
+    const result: kintone.types.SavedFields[] = [];
+
+    try {
+      while (true) {
+        const resp = await kintone.api('/k/v1/records/cursor.json', 'GET', {
+          id,
+        });
+        result.push(...resp.records);
+        if (!resp.next) {
+          break;
+        }
+      }
+    } catch (e) {
+      console.error(e);
+      try {
+        await kintone.api('/k/v1/records/cursor.json', 'DELETE', { id });
+      } catch (e) {
+        console.error(e);
+      }
+      await sleep(1000 * Math.pow(2, retry)); // Exponential backoff
+      continue;
+    }
+
+    return result;
+  }
+
+  throw new Error('レコードの取得に失敗しました');
+};
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
