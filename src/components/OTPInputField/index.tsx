@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 
 import { generateHOTP, generateTOTP, prettifyOTP } from '@lib/gen-otp';
 import { type OTPAuthRecord, decodeOTPAuthURI } from '@lib/otpauth-uri';
@@ -20,6 +20,8 @@ export interface OTPInputFieldProps {
  * OTP Auth URIを入力するためのフィールドコンポーネント。
  *
  * カメラからのQRコードスキャン、ファイルからの読み取り、画像のコピー&ペースト、手入力の4種類の方法をサポートする。
+ *
+ * 引数で渡せる value は onChange 以外の理由で変更されないことを前提としているので注意。
  *
  * @param label - フィールドの上に表示するラベル。
  * @param value - 現在の値。
@@ -60,14 +62,12 @@ export default function OTPInputField({
   };
 
   // 親コンポーネントから値を指定された場合はそれを読み取る。
-  useEffect(() => {
-    if (value) {
-      readURI(value).catch(() => {
-        onChange('', null); // 無効なOTP Auth URIが設定されている場合は、空文字列にリセットする。
-        setCode(''); // コードの表示も消す。
-      });
+  // 途中で値が変わることは無いはずなので、最初の一回だけ実行する。
+  useInitializer(() => {
+    if (value && value !== '') {
+      readURI(value);
     }
-  }, [value, onChange]);
+  });
 
   const onRead = useCallback(
     (data: string) => {
@@ -164,3 +164,17 @@ export default function OTPInputField({
     </Field>
   );
 }
+
+/**
+ * コンポーネントの初回レンダリング時に一度だけ関数を実行するカスタムフック。
+ *
+ * @param fn - 実行する関数。
+ */
+const useInitializer = (fn: () => void) => {
+  const [called, setCalled] = useState(false);
+
+  if (!called) {
+    fn();
+    setCalled(true);
+  }
+};
