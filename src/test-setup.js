@@ -6,7 +6,7 @@ Object.defineProperty(global, 'crypto', {
   writable: false,
 });
 
-// Suppress styled-jsx and TOTP errors in tests
+// Suppress styled-jsx errors in tests
 const originalConsoleError = console.error;
 console.error = (...args) => {
   const message = String(args[0] || '');
