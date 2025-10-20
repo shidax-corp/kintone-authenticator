@@ -6,6 +6,8 @@ import InputField from '@components/InputField';
 import OTPInputField from '@components/OTPInputField';
 import PasscodeInputField from '@components/PasscodeInputField';
 
+import EncryptedField from '../components/EncryptedField';
+
 export interface FormAppProps {
   record: kintone.types.Fields;
 }
@@ -69,13 +71,22 @@ export default function FormApp({ record }: FormAppProps) {
         onChange={setUsername}
         type="text"
       />
-      <InputField
+      <EncryptedField
         label="パスワード"
-        placeholder=""
         value={password}
         onChange={setPassword}
-        type="text"
-      />
+        encryptionPasscode={encryptionPasscode}
+      >
+        {(value, onChange) => (
+          <InputField
+            label="パスワード"
+            placeholder=""
+            value={value}
+            onChange={onChange!}
+            type="text"
+          />
+        )}
+      </EncryptedField>
       <OTPInputField
         label="ワンタイムパスワード"
         value={otpuri}

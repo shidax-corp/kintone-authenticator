@@ -4,9 +4,7 @@ import { createPortal } from 'react-dom';
 import GlobalStyle from '@components/GlobalStyle';
 import InputField from '@components/InputField';
 
-const inMemoryPasscodeStore = new Set<string>();
-
-export function PasscodeDialog({
+export default function PasscodeDialog({
   callback,
 }: {
   callback: (passcode: string | null) => void;
@@ -61,11 +59,3 @@ export function PasscodeDialog({
     </>
   );
 }
-
-export const savePasscode = (passcode: string) => {
-  inMemoryPasscodeStore.add(passcode);
-};
-
-export const getPasscodes = () => {
-  return Array.from(inMemoryPasscodeStore);
-};

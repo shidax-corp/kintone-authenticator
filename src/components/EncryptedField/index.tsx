@@ -8,6 +8,7 @@ type EncryptedFieldProps = {
   label: string;
   value: string;
   encryptionPasscode?: string | null;
+  decryptionPasscodes?: string[];
   onChange?: (newValue: string) => void;
   onDecryptRequest: () => void;
   children: (value: string, onChange?: (newValue: string) => void) => ReactNode;
@@ -17,6 +18,7 @@ export default function EncryptedField({
   label,
   value,
   encryptionPasscode = null,
+  decryptionPasscodes = [],
   onChange,
   onDecryptRequest,
   children,
@@ -47,10 +49,23 @@ export default function EncryptedField({
     return <DummyField label={label} onClick={onDecryptRequest} />;
   }
 
-  const decryptedValue = use(decrypt(value, encryptionPasscode));
+  const decryptedValue = use(
+    (async () => {
+      for (const passcode of decryptionPasscodes) {
+        try {
+          return await decrypt(value, passcode);
+        } catch {
+          // continue to next passcode
+        }
+      }
+      throw new Error('Failed to decrypt field: No valid passcode found');
+    })()
+  );
 
   return (
-    <Suspense fallback={<DummyField label={label} />}>
+    <Suspense
+      fallback={<DummyField label={label} onClick={onDecryptRequest} />}
+    >
       {children(decryptedValue, cb)}
     </Suspense>
   );
