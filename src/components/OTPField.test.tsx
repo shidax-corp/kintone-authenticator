@@ -100,6 +100,16 @@ describe('OTPField', () => {
   });
 
   it('renders HOTP correctly without generating OTP initially', () => {
+    mockDecodeOTPAuthURI.mockReturnValue({
+      type: 'HOTP',
+      label: 'user@example.com',
+      issuer: 'Example',
+      algorithm: 'SHA1',
+      digits: 6,
+      counter: 0,
+      secret: 'JBSWY3DPEHPK3PXP',
+    } as any);
+
     const hotpURI =
       'otpauth://hotp/Example:user@example.com?secret=JBSWY3DPEHPK3PXP&counter=0&issuer=Example';
 

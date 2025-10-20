@@ -160,9 +160,8 @@ export const RegisterModal = ({
                   'success',
                   `OTPが登録され、クリップボードにコピーされました: ${otpResponse.data.otp}`
                 );
-              } catch (clipboardError) {
+              } catch {
                 // クリップボードへのコピーに失敗した場合
-                console.error('クリップボードコピーエラー:', clipboardError);
                 showToast(
                   'success',
                   `OTPが登録されました: ${otpResponse.data.otp}`
