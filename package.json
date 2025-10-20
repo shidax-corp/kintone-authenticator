@@ -40,7 +40,7 @@
     "@babel/core": "^7.28.4",
     "@babel/preset-react": "^7.27.1",
     "@babel/preset-typescript": "^7.27.1",
-    "@kintone/customize-uploader": "^8.0.14",
+    "@kintone/customize-uploader": "^9.0.0",
     "@kintone/dts-gen": "^9.0.0",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.0",
