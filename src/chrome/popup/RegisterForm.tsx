@@ -129,7 +129,7 @@ export const RegisterForm = ({
     []
   );
 
-  const validateForm = async (): Promise<boolean> => {
+  const validateForm = (): boolean => {
     const errors: { [key: string]: string } = {};
 
     if (!formData.name.trim()) {

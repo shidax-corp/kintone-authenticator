@@ -85,7 +85,13 @@ describe('RegisterModal', () => {
       if (message.type === 'GET_OTP') {
         return Promise.resolve({
           success: true,
-          data: { otp: '123456' },
+          data: {
+            type: 'TOTP',
+            otp: '123456',
+            timestamp: new Date('2025-10-19T10:00:00Z'),
+            availableFrom: new Date('2025-10-19T10:00:00Z'),
+            availableUntil: new Date('2025-10-19T10:00:30Z'),
+          },
         });
       }
       return Promise.resolve({ success: true });
@@ -167,5 +173,127 @@ describe('RegisterModal', () => {
 
     // Modal should not be closed
     expect(mockOnClose).not.toHaveBeenCalled();
+  });
+
+  it('should show validation error when site name is empty', async () => {
+    // Arrange - mock sendMessage to track if it's called
+    const sendMessageSpy = jest.fn();
+    mockChrome.runtime.sendMessage = sendMessageSpy;
+
+    // Mock tabs.query to not set any initial title
+    mockChrome.tabs.query.mockImplementation((query, callback) => {
+      callback([]);
+    });
+
+    // Act - render without initialPageTitle
+    render(
+      <RegisterModal
+        onClose={mockOnClose}
+        showToast={mockShowToast}
+        initialPageUrl="https://example.com"
+      />
+    );
+
+    // Find the name input and verify it's empty
+    const nameInput = await screen.findByPlaceholderText('例: Google');
+    expect(nameInput).toHaveValue('');
+
+    // The submit button should be disabled when name is empty
+    const submitButton = screen.getByText('登録');
+    expect(submitButton).toBeDisabled();
+
+    // sendMessage should not have been called
+    expect(sendMessageSpy).not.toHaveBeenCalled();
+  });
+
+  it('should show validation error when site name is cleared after initial value', async () => {
+    // Arrange
+    const sendMessageSpy = jest.fn();
+    mockChrome.runtime.sendMessage = sendMessageSpy;
+
+    // Mock tabs.query to not interfere
+    mockChrome.tabs.query.mockImplementation((query, callback) => {
+      callback([]);
+    });
+
+    // Act - render with an initial title
+    render(
+      <RegisterModal
+        onClose={mockOnClose}
+        showToast={mockShowToast}
+        initialPageTitle="Test Site"
+        initialPageUrl="https://example.com"
+      />
+    );
+
+    // Find the name input with initial value
+    const nameInput = await screen.findByPlaceholderText('例: Google');
+    expect(nameInput).toHaveValue('Test Site');
+
+    // Clear the name input
+    fireEvent.change(nameInput, { target: { value: '   ' } });
+
+    // The submit button should be disabled when name is whitespace-only
+    const submitButton = screen.getByText('登録');
+    expect(submitButton).toBeDisabled();
+
+    // sendMessage should not have been called (button is disabled)
+    expect(sendMessageSpy).not.toHaveBeenCalled();
+  });
+
+  it('should show success message without clipboard copy message when clipboard fails', async () => {
+    // Arrange
+    mockClipboard.writeText.mockRejectedValue(
+      new Error('Clipboard write failed')
+    );
+
+    mockChrome.runtime.sendMessage.mockImplementation((message) => {
+      if (message.type === 'REGISTER_OTP') {
+        return Promise.resolve({
+          success: true,
+          data: { recordId: '123' },
+        });
+      }
+      if (message.type === 'GET_OTP') {
+        return Promise.resolve({
+          success: true,
+          data: { otp: '123456' },
+        });
+      }
+      return Promise.resolve({ success: true });
+    });
+
+    // Act
+    render(
+      <RegisterModal
+        onClose={mockOnClose}
+        showToast={mockShowToast}
+        initialPageTitle="Test Site"
+        initialPageUrl="https://example.com"
+      />
+    );
+
+    // Fill out the form
+    const usernameInput =
+      screen.getByPlaceholderText('ユーザー名またはメールアドレス');
+    const passwordInput = screen.getByPlaceholderText('パスワード');
+
+    fireEvent.change(usernameInput, { target: { value: 'testuser' } });
+    fireEvent.change(passwordInput, { target: { value: 'testpass' } });
+
+    // Submit the form
+    const submitButton = screen.getByText('登録');
+    fireEvent.click(submitButton);
+
+    // Assert
+    await waitFor(() => {
+      expect(mockOnClose).toHaveBeenCalled();
+    });
+
+    // Verify success message without clipboard copy mention
+    expect(mockShowToast).toHaveBeenCalledWith(
+      'success',
+      'OTPが登録されました: 123456'
+    );
   });
 });

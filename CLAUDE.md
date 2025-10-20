@@ -10,25 +10,7 @@ Build the project:
 npm run build
 ```
 
-Run development server:
-
-```bash
-npm run dev
-```
-
-Type check:
-
-```bash
-npm run check:type
-```
-
-Format check:
-
-```bash
-npm run check:format
-```
-
-Run all checks (type + lint + format):
+Type check, lint check, and format check:
 
 ```bash
 npm run check
@@ -40,34 +22,10 @@ Format code:
 npm run format
 ```
 
-Lint check:
-
-```bash
-npm run check:lint
-```
-
-Fix lint issues:
-
-```bash
-npm run check:lint:fix
-```
-
 Run tests:
 
 ```bash
 npm run test
-```
-
-Deploy to kintone:
-
-```bash
-npm run deploy:kintone
-```
-
-Generate kintone type definitions:
-
-```bash
-npm run gen:dts
 ```
 
 ## Architecture
@@ -82,9 +40,9 @@ This is a kintone authenticator application similar to Google Authenticator, wit
    - QRコード読み取り機能 (`qr-reader.ts`)
    - レコード検索・フィルタリング機能 (`search.ts`)
    - URL検証ユーティリティ (`url.ts`)
-   - See also @docs/lib-catalog.md for details on available libraries.
+   - See also docs/lib-catalog.md for details on available libraries.
 
-2. **Components** (`src/components/`) - Contains shared UI components between kintone and Chrome extension. See also @docs/component-catalog.md for details on available components.
+2. **Components** (`src/components/`) - Contains shared UI components between kintone and Chrome extension. See also docs/component-catalog.md for details on available components.
 
 3. **Kintone App** (`src/kintone/`) - A customization for kintone that provides:
    - QR code reading functionality
@@ -168,29 +126,11 @@ This is a kintone authenticator application similar to Google Authenticator, wit
   - `npm run check` runs type checking, lint checking, and format checking.
   - All tests must pass before committing changes.
 - DO NOT use `as unknown` or `as any` in TypeScript. Use proper type definitions.
+- See also ./CONTRIBUTING.md for more details.
 
 ## Git guidelines
 
-- For commit message, use the semantic commit messages in Japanese. For example: `feat(kintone): QRコードを読み取る機能を実装` or `fix(chrome): 自動入力の問題を修正 #123`.
-  - Use the following commit message types:
-    - `feat`: about new features or enhancements
-    - `fix`: fixes for bugs
-    - `docs`: documentation changes
-    - `style`: code style changes (e.g., formatting, missing semicolons, etc.)
-    - `refactor`: code refactoring without changing functionality
-    - `design`: design changes without changing functionality (e.g., UI/UX improvements)
-    - `perf`: performance improvements
-    - `test`: adding or modifying tests
-    - `chore`: other changes that do not fit into the above categories (e.g., build process, CI configuration, etc.)
-  - Use the following prefix scopes:
-    - `xxx(kintone):` for kintone app related changes
-    - `xxx(chrome):` for Chrome extension related changes
-    - `xxx(lib):` for library related changes
-    - `xxx(components):` for shared components related changes
-    - `xxx(docs):` for documentation related changes
-    - `xxx:` for general changes not specific to any component
-- Separate commits for different features or fixes.
-- For issues and PR, use a concise title and a detailed description.
-- Use the label named `AI Created` for issues and PRs created by AI assistants. And set another proper labels if necessary.
-- Write issues and PR descriptions in Japanese, but you can use English for technical terms.
-- Write `(Written by Claude Code)` or `(Written by GitHub Copilot)` in the bottom of the Issue or PR description to indicate AI assistance.
+See also:
+
+- Commit message guideline: .claude/skills/commit/SKILL.md
+- GitHub Issues and Pull Requests guideline: .claude/skills/issue-and-pullrequest/SKILL.md

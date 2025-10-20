@@ -40,10 +40,14 @@ export default function CopyField({
   const handleCopy: MouseEventHandler<HTMLDivElement> = () => {
     if (!value) return;
 
-    copyToClipboard(value).then(() => {
-      setAutoCopied(true);
-      setTimeout(() => setAutoCopied(false), COPIED_MESSAGE_DURATION);
-    });
+    copyToClipboard(value)
+      .then(() => {
+        setAutoCopied(true);
+        setTimeout(() => setAutoCopied(false), COPIED_MESSAGE_DURATION);
+      })
+      .catch(() => {
+        // コピーに失敗した場合は何も表示しない
+      });
   };
 
   return (
@@ -64,7 +68,6 @@ export default function CopyField({
         span {
           font-size: 10px;
           background-color: var(--ka-bg-dark-color);
-          border: 1px solid var(rgba(var(--ka-fg-rgb), 0.8));
           border-radius: 4px;
           padding: 2px 0.5em;
           position: absolute;

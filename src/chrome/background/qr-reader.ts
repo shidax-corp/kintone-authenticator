@@ -11,7 +11,6 @@ async function ensureOffscreenDocument(): Promise<void> {
   });
 
   if (existingContexts.length > 0) {
-    console.log('[QR Reader SW] Offscreen document already exists');
     return;
   }
 
@@ -33,42 +32,28 @@ async function ensureOffscreenDocument(): Promise<void> {
     });
 
   await creatingOffscreen;
-  console.log('[QR Reader SW] Offscreen document created');
 }
 
 export async function readQRFromImageInServiceWorker(
-  imageUrl: string
+  dataUrl: string
 ): Promise<string> {
-  console.log('[QR Reader SW] Reading QR from image URL:', imageUrl);
-  console.log(
-    '[QR Reader SW] URL protocol:',
-    imageUrl.startsWith('http:')
-      ? 'HTTP'
-      : imageUrl.startsWith('https:')
-        ? 'HTTPS'
-        : imageUrl.startsWith('data:')
-          ? 'DATA'
-          : 'OTHER'
-  );
-
   try {
     // Offscreen documentを確保
     await ensureOffscreenDocument();
 
     // Offscreen documentにメッセージを送信してQRコードを読み取る
-    console.log('[QR Reader SW] Sending message to offscreen document...');
+    // dataUrlはbackground scriptでfetchして変換されたData URL
     const response = await chrome.runtime.sendMessage({
       type: 'READ_QR_FROM_IMAGE',
-      imageUrl: imageUrl,
+      data: {
+        imageUrl: dataUrl,
+      },
     });
-
-    console.log('[QR Reader SW] Received response:', response);
 
     if (!response || !response.success) {
       throw new QRReadError(response?.error || '画像の読み込みに失敗しました');
     }
 
-    console.log('[QR Reader SW] QR code successfully read:', response.data);
     return response.data;
   } catch (error) {
     console.error('[QR Reader SW] Error:', error);

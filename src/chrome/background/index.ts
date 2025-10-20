@@ -67,7 +67,7 @@ chrome.runtime.onStartup.addListener(async () => {
 });
 
 chrome.storage.onChanged.addListener(async (changes, area) => {
-  if (area === 'sync' && changes.kintone_authenticator_settings) {
+  if (area === 'local' && changes.kintone_authenticator_settings) {
     const settings = changes.kintone_authenticator_settings.newValue;
     if (isSettingsComplete(settings)) {
       await createContextMenus();
@@ -118,7 +118,32 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
 
 const handleReadQR = async (tabId: number, imageUrl: string) => {
   try {
-    const qrData = await readQRFromImageInServiceWorker(imageUrl);
+    // activeTab権限を使用してbackground scriptで画像を取得
+    // これにより、*.cybozu.com以外のドメインでも動作する
+    const response = await fetch(imageUrl);
+    if (!response.ok) {
+      throw new Error(
+        `画像の取得に失敗しました: ${imageUrl} (HTTP ${response.status})`
+      );
+    }
+
+    const blob = await response.blob();
+
+    // BlobをData URLに変換してoffscreen documentに渡す
+    const dataUrl = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        if (typeof reader.result === 'string') {
+          resolve(reader.result);
+        } else {
+          reject(new Error('Data URLの生成に失敗しました'));
+        }
+      };
+      reader.onerror = () => reject(new Error('Data URLの生成に失敗しました'));
+      reader.readAsDataURL(blob);
+    });
+
+    const qrData = await readQRFromImageInServiceWorker(dataUrl);
 
     if (await isValidOTPAuthURI(qrData)) {
       chrome.tabs.sendMessage(tabId, {

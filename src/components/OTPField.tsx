@@ -122,10 +122,14 @@ export default function OTPField({
     if (onClick) {
       onClick(otp);
     } else {
-      copyToClipboard(otp).then(() => {
-        setCopied(true);
-        setTimeout(() => setCopied(false), COPIED_MESSAGE_DURATION);
-      });
+      copyToClipboard(otp)
+        .then(() => {
+          setCopied(true);
+          setTimeout(() => setCopied(false), COPIED_MESSAGE_DURATION);
+        })
+        .catch(() => {
+          // コピーに失敗した場合は何も表示しない
+        });
     }
   };
 
@@ -177,7 +181,7 @@ export default function OTPField({
                 ? '●●●●●●'
                 : prettifyOTP(activeOtp.otp)
                     .split(' ')
-                    .map((part) => <span key={part}>{part}</span>)}
+                    .map((part, index) => <span key={index}>{part}</span>)}
           </span>
         </CopyField>
 
