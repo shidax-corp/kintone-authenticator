@@ -41,7 +41,6 @@ export default function PasscodeInputField({
         <style jsx>{`
           label {
             display: flex;
-            position: relative;
             align-items: stretch;
             border: 1px solid var(--ka-tint-color);
             color: var(--ka-fg-input-color);
