@@ -217,6 +217,63 @@ describe('useListSearcher', () => {
         expect(result.current.message).toBe('');
       });
     });
+
+    it('should revert to initial records when query is cleared after fetching all records', async () => {
+      const initialSubset = mockRecords.slice(0, 1);
+      const fetchedRecords = [
+        ...initialSubset,
+        {
+          $id: { value: '3' },
+          $revision: { value: '1' },
+          更新者: { value: { code: 'user', name: 'User' } },
+          作成者: { value: { code: 'user', name: 'User' } },
+          レコード番号: { value: '3' },
+          更新日時: { value: '2023-01-03T00:00:00Z' },
+          作成日時: { value: '2023-01-03T00:00:00Z' },
+          name: { value: 'Fetched Record' },
+          url: { value: 'https://example3.com' },
+          username: { value: 'user3' },
+          password: { value: 'pass3' },
+          otpuri: { value: 'otpauth://totp/Test3' },
+          shareto: { value: [] },
+        },
+      ];
+
+      mockKintoneApi.mockImplementation((path, method) => {
+        if (path === '/k/v1/records/cursor.json' && method === 'POST') {
+          return Promise.resolve({ id: 'cursor-id' });
+        }
+        if (path === '/k/v1/records/cursor.json' && method === 'GET') {
+          return Promise.resolve({ records: fetchedRecords, next: false });
+        }
+        if (path === '/k/v1/records/cursor.json' && method === 'DELETE') {
+          return Promise.resolve({});
+        }
+        return Promise.reject(new Error('Unexpected API call'));
+      });
+
+      const { result } = renderHook(() =>
+        useListSearcher(mockAppId, initialSubset, '')
+      );
+
+      act(() => {
+        result.current.setQuery('Fetched');
+      });
+
+      await waitFor(() => {
+        expect(result.current.records).toHaveLength(1);
+        expect(result.current.records[0].name.value).toBe('Fetched Record');
+      });
+
+      act(() => {
+        result.current.setQuery('');
+      });
+
+      await waitFor(() => {
+        expect(result.current.records).toEqual(initialSubset);
+        expect(result.current.message).toBe('');
+      });
+    });
   });
 
   describe('existing functionality', () => {

@@ -3,6 +3,11 @@ import { render, screen } from '@testing-library/react';
 
 import { RecordItem } from './RecordItem';
 
+jest.mock('@components/OTPField', () => ({
+  __esModule: true,
+  default: () => <div>ワンタイムパスワード</div>,
+}));
+
 describe('RecordItem', () => {
   const createMockRecord = (
     overrides: Partial<kintone.types.SavedFields> = {}
