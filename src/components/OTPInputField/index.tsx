@@ -67,8 +67,7 @@ export default function OTPInputField({
         setCode(''); // コードの表示も消す。
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value]);
+  }, [value, onChange]);
 
   const onRead = useCallback(
     (data: string) => {

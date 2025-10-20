@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import InputField from '@components/InputField';
 import OTPInputField from '@components/OTPInputField';
@@ -22,23 +22,23 @@ export default function FormApp({ record }: FormAppProps) {
   const [password, setPassword] = useState(record?.password.value || '');
   const [otpuri, setOtpuri] = useState(record?.otpuri.value || '');
 
-  const withWriteBack = (
-    field: keyof kintone.types.Fields,
-    setter: (value: string) => void
-  ) => {
-    return (value: string) => {
-      setter(value);
-      kintone.app.record.set({
-        record: {
-          ...kintone.app.record.get().record,
-          [field]: {
-            value: value,
-            type: record[field].type,
+  const withWriteBack = useCallback(
+    (field: keyof kintone.types.Fields, setter: (value: string) => void) => {
+      return (value: string) => {
+        setter(value);
+        kintone.app.record.set({
+          record: {
+            ...kintone.app.record.get().record,
+            [field]: {
+              value: value,
+              type: record[field].type,
+            },
           },
-        },
-      });
-    };
-  };
+        });
+      };
+    },
+    [record]
+  );
 
   return (
     <div>
@@ -74,16 +74,19 @@ export default function FormApp({ record }: FormAppProps) {
       <OTPInputField
         label="ワンタイムパスワード"
         value={otpuri}
-        onChange={(value, info) => {
-          withWriteBack('otpuri', setOtpuri)(value);
+        onChange={useCallback(
+          (value, info) => {
+            withWriteBack('otpuri', setOtpuri)(value);
 
-          if (!name && info?.issuer) {
-            withWriteBack('name', setName)(info.issuer);
-          }
-          if (!username && info?.accountName) {
-            withWriteBack('username', setUsername)(info.accountName);
-          }
-        }}
+            if (!name && info?.issuer) {
+              withWriteBack('name', setName)(info.issuer);
+            }
+            if (!username && info?.accountName) {
+              withWriteBack('username', setUsername)(info.accountName);
+            }
+          },
+          [withWriteBack, name, setName, username, setUsername]
+        )}
       />
       <style jsx>{`
         div > :global(*) {

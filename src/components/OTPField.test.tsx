@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom';
-import { act, render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 
 import { generateTOTP } from '@lib/gen-otp';
 import { decodeOTPAuthURI } from '@lib/otpauth-uri';
@@ -69,9 +69,7 @@ describe('OTPField', () => {
       expect.objectContaining({ type: 'TOTP', secret: 'secret' })
     );
 
-    await act(async () => {
-      view.unmount();
-    });
+    view.unmount();
   });
 
   it('shows error message when URI decoding fails', async () => {
