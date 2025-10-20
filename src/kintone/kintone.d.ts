@@ -142,4 +142,20 @@ declare namespace kintone {
     method: string,
     params: Record<string, any>
   ): Promise<Record<string, any>>;
+
+  type DialogOptions = {
+    title?: string;
+    body?: HTMLElement;
+    showOkButton?: boolean;
+    okButtonText?: string;
+    showCancelButton?: boolean;
+    cancelButtonText?: string;
+    showCloseButton?: boolean;
+    beforeClose?: () => boolean | Promise<boolean>;
+  };
+  type DialogHandler = {
+    show: () => Promise<'OK' | 'CANCEL' | 'CLOSE' | 'FUNCTION'>;
+    hide: () => void;
+  };
+  function createDialog(config: DialogOptions): Promise<DialogHandler>;
 }

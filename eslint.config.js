@@ -30,6 +30,8 @@ export default [
         requestAnimationFrame: 'readonly',
         Image: 'readonly',
         crypto: 'readonly',
+        btoa: 'readonly',
+        atob: 'readonly',
         navigator: 'readonly',
         fetch: 'readonly',
         URL: 'readonly',

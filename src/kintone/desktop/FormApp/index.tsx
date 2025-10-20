@@ -1,13 +1,42 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useEffectEvent, useState } from 'react';
+
+import { encrypt } from '@lib/crypto';
 
 import InputField from '@components/InputField';
 import OTPInputField from '@components/OTPInputField';
+import PasscodeInputField from '@components/PasscodeInputField';
 
 export interface FormAppProps {
   record: kintone.types.Fields;
 }
 
 export default function FormApp({ record }: FormAppProps) {
+  const [encryptionPasscode, setEncryptionPasscode] = useState<string | null>(
+    null
+  );
+
+  // 暗号化しない要素
+  const [name, setName] = useFieldState('name', record?.name.value || '');
+  const [url, setUrl] = useFieldState('url', record?.url.value || '');
+
+  // 暗号化する要素
+  const [username, setUsername] = useFieldState(
+    'username',
+    record?.username.value || '',
+    encryptionPasscode
+  );
+  const [password, setPassword] = useFieldState(
+    'password',
+    record?.password.value || '',
+    encryptionPasscode
+  );
+  const [otpuri, setOtpuri] = useFieldState(
+    'otpuri',
+    record?.otpuri.value || '',
+    encryptionPasscode
+  );
+
+  // 標準のフィールドは使わないので非表示にする
   useEffect(() => {
     kintone.app.record.setFieldShown('name', false);
     kintone.app.record.setFieldShown('url', false);
@@ -16,37 +45,13 @@ export default function FormApp({ record }: FormAppProps) {
     kintone.app.record.setFieldShown('otpuri', false);
   }, []);
 
-  const [name, setName] = useState(record?.name.value || '');
-  const [url, setUrl] = useState(record?.url.value || '');
-  const [username, setUsername] = useState(record?.username.value || '');
-  const [password, setPassword] = useState(record?.password.value || '');
-  const [otpuri, setOtpuri] = useState(record?.otpuri.value || '');
-
-  const withWriteBack = useCallback(
-    (field: keyof kintone.types.Fields, setter: (value: string) => void) => {
-      return (value: string) => {
-        setter(value);
-        kintone.app.record.set({
-          record: {
-            ...kintone.app.record.get().record,
-            [field]: {
-              value: value,
-              type: record[field].type,
-            },
-          },
-        });
-      };
-    },
-    [record]
-  );
-
   return (
     <div>
       <InputField
         label="名前"
         placeholder="サイト名"
         value={name}
-        onChange={withWriteBack('name', setName)}
+        onChange={setName}
         type="text"
         required
       />
@@ -54,39 +59,40 @@ export default function FormApp({ record }: FormAppProps) {
         label="URL"
         placeholder="https://example.com"
         value={url}
-        onChange={withWriteBack('url', setUrl)}
+        onChange={setUrl}
         type="url"
       />
       <InputField
         label="ユーザー名"
         placeholder=""
         value={username}
-        onChange={withWriteBack('username', setUsername)}
+        onChange={setUsername}
         type="text"
       />
       <InputField
         label="パスワード"
         placeholder=""
         value={password}
-        onChange={withWriteBack('password', setPassword)}
+        onChange={setPassword}
         type="text"
       />
       <OTPInputField
         label="ワンタイムパスワード"
         value={otpuri}
-        onChange={useCallback(
-          (value, info) => {
-            withWriteBack('otpuri', setOtpuri)(value);
+        onChange={useEffectEvent((value, info) => {
+          setOtpuri(value);
 
-            if (!name && info?.issuer) {
-              withWriteBack('name', setName)(info.issuer);
-            }
-            if (!username && info?.accountName) {
-              withWriteBack('username', setUsername)(info.accountName);
-            }
-          },
-          [withWriteBack, name, setName, username, setUsername]
-        )}
+          if (!name && info?.issuer) {
+            setName(info.issuer);
+          }
+          if (!username && info?.accountName) {
+            setUsername(info.accountName);
+          }
+        })}
+      />
+      <PasscodeInputField
+        value={encryptionPasscode}
+        onChange={setEncryptionPasscode}
       />
       <style jsx>{`
         div > :global(*) {
@@ -96,3 +102,34 @@ export default function FormApp({ record }: FormAppProps) {
     </div>
   );
 }
+
+const useFieldState = (
+  fieldName: keyof kintone.types.Fields,
+  initialValue: string,
+  encryptionPasscode?: string | null
+): [string, (value: string) => void] => {
+  const [value, setValue] = useState<string>(initialValue);
+
+  useEffect(() => {
+    const { record } = kintone.app.record.get();
+    const v = encryptionPasscode
+      ? encrypt(value, encryptionPasscode)
+      : Promise.resolve(value);
+
+    v.then((encryptedValue) => {
+      kintone.app.record.set({
+        record: {
+          ...record,
+          [fieldName]: {
+            value: encryptedValue,
+            type: record[fieldName].type,
+          },
+        },
+      });
+    }).catch((err) => {
+      console.error('Error encrypting field value:', err);
+    });
+  }, [fieldName, value, encryptionPasscode]);
+
+  return [value, setValue];
+};

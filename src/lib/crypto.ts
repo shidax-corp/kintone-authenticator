@@ -45,9 +45,11 @@ export const encrypt = async (data: string, pin: string): Promise<string> => {
     new TextEncoder().encode(data)
   );
 
-  const ivBase64 = Buffer.from(iv).toString('base64');
-  const saltBase64 = Buffer.from(salt).toString('base64');
-  const ciphertextBase64 = Buffer.from(ciphertext).toString('base64');
+  const ivBase64 = btoa(String.fromCharCode(...iv));
+  const saltBase64 = btoa(String.fromCharCode(...salt));
+  const ciphertextBase64 = btoa(
+    String.fromCharCode(...new Uint8Array(ciphertext))
+  );
 
   return `${ivBase64}.${saltBase64}.${ciphertextBase64}`;
 };
@@ -58,9 +60,9 @@ export const decrypt = async (data: string, pin: string): Promise<string> => {
     throw new Error('Invalid encrypted data format');
   }
 
-  const iv = new Uint8Array(Buffer.from(parts[0], 'base64'));
-  const salt = new Uint8Array(Buffer.from(parts[1], 'base64'));
-  const ciphertext = new Uint8Array(Buffer.from(parts[2], 'base64'));
+  const iv = Uint8Array.from(atob(parts[0]), (c) => c.charCodeAt(0));
+  const salt = Uint8Array.from(atob(parts[1]), (c) => c.charCodeAt(0));
+  const ciphertext = Uint8Array.from(atob(parts[2]), (c) => c.charCodeAt(0));
 
   const key = await generateKey(pin, salt.buffer);
 
@@ -74,4 +76,8 @@ export const decrypt = async (data: string, pin: string): Promise<string> => {
   );
 
   return new TextDecoder().decode(decrypted);
+};
+
+export const isEncrypted = (data: string): boolean => {
+  return data.split('.').length === 3;
 };
