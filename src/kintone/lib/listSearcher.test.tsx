@@ -132,7 +132,7 @@ describe('useListSearcher', () => {
       });
     });
 
-    it('should return "一致するものがありません" when search query and kintone condition both exist but no matches', () => {
+    it('should return "一致するものがありません" when search query and kintone condition both exist but no matches', async () => {
       const { result } = renderHook(() =>
         useListSearcher(mockAppId, [], 'status = "Active"')
       );
@@ -141,8 +141,10 @@ describe('useListSearcher', () => {
         result.current.setQuery('NonExistent');
       });
 
-      expect(result.current.message).toBe('一致するものがありません');
-      expect(result.current.records).toEqual([]);
+      await waitFor(() => {
+        expect(result.current.message).toBe('一致するものがありません');
+        expect(result.current.records).toEqual([]);
+      });
     });
 
     it('should clear message when search query is cleared and records exist', async () => {
