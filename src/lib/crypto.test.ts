@@ -1,4 +1,4 @@
-import { decrypt, encrypt } from './crypto';
+import { decrypt, encrypt, isEncrypted } from './crypto';
 
 describe('crypto', () => {
   describe('encrypt and decrypt', () => {
@@ -64,8 +64,11 @@ describe('crypto', () => {
 
       const encrypted = await encrypt(data, pin);
 
-      // Check format: {iv}.{salt}.{ciphertext}
-      const parts = encrypted.split('.');
+      // Check format: encrypted:{iv}.{salt}.{ciphertext}
+      expect(encrypted.startsWith('encrypted:')).toBe(true);
+
+      const dataWithoutPrefix = encrypted.substring('encrypted:'.length);
+      const parts = dataWithoutPrefix.split('.');
       expect(parts).toHaveLength(3);
 
       // Check that each part is valid base64
@@ -114,18 +117,28 @@ describe('crypto', () => {
     it('should fail to decrypt invalid format', async () => {
       const pin = '1234';
 
-      // Not enough parts
-      await expect(decrypt('invalid.format', pin)).rejects.toThrow(
+      // Missing 'encrypted:' prefix
+      await expect(decrypt('invalid.format.data', pin)).rejects.toThrow(
         'Invalid encrypted data format'
       );
 
-      // Too many parts
-      await expect(decrypt('too.many.parts.here', pin)).rejects.toThrow(
+      // Not enough parts (with prefix)
+      await expect(decrypt('encrypted:invalid.format', pin)).rejects.toThrow(
         'Invalid encrypted data format'
       );
+
+      // Too many parts (with prefix)
+      await expect(
+        decrypt('encrypted:too.many.parts.here', pin)
+      ).rejects.toThrow('Invalid encrypted data format');
 
       // Single string
       await expect(decrypt('invaliddata', pin)).rejects.toThrow(
+        'Invalid encrypted data format'
+      );
+
+      // Prefix only
+      await expect(decrypt('encrypted:', pin)).rejects.toThrow(
         'Invalid encrypted data format'
       );
     });
@@ -133,11 +146,15 @@ describe('crypto', () => {
     it('should fail to decrypt invalid base64', async () => {
       const pin = '1234';
 
-      // Invalid base64 in different parts
-      await expect(decrypt('invalid!.base64.data', pin)).rejects.toThrow();
-      await expect(decrypt('dmFsaWQ=.invalid!.data', pin)).rejects.toThrow();
+      // Invalid base64 in different parts (with prefix)
       await expect(
-        decrypt('dmFsaWQ=.dmFsaWQ=.invalid!', pin)
+        decrypt('encrypted:invalid!.base64.data', pin)
+      ).rejects.toThrow();
+      await expect(
+        decrypt('encrypted:dmFsaWQ=.invalid!.data', pin)
+      ).rejects.toThrow();
+      await expect(
+        decrypt('encrypted:dmFsaWQ=.dmFsaWQ=.invalid!', pin)
       ).rejects.toThrow();
     });
 
@@ -146,12 +163,13 @@ describe('crypto', () => {
       const pin = '1234';
 
       const encrypted = await encrypt(data, pin);
-      const parts = encrypted.split('.');
+      const dataWithoutPrefix = encrypted.substring('encrypted:'.length);
+      const parts = dataWithoutPrefix.split('.');
 
       // Corrupt the ciphertext by changing some characters
       const corruptedCiphertext =
         parts[2].substring(0, parts[2].length - 4) + 'XXXX';
-      const corrupted = `${parts[0]}.${parts[1]}.${corruptedCiphertext}`;
+      const corrupted = `encrypted:${parts[0]}.${parts[1]}.${corruptedCiphertext}`;
 
       await expect(decrypt(corrupted, pin)).rejects.toThrow();
     });
@@ -186,6 +204,50 @@ describe('crypto', () => {
       const decrypted = await decrypt(encrypted, longPin);
 
       expect(decrypted).toBe(data);
+    });
+  });
+
+  describe('isEncrypted', () => {
+    it('should return true for encrypted data', async () => {
+      const data = 'test data';
+      const pin = '1234';
+
+      const encrypted = await encrypt(data, pin);
+
+      expect(isEncrypted(encrypted)).toBe(true);
+    });
+
+    it('should return false for non-encrypted data', () => {
+      expect(isEncrypted('plain text')).toBe(false);
+      expect(isEncrypted('data.with.dots')).toBe(false);
+      expect(isEncrypted('')).toBe(false);
+    });
+
+    it('should return false for data without encrypted prefix', () => {
+      // Data has correct format but missing prefix
+      expect(isEncrypted('aaa.bbb.ccc')).toBe(false);
+    });
+
+    it('should return false for data with prefix but wrong format', () => {
+      // Has prefix but wrong number of parts
+      expect(isEncrypted('encrypted:aaa.bbb')).toBe(false);
+      expect(isEncrypted('encrypted:aaa.bbb.ccc.ddd')).toBe(false);
+      expect(isEncrypted('encrypted:')).toBe(false);
+    });
+
+    it('should return true only for correct format', () => {
+      // Correct format: encrypted: prefix + 3 parts with valid base64
+      expect(isEncrypted('encrypted:aaa.bbb.ccc')).toBe(true);
+      expect(isEncrypted('encrypted:ABC123+/==.DEF456.GHI789==')).toBe(true);
+    });
+
+    it('should return false for invalid base64 characters', () => {
+      // Invalid characters in base64 parts
+      expect(isEncrypted('encrypted:aaa!.bbb.ccc')).toBe(false);
+      expect(isEncrypted('encrypted:aaa.bbb@.ccc')).toBe(false);
+      expect(isEncrypted('encrypted:aaa.bbb.ccc#')).toBe(false);
+      expect(isEncrypted('encrypted:あああ.bbb.ccc')).toBe(false);
+      expect(isEncrypted('encrypted:aaa.bbb.ccc=====')).toBe(false); // Too many '='
     });
   });
 });

@@ -4,6 +4,8 @@
  * The IV, salt, and ciphertext are encoded in base64 and concatenated with periods: `{iv}.{salt}.{ciphertext}`.
  */
 
+const PREFIX = 'encrypted:';
+
 const generateKey = async (
   pin: string,
   salt: ArrayBuffer
@@ -51,11 +53,16 @@ export const encrypt = async (data: string, pin: string): Promise<string> => {
     String.fromCharCode(...new Uint8Array(ciphertext))
   );
 
-  return `${ivBase64}.${saltBase64}.${ciphertextBase64}`;
+  return `${PREFIX}${ivBase64}.${saltBase64}.${ciphertextBase64}`;
 };
 
 export const decrypt = async (data: string, pin: string): Promise<string> => {
-  const parts = data.split('.');
+  if (!data.startsWith(PREFIX)) {
+    throw new Error('Invalid encrypted data format');
+  }
+
+  const dataWithoutPrefix = data.substring(PREFIX.length);
+  const parts = dataWithoutPrefix.split('.');
   if (parts.length !== 3) {
     throw new Error('Invalid encrypted data format');
   }
@@ -79,5 +86,16 @@ export const decrypt = async (data: string, pin: string): Promise<string> => {
 };
 
 export const isEncrypted = (data: string): boolean => {
-  return data.split('.').length === 3;
+  if (!data.startsWith(PREFIX)) {
+    return false;
+  }
+  const dataWithoutPrefix = data.substring(PREFIX.length);
+  const parts = dataWithoutPrefix.split('.');
+  if (parts.length !== 3) {
+    return false;
+  }
+
+  // Validate that each part contains only valid base64 characters
+  const base64Regex = /^[A-Za-z0-9+/]*={0,2}$/;
+  return parts.every((part) => base64Regex.test(part));
 };
