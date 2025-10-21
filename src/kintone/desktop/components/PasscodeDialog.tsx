@@ -1,20 +1,15 @@
-import { useEffect, useEffectEvent, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 import GlobalStyle from '@components/GlobalStyle';
 import InputField from '@components/InputField';
 
-interface PasscodeDialogProps {
+export default function PasscodeDialog({
+  callback,
+}: {
   callback: (passcode: string | null) => void;
-}
-
-export default function PasscodeDialog({ callback }: PasscodeDialogProps) {
-  const [passcode, setPasscode] = useState('');
-  const passcodeRef = useRef(passcode);
-
-  useEffect(() => {
-    passcodeRef.current = passcode;
-  }, [passcode]);
+}) {
+  const [passcode, setPasscode] = useState<string>('');
 
   const div = useMemo(() => {
     const div = document.createElement('div');
@@ -32,23 +27,20 @@ export default function PasscodeDialog({ callback }: PasscodeDialogProps) {
   }, [div]);
 
   useEffect(() => {
-    let close = () => {};
-
     dialog
-      .then(async (dialog) => {
-        close = () => dialog.close();
-        const action = await dialog.show();
-        callback(action === 'OK' ? passcodeRef.current : null);
+      .then((dialog) => dialog.show())
+      .then(() => {
+        callback(passcode);
       })
       .catch(() => {
         callback(null);
       });
 
     return () => {
-      close();
+      dialog.then((dialog) => dialog.hide());
       div.remove();
     };
-  }, [dialog, callback]);
+  }, [dialog, div, callback, passcode]);
 
   return (
     <>

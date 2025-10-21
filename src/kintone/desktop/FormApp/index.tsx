@@ -1,5 +1,7 @@
 import { useEffect, useEffectEvent, useState } from 'react';
 
+import { encrypt } from '@lib/crypto';
+
 import InputField from '@components/InputField';
 import OTPInputField from '@components/OTPInputField';
 import PasscodeInputField from '@components/PasscodeInputField';
@@ -22,15 +24,18 @@ export default function FormApp({ record }: FormAppProps) {
   // 暗号化する要素
   const [username, setUsername] = useFieldState(
     'username',
-    record?.username.value || ''
+    record?.username.value || '',
+    encryptionPasscode
   );
   const [password, setPassword] = useFieldState(
     'password',
-    record?.password.value || ''
+    record?.password.value || '',
+    encryptionPasscode
   );
   const [otpuri, setOtpuri] = useFieldState(
     'otpuri',
-    record?.otpuri.value || ''
+    record?.otpuri.value || '',
+    encryptionPasscode
   );
 
   // 標準のフィールドは使わないので非表示にする
@@ -59,42 +64,43 @@ export default function FormApp({ record }: FormAppProps) {
         onChange={setUrl}
         type="url"
       />
-      <EncryptedInputField
+      <InputField
         label="ユーザー名"
         placeholder=""
         value={username}
         onChange={setUsername}
-        encryptionPasscode={encryptionPasscode}
+        type="text"
       />
-      <EncryptedInputField
+      <EncryptedField
         label="パスワード"
         value={password}
         onChange={setPassword}
         encryptionPasscode={encryptionPasscode}
-      />
-      <EncryptedField
-        label="ワンタイムパスワード"
-        value={otpuri}
-        onChange={setOtpuri}
-        encryptionPasscode={encryptionPasscode}
       >
-        {(decryptedValue, onDecryptedChange) => (
-          <OTPInputField
-            label="ワンタイムパスワード"
-            value={decryptedValue}
-            onChange={useEffectEvent((value, info) => {
-              onDecryptedChange!(value);
-
-              if (!name && info?.issuer) {
-                setName(info.issuer);
-              }
-              if (!username && info?.accountName) {
-                setUsername(info.accountName);
-              }
-            })}
+        {(value, onChange) => (
+          <InputField
+            label="パスワード"
+            placeholder=""
+            value={value}
+            onChange={onChange!}
+            type="text"
           />
         )}
       </EncryptedField>
+      <OTPInputField
+        label="ワンタイムパスワード"
+        value={otpuri}
+        onChange={useEffectEvent((value, info) => {
+          setOtpuri(value);
+
+          if (!name && info?.issuer) {
+            setName(info.issuer);
+          }
+          if (!username && info?.accountName) {
+            setUsername(info.accountName);
+          }
+        })}
+      />
       <PasscodeInputField
         value={encryptionPasscode}
         onChange={setEncryptionPasscode}
@@ -110,58 +116,31 @@ export default function FormApp({ record }: FormAppProps) {
 
 const useFieldState = (
   fieldName: keyof kintone.types.Fields,
-  initialValue: string
+  initialValue: string,
+  encryptionPasscode?: string | null
 ): [string, (value: string) => void] => {
   const [value, setValue] = useState<string>(initialValue);
 
   useEffect(() => {
     const { record } = kintone.app.record.get();
+    const v = encryptionPasscode
+      ? encrypt(value, encryptionPasscode)
+      : Promise.resolve(value);
 
-    kintone.app.record.set({
-      record: {
-        ...record,
-        [fieldName]: {
-          value,
-          type: record[fieldName].type,
+    v.then((encryptedValue) => {
+      kintone.app.record.set({
+        record: {
+          ...record,
+          [fieldName]: {
+            value: encryptedValue,
+            type: record[fieldName].type,
+          },
         },
-      },
+      });
+    }).catch((err) => {
+      console.error('Error encrypting field value:', err);
     });
-  }, [fieldName, value]);
+  }, [fieldName, value, encryptionPasscode]);
 
   return [value, setValue];
 };
-
-interface EncryptedInputFieldProps {
-  label: string;
-  placeholder?: string;
-  value: string;
-  onChange: (newValue: string) => void;
-  encryptionPasscode: string | null;
-}
-
-function EncryptedInputField({
-  label,
-  placeholder = '',
-  value,
-  onChange,
-  encryptionPasscode,
-}: EncryptedInputFieldProps) {
-  return (
-    <EncryptedField
-      label={label}
-      value={value}
-      onChange={onChange}
-      encryptionPasscode={encryptionPasscode}
-    >
-      {(decryptedValue, onDecryptedChange) => (
-        <InputField
-          label={label}
-          placeholder={placeholder}
-          value={decryptedValue}
-          onChange={onDecryptedChange!}
-          type="text"
-        />
-      )}
-    </EncryptedField>
-  );
-}
