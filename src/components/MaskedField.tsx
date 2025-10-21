@@ -13,7 +13,7 @@ export interface EncryptedFieldMaskProps {
  * 暗号化されたフィールドの代わりに表示するコンポーネント。
  *
  * @param label - フィールドの上に表示するラベル。
- * @param onClick - 復号ボタンがクリックされたときに呼び出されるコールバック関数。
+ * @param onClick - フィールドがクリックされたときに呼び出されるコールバック関数。
  */
 export default function EncryptedFieldMask({
   label,

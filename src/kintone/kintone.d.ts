@@ -155,7 +155,7 @@ declare namespace kintone {
   };
   type DialogHandler = {
     show: () => Promise<'OK' | 'CANCEL' | 'CLOSE' | 'FUNCTION'>;
-    hide: () => void;
+    close: () => void;
   };
   function createDialog(config: DialogOptions): Promise<DialogHandler>;
 }

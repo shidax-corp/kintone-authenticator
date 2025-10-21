@@ -1,15 +1,23 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useEffectEvent, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 import GlobalStyle from '@components/GlobalStyle';
 import InputField from '@components/InputField';
 
-export default function PasscodeDialog({
-  callback,
-}: {
-  callback: (passcode: string | null) => void;
-}) {
+type CallbackFunc = (passcode: string | null) => void;
+
+export interface PasscodeDialogProps {
+  callback: CallbackFunc;
+}
+
+export default function PasscodeDialog({ callback }: PasscodeDialogProps) {
   const [passcode, setPasscode] = useState<string>('');
+
+  // コールバック関数の中からでも最新のパスコードにアクセスできるようにする。
+  const passcodeRef = useRef(passcode);
+  useEffect(() => {
+    passcodeRef.current = passcode;
+  }, [passcode]);
 
   const div = useMemo(() => {
     const div = document.createElement('div');
@@ -26,21 +34,36 @@ export default function PasscodeDialog({
     });
   }, [div]);
 
-  useEffect(() => {
+  const showDialog = useEffectEvent((callback: CallbackFunc) => {
+    let close = () => {};
+
     dialog
-      .then((dialog) => dialog.show())
-      .then(() => {
-        callback(passcode);
+      .then(async (dialog) => {
+        close = () => {
+          dialog.close();
+        };
+
+        const action = await dialog.show();
+        if (action === 'OK') {
+          // ここではStateの値はキャプチャされてしまっているので、Ref経由で最新の値を取得する。
+          callback(passcodeRef.current);
+        } else {
+          callback(null);
+        }
       })
       .catch(() => {
         callback(null);
       });
 
     return () => {
-      dialog.then((dialog) => dialog.hide());
+      close();
       div.remove();
     };
-  }, [dialog, div, callback, passcode]);
+  });
+
+  useEffect(() => {
+    return showDialog(callback);
+  }, [callback]);
 
   return (
     <>

@@ -1,12 +1,14 @@
-import { useEffect, useEffectEvent, useState } from 'react';
+import { useEffect, useState } from 'react';
 
-import { encrypt } from '@lib/crypto';
+import { decrypt, encrypt, isEncrypted } from '@lib/crypto';
+import type { OTPAuthRecord } from '@lib/otpauth-uri';
 
 import InputField from '@components/InputField';
+import MaskedField from '@components/MaskedField';
 import OTPInputField from '@components/OTPInputField';
 import PasscodeInputField from '@components/PasscodeInputField';
 
-import EncryptedField from '../components/EncryptedField';
+import PasscodeDialog from '../components/PasscodeDialog';
 
 export interface FormAppProps {
   record: kintone.types.Fields;
@@ -16,6 +18,7 @@ export default function FormApp({ record }: FormAppProps) {
   const [encryptionPasscode, setEncryptionPasscode] = useState<string | null>(
     null
   );
+  const [showPasscodeDialog, setShowPasscodeDialog] = useState(false);
 
   // 暗号化しない要素
   const [name, setName] = useFieldState('name', record?.name.value || '');
@@ -37,6 +40,20 @@ export default function FormApp({ record }: FormAppProps) {
     record?.otpuri.value || '',
     encryptionPasscode
   );
+
+  const isEncryptedRecord =
+    isEncrypted(username) || isEncrypted(password) || isEncrypted(otpuri);
+
+  const onReadOTP = (value: string, info: OTPAuthRecord | null) => {
+    setOtpuri(value);
+
+    if (!name && info?.issuer) {
+      setName(info.issuer);
+    }
+    if (!username && info?.accountName) {
+      setUsername(info.accountName);
+    }
+  };
 
   // 標準のフィールドは使わないので非表示にする
   useEffect(() => {
@@ -64,52 +81,82 @@ export default function FormApp({ record }: FormAppProps) {
         onChange={setUrl}
         type="url"
       />
-      <InputField
-        label="ユーザー名"
-        placeholder=""
-        value={username}
-        onChange={setUsername}
-        type="text"
-      />
-      <EncryptedField
-        label="パスワード"
-        value={password}
-        onChange={setPassword}
-        encryptionPasscode={encryptionPasscode}
-      >
-        {(value, onChange) => (
+      {isEncryptedRecord ? (
+        <>
+          <MaskedField
+            label="ユーザー名"
+            onClick={() => setShowPasscodeDialog(true)}
+          />
+          <MaskedField
+            label="パスワード"
+            onClick={() => setShowPasscodeDialog(true)}
+          />
+          <MaskedField
+            label="ワンタイムパスワード"
+            onClick={() => setShowPasscodeDialog(true)}
+          />
+        </>
+      ) : (
+        <>
+          <InputField
+            label="ユーザー名"
+            placeholder=""
+            value={username}
+            onChange={setUsername}
+            type="text"
+          />
           <InputField
             label="パスワード"
             placeholder=""
-            value={value}
-            onChange={onChange!}
+            value={password}
+            onChange={setPassword}
             type="text"
           />
-        )}
-      </EncryptedField>
-      <OTPInputField
-        label="ワンタイムパスワード"
-        value={otpuri}
-        onChange={useEffectEvent((value, info) => {
-          setOtpuri(value);
-
-          if (!name && info?.issuer) {
-            setName(info.issuer);
-          }
-          if (!username && info?.accountName) {
-            setUsername(info.accountName);
-          }
-        })}
-      />
-      <PasscodeInputField
-        value={encryptionPasscode}
-        onChange={setEncryptionPasscode}
-      />
+          <OTPInputField
+            label="ワンタイムパスワード"
+            value={otpuri}
+            onChange={onReadOTP}
+          />
+          <PasscodeInputField
+            value={encryptionPasscode}
+            onChange={setEncryptionPasscode}
+          />
+        </>
+      )}
       <style jsx>{`
         div > :global(*) {
           margin-bottom: 1em;
         }
       `}</style>
+
+      {showPasscodeDialog && (
+        <PasscodeDialog
+          callback={(passcode) => {
+            setShowPasscodeDialog(false);
+
+            if (passcode) {
+              (async () => {
+                setEncryptionPasscode(passcode);
+
+                if (username && isEncrypted(username)) {
+                  setUsername(await decrypt(username, passcode));
+                }
+
+                if (password && isEncrypted(password)) {
+                  setPassword(await decrypt(password, passcode));
+                }
+
+                if (otpuri && isEncrypted(otpuri)) {
+                  setOtpuri(await decrypt(otpuri, passcode));
+                }
+              })().catch((err) => {
+                console.error('Error decrypting field values:', err);
+                // TODO: ユーザーにエラーを表示してもう一度ダイアログを開く
+              });
+            }
+          }}
+        />
+      )}
     </div>
   );
 }
@@ -122,10 +169,16 @@ const useFieldState = (
   const [value, setValue] = useState<string>(initialValue);
 
   useEffect(() => {
+    if (isEncrypted(value)) {
+      // 暗号化されている場合は二重暗号化を防ぐために何もしない。
+      return;
+    }
+
     const { record } = kintone.app.record.get();
-    const v = encryptionPasscode
-      ? encrypt(value, encryptionPasscode)
-      : Promise.resolve(value);
+    const v =
+      encryptionPasscode && value
+        ? encrypt(value, encryptionPasscode)
+        : Promise.resolve(value);
 
     v.then((encryptedValue) => {
       kintone.app.record.set({
