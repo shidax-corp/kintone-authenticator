@@ -12,7 +12,7 @@ type EncryptedFieldProps = {
   encryptionPasscode?: string | null;
   children: (
     value: string,
-    onChange?: (newValue: string) => void
+    onChange: (newValue: string) => void
   ) => React.ReactNode;
 };
 
@@ -38,7 +38,10 @@ export default function EncryptedField({
         label={label}
         value={value}
         encryptionPasscode={encryptionPasscode}
-        decryptionPasscodes={decryptionPasscodes}
+        decryptionPasscodes={[
+          ...(decryptionPasscodes || []),
+          ...(encryptionPasscode ? [encryptionPasscode] : []),
+        ]}
         onDecryptRequest={() => setShowDialog(true)}
         onChange={onChange}
       >
@@ -49,6 +52,7 @@ export default function EncryptedField({
         <PasscodeDialog
           callback={async (passcode) => {
             if (passcode) {
+              setShowDialog(false);
               await savePasscode(passcode);
               setDecryptionPasscodes([...passcode]);
             }
