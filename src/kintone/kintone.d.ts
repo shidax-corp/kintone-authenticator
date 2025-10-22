@@ -32,11 +32,8 @@ declare namespace kintone {
     type RecordEditShowEventType =
       | 'app.record.edit.show'
       | 'mobile.app.record.edit.show';
-    interface RecordEditShowEvent {
-      type: RecordEditShowEventType;
-      appId: number;
+    interface RecordEditShowEvent extends RecordCreateShowEvent {
       recordId: number;
-      record: kintone.types.SavedFields;
     }
 
     type RecordCreateSubmitEventType =
@@ -51,36 +48,46 @@ declare namespace kintone {
     type RecordEditSubmitEventType =
       | 'app.record.edit.submit'
       | 'mobile.app.record.edit.submit';
-    interface RecordEditSubmitEvent {
-      type: RecordEditSubmitEventType;
-      appId: number;
+    interface RecordEditSubmitEvent extends RecordCreateSubmitEvent {
       recordId: number;
-      record: kintone.types.SavedFields;
     }
+
+    type Event = {
+      type:
+        | RecordIndexShowEventType
+        | RecordDetailShowEventType
+        | RecordCreateShowEventType
+        | RecordEditShowEventType
+        | RecordCreateSubmitEventType
+        | RecordEditSubmitEventType;
+    };
+    type EventHandler<T extends Event> =
+      | ((event: T) => T)
+      | ((event: T) => Promise<T>);
 
     function on(
       eventTypes: RecordIndexShowEventType | RecordIndexShowEventType[],
-      handler: (event: RecordIndexShowEvent) => RecordIndexShowEvent
+      handler: EventHandler<RecordIndexShowEvent>
     ): void;
     function on(
       eventTypes: RecordDetailShowEventType | RecordDetailShowEventType[],
-      handler: (event: RecordDetailShowEvent) => RecordDetailShowEvent
+      handler: EventHandler<RecordDetailShowEvent>
     ): void;
     function on(
       eventTypes: RecordCreateShowEventType | RecordCreateShowEventType[],
-      handler: (event: RecordCreateShowEvent) => RecordCreateShowEvent
+      handler: EventHandler<RecordCreateShowEvent>
     ): void;
     function on(
       eventTypes: RecordEditShowEventType | RecordEditShowEventType[],
-      handler: (event: RecordEditShowEvent) => RecordEditShowEvent
+      handler: EventHandler<RecordEditShowEvent>
     ): void;
     function on(
       eventTypes: RecordCreateSubmitEventType | RecordCreateSubmitEventType[],
-      handler: (event: RecordCreateSubmitEvent) => RecordCreateSubmitEvent
+      handler: EventHandler<RecordCreateSubmitEvent>
     ): void;
     function on(
       eventTypes: RecordEditSubmitEventType | RecordEditSubmitEventType[],
-      handler: (event: RecordEditSubmitEvent) => RecordEditSubmitEvent
+      handler: EventHandler<RecordEditSubmitEvent>
     ): void;
   }
 
