@@ -15,9 +15,10 @@ export default function PasscodeDialog({ callback }: PasscodeDialogProps) {
 
   // コールバック関数の中からでも最新のパスコードにアクセスできるようにする。
   const passcodeRef = useRef(passcode);
-  useEffect(() => {
-    passcodeRef.current = passcode;
-  }, [passcode]);
+  const handlePasscodeChange = (value: string) => {
+    passcodeRef.current = value;
+    setPasscode(value);
+  };
 
   const div = useMemo(() => {
     const div = document.createElement('div');
@@ -73,7 +74,7 @@ export default function PasscodeDialog({ callback }: PasscodeDialogProps) {
             type="password"
             label="パスコード"
             value={passcode}
-            onChange={setPasscode}
+            onChange={handlePasscodeChange}
             required
           />
         </GlobalStyle>,
