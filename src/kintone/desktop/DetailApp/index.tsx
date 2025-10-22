@@ -4,6 +4,7 @@ import { decrypt, isEncrypted } from '@lib/crypto';
 import { isValidURL } from '@lib/url';
 
 import Field from '@components/Field';
+import { useKeychain } from '@components/Keychain';
 import MaskedField from '@components/MaskedField';
 import OTPField from '@components/OTPField';
 import PasswordField from '@components/PasswordField';
@@ -24,6 +25,39 @@ export default function DetailApp({
   const [usernameState, setUsername] = useState(username.value);
   const [passwordState, setPassword] = useState(password.value);
   const [otpuriState, setOtpuri] = useState(otpuri.value);
+
+  const isEncryptedRecord =
+    isEncrypted(usernameState) ||
+    isEncrypted(passwordState) ||
+    isEncrypted(otpuriState);
+
+  // パスコードが入力されたときの処理
+  // Keychainから読み取ったときにも、PasscodeDialogから入力されたときにも呼ばれる。
+  const onPasscode = async (passcode: string) => {
+    if (!isEncryptedRecord) {
+      return;
+    }
+
+    try {
+      if (usernameState && isEncrypted(usernameState)) {
+        setUsername(await decrypt(usernameState, passcode));
+      }
+
+      if (passwordState && isEncrypted(passwordState)) {
+        setPassword(await decrypt(passwordState, passcode));
+      }
+
+      if (otpuriState && isEncrypted(otpuriState)) {
+        setOtpuri(await decrypt(otpuriState, passcode));
+      }
+
+      setShowPasscodeDialog(false);
+    } catch {
+      throw new Error('パスコードが違います。');
+    }
+  };
+
+  const { savePasscode } = useKeychain(onPasscode);
 
   useEffect(() => {
     // 標準のフィールドは使わないので非表示にする
@@ -111,23 +145,8 @@ export default function DetailApp({
               return;
             }
 
-            try {
-              if (usernameState && isEncrypted(usernameState)) {
-                setUsername(await decrypt(usernameState, passcode));
-              }
-
-              if (passwordState && isEncrypted(passwordState)) {
-                setPassword(await decrypt(passwordState, passcode));
-              }
-
-              if (otpuriState && isEncrypted(otpuriState)) {
-                setOtpuri(await decrypt(otpuriState, passcode));
-              }
-
-              setShowPasscodeDialog(false);
-            } catch {
-              throw new Error('パスコードが違います。');
-            }
+            await onPasscode(passcode);
+            await savePasscode(passcode);
           }}
         />
       )}

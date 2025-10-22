@@ -4,6 +4,7 @@ import { decrypt, encrypt, isEncrypted } from '@lib/crypto';
 import type { OTPAuthRecord } from '@lib/otpauth-uri';
 
 import InputField from '@components/InputField';
+import { useKeychain } from '@components/Keychain';
 import MaskedField from '@components/MaskedField';
 import OTPInputField from '@components/OTPInputField';
 import PasscodeInputField from '@components/PasscodeInputField';
@@ -28,6 +29,38 @@ export default function FormApp({ record }: FormAppProps) {
   const [username, setUsername] = useState(record?.username.value || '');
   const [password, setPassword] = useState(record?.password.value || '');
   const [otpuri, setOtpuri] = useState(record?.otpuri.value || '');
+
+  const isEncryptedRecord =
+    isEncrypted(username) || isEncrypted(password) || isEncrypted(otpuri);
+
+  // パスコードが入力されたときの処理
+  // Keychainから読み取ったときにも、PasscodeDialogから入力されたときにも呼ばれる。
+  const onPasscode = async (passcode: string) => {
+    if (!isEncryptedRecord) {
+      return;
+    }
+
+    try {
+      if (username && isEncrypted(username)) {
+        setUsername(await decrypt(username, passcode));
+      }
+
+      if (password && isEncrypted(password)) {
+        setPassword(await decrypt(password, passcode));
+      }
+
+      if (otpuri && isEncrypted(otpuri)) {
+        setOtpuri(await decrypt(otpuri, passcode));
+      }
+
+      setShowPasscodeDialog(false);
+      setEncryptionPasscode(passcode);
+    } catch {
+      throw new Error('パスコードが違います。');
+    }
+  };
+
+  const { savePasscode } = useKeychain(onPasscode);
 
   // レコード保存直前に呼ばれるイベントハンドラ。
   // フィールドの値はStateで管理しており、保存ボタンを押したときにはじめてこのハンドラを通じてkintone側に伝えられる。
@@ -90,7 +123,7 @@ export default function FormApp({ record }: FormAppProps) {
         onChange={setUrl}
         type="url"
       />
-      {isEncrypted(username) || isEncrypted(password) || isEncrypted(otpuri) ? (
+      {isEncryptedRecord ? (
         <>
           <MaskedField
             label="ユーザー名"
@@ -155,24 +188,8 @@ export default function FormApp({ record }: FormAppProps) {
               return;
             }
 
-            try {
-              if (username && isEncrypted(username)) {
-                setUsername(await decrypt(username, passcode));
-              }
-
-              if (password && isEncrypted(password)) {
-                setPassword(await decrypt(password, passcode));
-              }
-
-              if (otpuri && isEncrypted(otpuri)) {
-                setOtpuri(await decrypt(otpuri, passcode));
-              }
-
-              setEncryptionPasscode(passcode);
-              setShowPasscodeDialog(false);
-            } catch {
-              throw new Error('パスコードが違います。');
-            }
+            await onPasscode(passcode);
+            await savePasscode(passcode);
           }}
         />
       )}
