@@ -19,6 +19,9 @@ export default function FormApp({ record }: FormAppProps) {
     null
   );
   const [showPasscodeDialog, setShowPasscodeDialog] = useState(false);
+  const [decryptionError, setDecryptionError] = useState<string | undefined>(
+    undefined
+  );
 
   // 暗号化しない要素
   const [name, setName] = useState(record?.name.value || '');
@@ -149,10 +152,11 @@ export default function FormApp({ record }: FormAppProps) {
 
       {showPasscodeDialog && (
         <PasscodeDialog
+          error={decryptionError}
           callback={(passcode) => {
-            setShowPasscodeDialog(false);
-
-            if (passcode) {
+            if (!passcode) {
+              setShowPasscodeDialog(false);
+            } else {
               (async () => {
                 setEncryptionPasscode(passcode);
 
@@ -167,9 +171,12 @@ export default function FormApp({ record }: FormAppProps) {
                 if (otpuri && isEncrypted(otpuri)) {
                   setOtpuri(await decrypt(otpuri, passcode));
                 }
+
+                setShowPasscodeDialog(false);
               })().catch((err) => {
                 console.error('Error decrypting field values:', err);
-                // TODO: ユーザーにエラーを表示してもう一度ダイアログを開く
+                setDecryptionError('パスコードが違います。');
+                setShowPasscodeDialog(true);
               });
             }
           }}

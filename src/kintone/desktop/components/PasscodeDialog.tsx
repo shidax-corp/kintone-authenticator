@@ -7,10 +7,14 @@ import InputField from '@components/InputField';
 type CallbackFunc = (passcode: string | null) => void;
 
 export interface PasscodeDialogProps {
+  error?: string;
   callback: CallbackFunc;
 }
 
-export default function PasscodeDialog({ callback }: PasscodeDialogProps) {
+export default function PasscodeDialog({
+  error,
+  callback,
+}: PasscodeDialogProps) {
   const [passcode, setPasscode] = useState<string>('');
 
   // コールバック関数の中からでも最新のパスコードにアクセスできるようにする。
@@ -70,13 +74,23 @@ export default function PasscodeDialog({ callback }: PasscodeDialogProps) {
     <>
       {createPortal(
         <GlobalStyle tint>
-          <InputField
-            type="password"
-            label="パスコード"
-            value={passcode}
-            onChange={handlePasscodeChange}
-            required
-          />
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              callback(passcodeRef.current);
+            }}
+          >
+            <InputField
+              type="password"
+              label="パスコード"
+              value={passcode}
+              onChange={handlePasscodeChange}
+              required
+            />
+            {error && (
+              <div style={{ color: 'red', marginBottom: '0.5em' }}>{error}</div>
+            )}
+          </form>
         </GlobalStyle>,
         div
       )}
