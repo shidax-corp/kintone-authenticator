@@ -33,9 +33,11 @@ export default function FormApp({ record }: FormAppProps) {
   // フィールドの値はStateで管理しており、保存ボタンを押したときにはじめてこのハンドラを通じてkintone側に伝えられる。
   // このときに暗号化も同時に行う。
   const onSubmit = useEffectEvent(
-    async <T extends kintone.events.RecordCreateSubmitEvent>(
-      event: T
-    ): Promise<T> => {
+    async (
+      event:
+        | kintone.events.RecordCreateSubmitEvent
+        | kintone.events.RecordEditSubmitEvent
+    ) => {
       event.record.name.value = name;
       event.record.url.value = url;
 
@@ -65,8 +67,10 @@ export default function FormApp({ record }: FormAppProps) {
     kintone.app.record.setFieldShown('otpuri', false);
 
     // レコードを保存する前にkintoneに値を伝えるハンドラを登録する
-    kintone.events.on('app.record.create.submit', onSubmit);
-    kintone.events.on('app.record.edit.submit', onSubmit);
+    kintone.events.on(
+      ['app.record.create.submit', 'app.record.edit.submit'],
+      onSubmit
+    );
   }, []);
 
   return (
