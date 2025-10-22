@@ -6,6 +6,11 @@ Object.defineProperty(global, 'crypto', {
   writable: false,
 });
 
+// Setup TextEncoder and TextDecoder for jsdom environment
+const { TextEncoder, TextDecoder } = require('util');
+global.TextEncoder = TextEncoder;
+global.TextDecoder = TextDecoder;
+
 // Suppress styled-jsx errors in tests
 const originalConsoleError = console.error;
 console.error = (...args) => {

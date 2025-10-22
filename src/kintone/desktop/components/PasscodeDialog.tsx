@@ -3,12 +3,18 @@ import { createPortal } from 'react-dom';
 
 import GlobalStyle from '@components/GlobalStyle';
 import InputField from '@components/InputField';
-import type { PromptComponent } from '@components/Keychain';
+import type {
+  PromptComponent,
+  PromptComponentProps,
+} from '@components/Keychain';
 
 /**
  * kintoneのダイアログを使ってパスコードの入力を促すコンポーネント
  */
-const PasscodeDialog: PromptComponent = ({ shown, callback }) => {
+const PasscodeDialog: PromptComponent = ({
+  shown,
+  callback,
+}: PromptComponentProps) => {
   const [error, setError] = useState<string | null>(null);
   const [passcode, setPasscode] = useState<string>('');
 

@@ -1,4 +1,4 @@
-import Keychain, { PromptComponent } from '@components/Keychain';
+import Keychain from '@components/Keychain';
 
 import Renderer from '../lib/renderer';
 import DetailApp from './DetailApp';

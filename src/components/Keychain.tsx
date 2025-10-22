@@ -1,5 +1,6 @@
 /* global sessionStorage */
 import {
+  type FC,
   type ReactNode,
   type RefObject,
   createContext,
@@ -72,6 +73,11 @@ const KeychainContext = createContext<KeychainContextType>({
   handlers: { current: new Set<PasscodeHandler>() },
 });
 
+export interface PromptComponentProps {
+  shown: boolean;
+  callback: (passcode: string | null) => Promise<void>;
+}
+
 /**
  * パスコードの入力を促すコンポーネントの型
  *
@@ -79,10 +85,7 @@ const KeychainContext = createContext<KeychainContextType>({
  * @param props.shown コンポーネントを表示するかどうか
  * @param props.callback コンポーネントが閉じられるときに呼ばれるコールバック関数。キャンセルされた場合はnullが渡される。コールバックがエラーを送出した場合はコンポーネントを閉じずにエラーメッセージを表示する。
  */
-export type PromptComponent = (props: {
-  shown: boolean;
-  callback: (passcode: string | null) => Promise<void>;
-}) => ReactNode;
+export type PromptComponent = FC<PromptComponentProps>;
 
 export interface KeychainProps {
   prompt: PromptComponent;

@@ -19,8 +19,6 @@ export default function AccountCard({
   viewId,
   account: { $id, name, username, password, otpuri, url },
 }: AccountCardProps) {
-  const [showPasscodeDialog, setShowPasscodeDialog] = useState(false);
-
   // 暗号化されうる要素
   const [usernameState, setUsername] = useState(username.value);
   const [passwordState, setPassword] = useState(password.value);
@@ -51,7 +49,6 @@ export default function AccountCard({
         setOtpuri(await decrypt(otpuriState, passcode));
       }
 
-      setShowPasscodeDialog(false);
       return true;
     } catch {
       return false;

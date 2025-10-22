@@ -48,7 +48,7 @@ describe('PasscodeDialog', () => {
   it('passes the latest passcode to callback even when confirmed immediately', async () => {
     const callback = jest.fn();
 
-    render(<PasscodeDialog callback={callback} />);
+    render(<PasscodeDialog shown={true} callback={callback} />);
 
     // Wait for createDialog promise and initial show call.
     await act(async () => {
@@ -71,7 +71,7 @@ describe('PasscodeDialog', () => {
   it('shows error when passcode is empty', async () => {
     const callback = jest.fn();
 
-    render(<PasscodeDialog callback={callback} />);
+    render(<PasscodeDialog shown={true} callback={callback} />);
 
     await act(async () => {
       await Promise.resolve();
@@ -94,7 +94,7 @@ describe('PasscodeDialog', () => {
   it('shows error when passcode is only whitespace', async () => {
     const callback = jest.fn();
 
-    render(<PasscodeDialog callback={callback} />);
+    render(<PasscodeDialog shown={true} callback={callback} />);
 
     await act(async () => {
       await Promise.resolve();
@@ -122,7 +122,7 @@ describe('PasscodeDialog', () => {
       throw new Error('Invalid passcode');
     });
 
-    render(<PasscodeDialog callback={callback} />);
+    render(<PasscodeDialog shown={true} callback={callback} />);
 
     await act(async () => {
       await Promise.resolve();
@@ -146,7 +146,7 @@ describe('PasscodeDialog', () => {
   it('shows error when callback rejects with async error', async () => {
     const callback = jest.fn().mockRejectedValue(new Error('Network error'));
 
-    render(<PasscodeDialog callback={callback} />);
+    render(<PasscodeDialog shown={true} callback={callback} />);
 
     await act(async () => {
       await Promise.resolve();
@@ -172,7 +172,7 @@ describe('PasscodeDialog', () => {
       throw 'String error';
     });
 
-    render(<PasscodeDialog callback={callback} />);
+    render(<PasscodeDialog shown={true} callback={callback} />);
 
     await act(async () => {
       await Promise.resolve();
@@ -195,7 +195,7 @@ describe('PasscodeDialog', () => {
   it('closes dialog when callback succeeds synchronously', async () => {
     const callback = jest.fn();
 
-    render(<PasscodeDialog callback={callback} />);
+    render(<PasscodeDialog shown={true} callback={callback} />);
 
     await act(async () => {
       await Promise.resolve();
@@ -217,7 +217,7 @@ describe('PasscodeDialog', () => {
   it('closes dialog when callback succeeds asynchronously', async () => {
     const callback = jest.fn().mockResolvedValue(undefined);
 
-    render(<PasscodeDialog callback={callback} />);
+    render(<PasscodeDialog shown={true} callback={callback} />);
 
     await act(async () => {
       await Promise.resolve();
@@ -239,7 +239,7 @@ describe('PasscodeDialog', () => {
   it('calls callback with null when cancelled', async () => {
     const callback = jest.fn();
 
-    render(<PasscodeDialog callback={callback} />);
+    render(<PasscodeDialog shown={true} callback={callback} />);
 
     await act(async () => {
       await Promise.resolve();
@@ -256,7 +256,7 @@ describe('PasscodeDialog', () => {
   it('calls callback with null when closed', async () => {
     const callback = jest.fn();
 
-    render(<PasscodeDialog callback={callback} />);
+    render(<PasscodeDialog shown={true} callback={callback} />);
 
     await act(async () => {
       await Promise.resolve();
@@ -277,7 +277,7 @@ describe('PasscodeDialog', () => {
       }
     });
 
-    render(<PasscodeDialog callback={callback} />);
+    render(<PasscodeDialog shown={true} callback={callback} />);
 
     await act(async () => {
       await Promise.resolve();
@@ -296,7 +296,7 @@ describe('PasscodeDialog', () => {
   it('submits form with Enter key and closes dialog on success', async () => {
     const callback = jest.fn();
 
-    render(<PasscodeDialog callback={callback} />);
+    render(<PasscodeDialog shown={true} callback={callback} />);
 
     await act(async () => {
       await Promise.resolve();
@@ -325,7 +325,7 @@ describe('PasscodeDialog', () => {
       throw new Error('Form error');
     });
 
-    render(<PasscodeDialog callback={callback} />);
+    render(<PasscodeDialog shown={true} callback={callback} />);
 
     await act(async () => {
       await Promise.resolve();
