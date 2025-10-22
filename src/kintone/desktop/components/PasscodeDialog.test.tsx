@@ -11,24 +11,24 @@ describe('PasscodeDialog', () => {
     resolveShow = null;
     dialogBody = null;
     const close = jest.fn();
-    const show = jest
-      .fn()
-      .mockImplementation(
-        () =>
-          new Promise<'OK' | 'CANCEL'>((resolve) => {
-            resolveShow = resolve;
-          })
-      );
+    const show = jest.fn().mockImplementation(
+      () =>
+        new Promise<'OK' | 'CANCEL'>((resolve) => {
+          resolveShow = resolve;
+        })
+    );
 
     (globalThis as any).kintone = {
-      createDialog: jest.fn().mockImplementation(({ body }: { body: HTMLElement }) => {
-        dialogBody = body;
-        document.body.appendChild(body);
-        return Promise.resolve({
-          show,
-          close,
-        });
-      }),
+      createDialog: jest
+        .fn()
+        .mockImplementation(({ body }: { body: HTMLElement }) => {
+          dialogBody = body;
+          document.body.appendChild(body);
+          return Promise.resolve({
+            show,
+            close,
+          });
+        }),
     };
   });
 
