@@ -4,17 +4,22 @@ import { createPortal } from 'react-dom';
 import GlobalStyle from '@components/GlobalStyle';
 import InputField from '@components/InputField';
 
-type CallbackFunc = (passcode: string | null) => void;
+type CallbackFunc = (passcode: string | null) => void | Promise<void>;
 
 export interface PasscodeDialogProps {
-  error?: string;
   callback: CallbackFunc;
 }
 
-export default function PasscodeDialog({
-  error,
-  callback,
-}: PasscodeDialogProps) {
+/**
+ * パスコードの入力を促すダイアログを表示する。
+ *
+ * 一度閉じたダイアログを再表示することはできない。
+ * 再表示したい場合は新しくマウントしなおすこと。
+ *
+ * @param callback ダイアログが閉じられるときに呼ばれる関数。キャンセルされた場合はnullが渡される。この関数でエラーを発生させると、ダイアログは閉じられず、エラーメッセージが表示される。
+ */
+export default function PasscodeDialog({ callback }: PasscodeDialogProps) {
+  const [error, setError] = useState<string | null>(null);
   const [passcode, setPasscode] = useState<string>('');
 
   // コールバック関数の中からでも最新のパスコードにアクセスできるようにする。
@@ -30,45 +35,71 @@ export default function PasscodeDialog({
     return div;
   }, []);
 
-  const dialog = useMemo(() => {
-    return kintone.createDialog({
+  const handleClose = async () => {
+    if (passcodeRef.current.trim() === '') {
+      setError('パスコードを入力してください。');
+      return false;
+    }
+
+    try {
+      await callback(passcodeRef.current);
+      return true;
+    } catch (e) {
+      if (e instanceof Error) {
+        setError(e.message);
+      } else {
+        setError(String(e));
+      }
+      return false;
+    }
+  };
+
+  const closeDialog = useRef<() => void>(() => {});
+
+  const beforeClose = useEffectEvent(
+    async (action: 'OK' | 'CANCEL' | 'CLOSE') => {
+      if (action === 'CANCEL' || action === 'CLOSE') {
+        try {
+          await callback(null);
+          return true;
+        } catch (e) {
+          if (e instanceof Error) {
+            setError(e.message);
+          } else {
+            setError(String(e));
+          }
+        }
+        return false;
+      }
+
+      return handleClose();
+    }
+  );
+
+  useEffect(() => {
+    const dialog = kintone.createDialog({
       title: 'パスコードを入力してください',
       body: div,
       showOkButton: true,
       showCancelButton: true,
+      beforeClose: beforeClose,
     });
-  }, [div]);
 
-  const showDialog = useEffectEvent((callback: CallbackFunc) => {
     let close = () => {};
 
-    dialog
-      .then(async (dialog) => {
-        close = () => {
-          dialog.close();
-        };
+    dialog.then((dialog) => {
+      dialog.show();
 
-        const action = await dialog.show();
-        if (action === 'OK') {
-          // ここではStateの値はキャプチャされてしまっているので、Ref経由で最新の値を取得する。
-          callback(passcodeRef.current);
-        } else {
-          callback(null);
-        }
-      })
-      .catch(() => {
-        callback(null);
-      });
+      close = () => {
+        dialog.close();
+      };
+      closeDialog.current = close;
+    });
 
     return () => {
       close();
-      div.remove();
     };
-  });
-
-  useEffect(() => {
-    return showDialog(callback);
-  }, [callback]);
+  }, [div]);
 
   return (
     <>
@@ -77,7 +108,11 @@ export default function PasscodeDialog({
           <form
             onSubmit={(e) => {
               e.preventDefault();
-              callback(passcodeRef.current);
+              handleClose().then((canClose) => {
+                if (canClose) {
+                  closeDialog.current();
+                }
+              });
             }}
           >
             <InputField
@@ -87,10 +122,15 @@ export default function PasscodeDialog({
               onChange={handlePasscodeChange}
               required
             />
-            {error && (
-              <div style={{ color: 'red', marginBottom: '0.5em' }}>{error}</div>
-            )}
+            {error && <div>{error}</div>}
           </form>
+
+          <style jsx>{`
+            div {
+              color: red;
+              margin-top: 0.5em;
+            }
+          `}</style>
         </GlobalStyle>,
         div
       )}

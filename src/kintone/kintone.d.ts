@@ -132,7 +132,9 @@ declare namespace kintone {
     showCancelButton?: boolean;
     cancelButtonText?: string;
     showCloseButton?: boolean;
-    beforeClose?: () => boolean | Promise<boolean>;
+    beforeClose?: (
+      action: 'OK' | 'CANCEL' | 'CLOSE'
+    ) => boolean | Promise<boolean>;
   };
   type DialogHandler = {
     show: () => Promise<'OK' | 'CANCEL' | 'CLOSE' | 'FUNCTION'>;

@@ -19,9 +19,6 @@ export default function FormApp({ record }: FormAppProps) {
     null
   );
   const [showPasscodeDialog, setShowPasscodeDialog] = useState(false);
-  const [decryptionError, setDecryptionError] = useState<string | undefined>(
-    undefined
-  );
 
   // 暗号化しない要素
   const [name, setName] = useState(record?.name.value || '');
@@ -152,32 +149,29 @@ export default function FormApp({ record }: FormAppProps) {
 
       {showPasscodeDialog && (
         <PasscodeDialog
-          error={decryptionError}
-          callback={(passcode) => {
+          callback={async (passcode) => {
             if (!passcode) {
               setShowPasscodeDialog(false);
-            } else {
-              (async () => {
-                setEncryptionPasscode(passcode);
+              return;
+            }
 
-                if (username && isEncrypted(username)) {
-                  setUsername(await decrypt(username, passcode));
-                }
+            try {
+              if (username && isEncrypted(username)) {
+                setUsername(await decrypt(username, passcode));
+              }
 
-                if (password && isEncrypted(password)) {
-                  setPassword(await decrypt(password, passcode));
-                }
+              if (password && isEncrypted(password)) {
+                setPassword(await decrypt(password, passcode));
+              }
 
-                if (otpuri && isEncrypted(otpuri)) {
-                  setOtpuri(await decrypt(otpuri, passcode));
-                }
+              if (otpuri && isEncrypted(otpuri)) {
+                setOtpuri(await decrypt(otpuri, passcode));
+              }
 
-                setShowPasscodeDialog(false);
-              })().catch((err) => {
-                console.error('Error decrypting field values:', err);
-                setDecryptionError('パスコードが違います。');
-                setShowPasscodeDialog(true);
-              });
+              setEncryptionPasscode(passcode);
+              setShowPasscodeDialog(false);
+            } catch {
+              throw new Error('パスコードが違います。');
             }
           }}
         />
