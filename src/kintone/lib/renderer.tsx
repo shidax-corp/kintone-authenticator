@@ -2,7 +2,6 @@ import type { ReactElement } from 'react';
 import { type Root, createRoot } from 'react-dom/client';
 
 import GlobalStyle, { type GlobalStyleOptions } from '@components/GlobalStyle';
-import Keychain from '@components/Keychain';
 
 export default class Renderer {
   private root: Root | null = null;
@@ -21,11 +20,7 @@ export default class Renderer {
       this.root = createRoot(container);
     }
 
-    this.root.render(
-      <GlobalStyle {...opts}>
-        <Keychain>{element}</Keychain>
-      </GlobalStyle>
-    );
+    this.root.render(<GlobalStyle {...opts}>{element}</GlobalStyle>);
   }
 
   unmount(): void {

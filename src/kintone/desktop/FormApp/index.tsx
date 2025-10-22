@@ -5,11 +5,8 @@ import type { OTPAuthRecord } from '@lib/otpauth-uri';
 
 import InputField from '@components/InputField';
 import { useKeychain } from '@components/Keychain';
-import MaskedField from '@components/MaskedField';
 import OTPInputField from '@components/OTPInputField';
 import PasscodeInputField from '@components/PasscodeInputField';
-
-import PasscodeDialog from '../components/PasscodeDialog';
 
 export interface FormAppProps {
   record: kintone.types.Fields;
@@ -19,7 +16,6 @@ export default function FormApp({ record }: FormAppProps) {
   const [encryptionPasscode, setEncryptionPasscode] = useState<string | null>(
     null
   );
-  const [showPasscodeDialog, setShowPasscodeDialog] = useState(false);
 
   // 暗号化しない要素
   const [name, setName] = useState(record?.name.value || '');
@@ -35,32 +31,32 @@ export default function FormApp({ record }: FormAppProps) {
 
   // パスコードが入力されたときの処理
   // Keychainから読み取ったときにも、PasscodeDialogから入力されたときにも呼ばれる。
-  const onPasscode = async (passcode: string) => {
-    if (!isEncryptedRecord) {
-      return;
+  const { savePasscode, MaskedField } = useKeychain(
+    async (passcode: string) => {
+      if (!isEncryptedRecord) {
+        return false;
+      }
+
+      try {
+        if (username && isEncrypted(username)) {
+          setUsername(await decrypt(username, passcode));
+        }
+
+        if (password && isEncrypted(password)) {
+          setPassword(await decrypt(password, passcode));
+        }
+
+        if (otpuri && isEncrypted(otpuri)) {
+          setOtpuri(await decrypt(otpuri, passcode));
+        }
+
+        setEncryptionPasscode(passcode);
+        return true;
+      } catch {
+        return false;
+      }
     }
-
-    try {
-      if (username && isEncrypted(username)) {
-        setUsername(await decrypt(username, passcode));
-      }
-
-      if (password && isEncrypted(password)) {
-        setPassword(await decrypt(password, passcode));
-      }
-
-      if (otpuri && isEncrypted(otpuri)) {
-        setOtpuri(await decrypt(otpuri, passcode));
-      }
-
-      setShowPasscodeDialog(false);
-      setEncryptionPasscode(passcode);
-    } catch {
-      throw new Error('パスコードが違います。');
-    }
-  };
-
-  const { savePasscode } = useKeychain(onPasscode);
+  );
 
   // レコード保存直前に呼ばれるイベントハンドラ。
   // フィールドの値はStateで管理しており、保存ボタンを押したときにはじめてこのハンドラを通じてkintone側に伝えられる。
@@ -86,6 +82,10 @@ export default function FormApp({ record }: FormAppProps) {
         otpuri && !isEncrypted(otpuri) && encryptionPasscode
           ? await encrypt(otpuri, encryptionPasscode)
           : otpuri;
+
+      if (encryptionPasscode) {
+        await savePasscode(encryptionPasscode);
+      }
 
       return event;
     }
@@ -125,18 +125,9 @@ export default function FormApp({ record }: FormAppProps) {
       />
       {isEncryptedRecord ? (
         <>
-          <MaskedField
-            label="ユーザー名"
-            onClick={() => setShowPasscodeDialog(true)}
-          />
-          <MaskedField
-            label="パスワード"
-            onClick={() => setShowPasscodeDialog(true)}
-          />
-          <MaskedField
-            label="ワンタイムパスワード"
-            onClick={() => setShowPasscodeDialog(true)}
-          />
+          <MaskedField label="ユーザー名" />
+          <MaskedField label="パスワード" />
+          <MaskedField label="ワンタイムパスワード" />
         </>
       ) : (
         <>
@@ -179,20 +170,6 @@ export default function FormApp({ record }: FormAppProps) {
           margin-bottom: 1em;
         }
       `}</style>
-
-      {showPasscodeDialog && (
-        <PasscodeDialog
-          callback={async (passcode) => {
-            if (!passcode) {
-              setShowPasscodeDialog(false);
-              return;
-            }
-
-            await onPasscode(passcode);
-            await savePasscode(passcode);
-          }}
-        />
-      )}
     </div>
   );
 }

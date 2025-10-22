@@ -3,22 +3,12 @@ import { createPortal } from 'react-dom';
 
 import GlobalStyle from '@components/GlobalStyle';
 import InputField from '@components/InputField';
-
-type CallbackFunc = (passcode: string | null) => void | Promise<void>;
-
-export interface PasscodeDialogProps {
-  callback: CallbackFunc;
-}
+import type { PromptComponent } from '@components/Keychain';
 
 /**
- * パスコードの入力を促すダイアログを表示する。
- *
- * 一度閉じたダイアログを再表示することはできない。
- * 再表示したい場合は新しくマウントしなおすこと。
- *
- * @param callback ダイアログが閉じられるときに呼ばれる関数。キャンセルされた場合はnullが渡される。この関数でエラーを発生させると、ダイアログは閉じられず、エラーメッセージが表示される。
+ * kintoneのダイアログを使ってパスコードの入力を促すコンポーネント
  */
-export default function PasscodeDialog({ callback }: PasscodeDialogProps) {
+const PasscodeDialog: PromptComponent = ({ shown, callback }) => {
   const [error, setError] = useState<string | null>(null);
   const [passcode, setPasscode] = useState<string>('');
 
@@ -77,6 +67,10 @@ export default function PasscodeDialog({ callback }: PasscodeDialogProps) {
   );
 
   useEffect(() => {
+    if (!shown) {
+      return;
+    }
+
     const dialog = kintone.createDialog({
       title: 'パスコードを入力してください',
       body: div,
@@ -99,7 +93,11 @@ export default function PasscodeDialog({ callback }: PasscodeDialogProps) {
     return () => {
       close();
     };
-  }, [div]);
+  }, [shown, div]);
+
+  if (!shown) {
+    return null;
+  }
 
   return (
     <>
@@ -136,4 +134,6 @@ export default function PasscodeDialog({ callback }: PasscodeDialogProps) {
       )}
     </>
   );
-}
+};
+
+export default PasscodeDialog;

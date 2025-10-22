@@ -4,12 +4,9 @@ import { decrypt, isEncrypted } from '@lib/crypto';
 import { isValidURL } from '@lib/url';
 
 import { useKeychain } from '@components/Keychain';
-import MaskedField from '@components/MaskedField';
 import OTPField from '@components/OTPField';
 import PasswordField from '@components/PasswordField';
 import TextField from '@components/TextField';
-
-import PasscodeDialog from '../components/PasscodeDialog';
 
 export interface AccountCardProps {
   appId: number;
@@ -36,9 +33,9 @@ export default function AccountCard({
 
   // パスコードが入力されたときの処理
   // Keychainから読み取ったときにも、PasscodeDialogから入力されたときにも呼ばれる。
-  const onPasscode = async (passcode: string) => {
+  const { MaskedField } = useKeychain(async (passcode: string) => {
     if (!isEncryptedRecord) {
-      return;
+      return false;
     }
 
     try {
@@ -55,12 +52,11 @@ export default function AccountCard({
       }
 
       setShowPasscodeDialog(false);
+      return true;
     } catch {
-      throw new Error('パスコードが違います。');
+      return false;
     }
-  };
-
-  const { savePasscode } = useKeychain(onPasscode);
+  });
 
   const onUpdateURI = async (uri: string) => {
     kintone.api('/k/v1/record.json', 'PUT', {
@@ -98,28 +94,19 @@ export default function AccountCard({
       </div>
 
       {!usernameState ? null : isEncrypted(usernameState) ? (
-        <MaskedField
-          label="ユーザー名"
-          onClick={() => setShowPasscodeDialog(true)}
-        />
+        <MaskedField label="ユーザー名" />
       ) : (
         <TextField label="ユーザー名" value={usernameState} />
       )}
 
       {!passwordState ? null : isEncrypted(passwordState) ? (
-        <MaskedField
-          label="パスワード"
-          onClick={() => setShowPasscodeDialog(true)}
-        />
+        <MaskedField label="パスワード" />
       ) : (
         <PasswordField value={passwordState} />
       )}
 
       {!otpuriState ? null : isEncrypted(otpuriState) ? (
-        <MaskedField
-          label="ワンタイムパスワード"
-          onClick={() => setShowPasscodeDialog(true)}
-        />
+        <MaskedField label="ワンタイムパスワード" />
       ) : (
         <OTPField uri={otpuriState} onUpdate={onUpdateURI} />
       )}
@@ -147,20 +134,6 @@ export default function AccountCard({
           text-decoration: underline;
         }
       `}</style>
-
-      {showPasscodeDialog && (
-        <PasscodeDialog
-          callback={async (passcode) => {
-            if (!passcode) {
-              setShowPasscodeDialog(false);
-              return;
-            }
-
-            await onPasscode(passcode);
-            await savePasscode(passcode);
-          }}
-        />
-      )}
     </li>
   );
 }

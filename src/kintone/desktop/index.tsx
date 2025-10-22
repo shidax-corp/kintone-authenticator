@@ -1,7 +1,10 @@
+import Keychain, { PromptComponent } from '@components/Keychain';
+
 import Renderer from '../lib/renderer';
 import DetailApp from './DetailApp';
 import FormApp from './FormApp';
 import ListApp from './ListApp';
+import PasscodeDialog from './components/PasscodeDialog';
 
 const renderer = new Renderer();
 
@@ -10,7 +13,9 @@ kintone.events.on('app.record.index.show', (ev) => {
   if (container) {
     renderer.render(
       container,
-      <ListApp appId={ev.appId} viewId={ev.viewId} records={ev.records} />
+      <Keychain prompt={PasscodeDialog}>
+        <ListApp appId={ev.appId} viewId={ev.viewId} records={ev.records} />
+      </Keychain>
     );
   }
 
@@ -20,7 +25,9 @@ kintone.events.on('app.record.index.show', (ev) => {
 kintone.events.on('app.record.detail.show', (ev) => {
   renderer.render(
     kintone.app.record.getSpaceElement('space')!,
-    <DetailApp record={ev.record} />,
+    <Keychain prompt={PasscodeDialog}>
+      <DetailApp record={ev.record} />
+    </Keychain>,
     { tint: true }
   );
 
@@ -32,7 +39,9 @@ kintone.events.on(
   (ev: kintone.events.RecordCreateShowEvent) => {
     renderer.render(
       kintone.app.record.getSpaceElement('space')!,
-      <FormApp record={ev.record} />,
+      <Keychain prompt={PasscodeDialog}>
+        <FormApp record={ev.record} />
+      </Keychain>,
       { tint: true }
     );
 
@@ -45,7 +54,9 @@ kintone.events.on(
   (ev: kintone.events.RecordEditShowEvent) => {
     renderer.render(
       kintone.app.record.getSpaceElement('space')!,
-      <FormApp record={ev.record} />,
+      <Keychain prompt={PasscodeDialog}>
+        <FormApp record={ev.record} />
+      </Keychain>,
       { tint: true }
     );
 
