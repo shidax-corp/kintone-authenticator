@@ -1,8 +1,15 @@
+import { useState } from 'react';
+
+import { decrypt, isEncrypted } from '@lib/crypto';
 import { isValidURL } from '@lib/url';
 
+import { useKeychain } from '@components/Keychain';
+import MaskedField from '@components/MaskedField';
 import OTPField from '@components/OTPField';
 import PasswordField from '@components/PasswordField';
 import TextField from '@components/TextField';
+
+import PasscodeDialog from '../components/PasscodeDialog';
 
 export interface AccountCardProps {
   appId: number;
@@ -15,6 +22,46 @@ export default function AccountCard({
   viewId,
   account: { $id, name, username, password, otpuri, url },
 }: AccountCardProps) {
+  const [showPasscodeDialog, setShowPasscodeDialog] = useState(false);
+
+  // 暗号化されうる要素
+  const [usernameState, setUsername] = useState(username.value);
+  const [passwordState, setPassword] = useState(password.value);
+  const [otpuriState, setOtpuri] = useState(otpuri.value);
+
+  const isEncryptedRecord =
+    isEncrypted(usernameState) ||
+    isEncrypted(passwordState) ||
+    isEncrypted(otpuriState);
+
+  // パスコードが入力されたときの処理
+  // Keychainから読み取ったときにも、PasscodeDialogから入力されたときにも呼ばれる。
+  const onPasscode = async (passcode: string) => {
+    if (!isEncryptedRecord) {
+      return;
+    }
+
+    try {
+      if (usernameState && isEncrypted(usernameState)) {
+        setUsername(await decrypt(usernameState, passcode));
+      }
+
+      if (passwordState && isEncrypted(passwordState)) {
+        setPassword(await decrypt(passwordState, passcode));
+      }
+
+      if (otpuriState && isEncrypted(otpuriState)) {
+        setOtpuri(await decrypt(otpuriState, passcode));
+      }
+
+      setShowPasscodeDialog(false);
+    } catch {
+      throw new Error('パスコードが違います。');
+    }
+  };
+
+  const { savePasscode } = useKeychain(onPasscode);
+
   const onUpdateURI = async (uri: string) => {
     kintone.api('/k/v1/record.json', 'PUT', {
       app: appId,
@@ -49,13 +96,34 @@ export default function AccountCard({
           <span className="url">{url.value}</span>
         )}
       </div>
-      {username.value ? (
-        <TextField label="ユーザー名" value={username.value} />
-      ) : null}
-      {password.value ? <PasswordField value={password.value} /> : null}
-      {otpuri.value ? (
-        <OTPField uri={otpuri.value} onUpdate={onUpdateURI} />
-      ) : null}
+
+      {!usernameState ? null : isEncrypted(usernameState) ? (
+        <MaskedField
+          label="ユーザー名"
+          onClick={() => setShowPasscodeDialog(true)}
+        />
+      ) : (
+        <TextField label="ユーザー名" value={usernameState} />
+      )}
+
+      {!passwordState ? null : isEncrypted(passwordState) ? (
+        <MaskedField
+          label="パスワード"
+          onClick={() => setShowPasscodeDialog(true)}
+        />
+      ) : (
+        <PasswordField value={passwordState} />
+      )}
+
+      {!otpuriState ? null : isEncrypted(otpuriState) ? (
+        <MaskedField
+          label="ワンタイムパスワード"
+          onClick={() => setShowPasscodeDialog(true)}
+        />
+      ) : (
+        <OTPField uri={otpuriState} onUpdate={onUpdateURI} />
+      )}
+
       <style jsx>{`
         li {
           display: block;
@@ -79,6 +147,20 @@ export default function AccountCard({
           text-decoration: underline;
         }
       `}</style>
+
+      {showPasscodeDialog && (
+        <PasscodeDialog
+          callback={async (passcode) => {
+            if (!passcode) {
+              setShowPasscodeDialog(false);
+              return;
+            }
+
+            await onPasscode(passcode);
+            await savePasscode(passcode);
+          }}
+        />
+      )}
     </li>
   );
 }

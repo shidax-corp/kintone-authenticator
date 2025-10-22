@@ -49,7 +49,7 @@ async function deobfuscate<T extends Record<string, unknown>>(
 /**
  * パスコードが追加・読み取りされたときのハンドラーの型
  */
-type PasscodeHandler = (passcode: string) => void | Promise<void>;
+export type PasscodeHandler = (passcode: string) => void | Promise<void>;
 
 interface KeychainContextType {
   loading: boolean;
@@ -137,7 +137,11 @@ export function useKeychain(onPasscode: PasscodeHandler) {
   const initialCall = useEffectEvent((onPasscode: PasscodeHandler) => {
     (async () => {
       for (const passcode of passcodes) {
-        await onPasscode(passcode);
+        try {
+          await onPasscode(passcode);
+        } catch {
+          // ハンドラー内でエラーが発生しても無視する
+        }
       }
     })();
   });
