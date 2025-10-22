@@ -1,11 +1,15 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
+import { decrypt, isEncrypted } from '@lib/crypto';
 import { isValidURL } from '@lib/url';
 
 import Field from '@components/Field';
+import MaskedField from '@components/MaskedField';
 import OTPField from '@components/OTPField';
 import PasswordField from '@components/PasswordField';
 import TextField from '@components/TextField';
+
+import PasscodeDialog from '../components/PasscodeDialog';
 
 export interface DetailAppProps {
   record: kintone.types.SavedFields;
@@ -14,7 +18,15 @@ export interface DetailAppProps {
 export default function DetailApp({
   record: { name, username, password, otpuri, url },
 }: DetailAppProps) {
+  const [showPasscodeDialog, setShowPasscodeDialog] = useState(false);
+
+  // 暗号化されうる要素
+  const [usernameState, setUsername] = useState(username.value);
+  const [passwordState, setPassword] = useState(password.value);
+  const [otpuriState, setOtpuri] = useState(otpuri.value);
+
   useEffect(() => {
+    // 標準のフィールドは使わないので非表示にする
     kintone.app.record.setFieldShown('name', false);
     kintone.app.record.setFieldShown('url', false);
     kintone.app.record.setFieldShown('username', false);
@@ -49,20 +61,37 @@ export default function DetailApp({
         <EmptyField label="URL" />
       )}
 
-      {username.value ? (
-        <TextField label="ユーザー名" value={username.value} />
-      ) : (
+      {!usernameState ? (
         <EmptyField label="ユーザー名" />
-      )}
-      {password.value ? (
-        <PasswordField value={password.value} />
+      ) : isEncrypted(usernameState) ? (
+        <MaskedField
+          label="ユーザー名"
+          onClick={() => setShowPasscodeDialog(true)}
+        />
       ) : (
+        <TextField label="ユーザー名" value={usernameState} />
+      )}
+
+      {!passwordState ? (
         <EmptyField label="パスワード" />
-      )}
-      {otpuri.value ? (
-        <OTPField uri={otpuri.value} />
+      ) : isEncrypted(passwordState) ? (
+        <MaskedField
+          label="パスワード"
+          onClick={() => setShowPasscodeDialog(true)}
+        />
       ) : (
+        <PasswordField value={passwordState} />
+      )}
+
+      {!otpuriState ? (
         <EmptyField label="ワンタイムパスワード" />
+      ) : isEncrypted(otpuriState) ? (
+        <MaskedField
+          label="ワンタイムパスワード"
+          onClick={() => setShowPasscodeDialog(true)}
+        />
+      ) : (
+        <OTPField uri={otpuriState} />
       )}
 
       <style jsx>{`
@@ -73,6 +102,35 @@ export default function DetailApp({
           padding: var(--ka-field-padding);
         }
       `}</style>
+
+      {showPasscodeDialog && (
+        <PasscodeDialog
+          callback={async (passcode) => {
+            if (!passcode) {
+              setShowPasscodeDialog(false);
+              return;
+            }
+
+            try {
+              if (usernameState && isEncrypted(usernameState)) {
+                setUsername(await decrypt(usernameState, passcode));
+              }
+
+              if (passwordState && isEncrypted(passwordState)) {
+                setPassword(await decrypt(passwordState, passcode));
+              }
+
+              if (otpuriState && isEncrypted(otpuriState)) {
+                setOtpuri(await decrypt(otpuriState, passcode));
+              }
+
+              setShowPasscodeDialog(false);
+            } catch {
+              throw new Error('パスコードが違います。');
+            }
+          }}
+        />
+      )}
     </div>
   );
 }
