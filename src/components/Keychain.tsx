@@ -7,6 +7,7 @@ import {
   useContext,
   useEffect,
   useEffectEvent,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -21,6 +22,33 @@ const OBFUSCATION_KEY = 'kintone-authenticator-obfuscation-key';
 
 // セッションストレージに保存するパスコードのキー。
 const PASSCODE_STORAGE_KEY = 'kintone-authenticator-passcodes';
+
+/**
+ * パスコードストレージの抽象インターフェース
+ *
+ * kintone環境ではsessionStorage、Chrome拡張機能ではchrome.storage.localを使用
+ */
+export interface KeychainStorage {
+  getItem(key: string): Promise<string | null>;
+  setItem(key: string, value: string): Promise<void>;
+  removeItem(key: string): Promise<void>;
+}
+
+/**
+ * デフォルトのsessionStorage実装
+ * kintone環境で使用される
+ */
+const createSessionStorage = (): KeychainStorage => ({
+  async getItem(key: string) {
+    return sessionStorage.getItem(key);
+  },
+  async setItem(key: string, value: string) {
+    sessionStorage.setItem(key, value);
+  },
+  async removeItem(key: string) {
+    sessionStorage.removeItem(key);
+  },
+});
 
 /**
  * オブジェクトを簡易的に難読化して文字列に変換する。
@@ -90,38 +118,54 @@ export type PromptComponent = FC<PromptComponentProps>;
 export interface KeychainProps {
   prompt: PromptComponent;
   children: ReactNode;
+  storage?: KeychainStorage; // オプショナル、デフォルトはsessionStorage
 }
 
 /**
  * 暗号化のためのパスコードを一括管理するためのコンポーネント
  *
- * パスコードは難読化した上でセッションストレージに保存される。
+ * パスコードは難読化した上でストレージに保存される。
  *
  * @param prompt パスコードの入力を促すコンポーネント
  * @param children 子コンポーネント
+ * @param storage パスコードストレージ（省略時はsessionStorage）
  */
-export default function Keychain({ prompt: Prompt, children }: KeychainProps) {
+export default function Keychain({
+  prompt: Prompt,
+  children,
+  storage,
+}: KeychainProps) {
   const [showPrompt, setShowPrompt] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
   const [passcodes, setPasscodes] = useState<string[]>([]);
   const handlers = useRef<Set<PasscodeHandler>>(new Set());
 
+  // デフォルトのストレージを使用（メモ化して再生成を防ぐ）
+  const storageImpl = useMemo(
+    () => storage || createSessionStorage(),
+    [storage]
+  );
+
   useEffect(() => {
-    const stored = sessionStorage.getItem(PASSCODE_STORAGE_KEY);
-    deobfuscate<{ passcodes: string[] }>(stored || '')
-      .catch(() => ({ passcodes: [] }))
-      .then((obj) => {
+    (async () => {
+      try {
+        const stored = await storageImpl.getItem(PASSCODE_STORAGE_KEY);
+        const obj = await deobfuscate<{ passcodes: string[] }>(stored || '');
         setPasscodes(obj.passcodes || []);
+      } catch {
+        setPasscodes([]);
+      } finally {
         setLoading(false);
-      });
-  }, []);
+      }
+    })();
+  }, [storageImpl]);
 
   const savePasscode = async (passcode: string) => {
     if (!passcodes.includes(passcode)) {
       const updatedPasscodes = [...passcodes, passcode];
 
       const obfuscated = await obfuscate({ passcodes: updatedPasscodes });
-      sessionStorage.setItem(PASSCODE_STORAGE_KEY, obfuscated);
+      await storageImpl.setItem(PASSCODE_STORAGE_KEY, obfuscated);
 
       setPasscodes(updatedPasscodes);
     }

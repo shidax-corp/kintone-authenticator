@@ -33,6 +33,7 @@ describe('KintoneClient', () => {
     kintoneUsername: 'user',
     kintonePassword: 'pass',
     autoFillEnabled: true,
+    passcodeCacheTimeout: 5,
   };
 
   let client: KintoneClient;

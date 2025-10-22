@@ -3,7 +3,12 @@ import { type FormEvent, useEffect, useState } from 'react';
 import InputField from '@components/InputField';
 
 import { parseKintoneAppUrl } from '../lib/kintone-url';
-import { getSettings, isSettingsComplete, saveSettings } from '../lib/storage';
+import {
+  DEFAULT_PASSCODE_CACHE_TIMEOUT,
+  getSettings,
+  isSettingsComplete,
+  saveSettings,
+} from '../lib/storage';
 import type { ExtensionSettings } from '../lib/types';
 
 interface TestResult {
@@ -18,6 +23,7 @@ export const OptionsForm = () => {
     kintoneUsername: '',
     kintonePassword: '',
     autoFillEnabled: true,
+    passcodeCacheTimeout: DEFAULT_PASSCODE_CACHE_TIMEOUT,
   });
 
   const [kintoneAppUrl, setKintoneAppUrl] = useState('');
@@ -52,7 +58,7 @@ export const OptionsForm = () => {
 
   const handleInputChange = (
     field: keyof ExtensionSettings,
-    value: string | boolean
+    value: string | boolean | number
   ) => {
     setSettings((prev) => ({
       ...prev,
@@ -347,6 +353,25 @@ export const OptionsForm = () => {
           </div>
           <div className="help-text">
             ページの読み込み時に自動的にユーザー名とパスワードを入力します
+          </div>
+        </div>
+
+        <div className="form-group">
+          <InputField
+            type="text"
+            label="パスコードキャッシュのタイムアウト (分)"
+            placeholder="5"
+            value={String(settings.passcodeCacheTimeout)}
+            onChange={(value) => {
+              const numValue = parseInt(value, 10);
+              if (!isNaN(numValue) && numValue >= 1 && numValue <= 1440) {
+                handleInputChange('passcodeCacheTimeout', numValue);
+              }
+            }}
+            required
+          />
+          <div className="help-text">
+            この時間内に拡張機能へのアクセスがない場合、パスコードが自動的に消去されます（1〜1440分）
           </div>
         </div>
 

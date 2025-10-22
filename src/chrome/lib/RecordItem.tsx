@@ -1,5 +1,9 @@
+import { useState } from 'react';
+
+import { decrypt, isEncrypted } from '@lib/crypto';
 import { isValidURL } from '@lib/url';
 
+import { useKeychain } from '@components/Keychain';
 import OTPField from '@components/OTPField';
 import PasswordField from '@components/PasswordField';
 import TextField from '@components/TextField';
@@ -19,6 +23,40 @@ export const RecordItem = ({
   onFieldSelect,
   isModal = false,
 }: RecordItemProps) => {
+  const [usernameState, setUsername] = useState(record.username?.value || '');
+  const [passwordState, setPassword] = useState(record.password?.value || '');
+  const [otpuriState, setOtpuri] = useState(record.otpuri?.value || '');
+
+  const isEncryptedRecord =
+    isEncrypted(usernameState) ||
+    isEncrypted(passwordState) ||
+    isEncrypted(otpuriState);
+
+  // Keychainからパスコードを取得して復号化
+  const { MaskedField } = useKeychain(async (passcode: string) => {
+    if (!isEncryptedRecord) {
+      return false;
+    }
+
+    try {
+      if (usernameState && isEncrypted(usernameState)) {
+        setUsername(await decrypt(usernameState, passcode));
+      }
+
+      if (passwordState && isEncrypted(passwordState)) {
+        setPassword(await decrypt(passwordState, passcode));
+      }
+
+      if (otpuriState && isEncrypted(otpuriState)) {
+        setOtpuri(await decrypt(otpuriState, passcode));
+      }
+
+      return true;
+    } catch {
+      return false;
+    }
+  });
+
   const handleUsernameClick = (value: string) => {
     if (isModal && onFieldSelect) {
       onFieldSelect('username', value, record.$id.value);
@@ -54,35 +92,48 @@ export const RecordItem = ({
           <span className="url">{record.url?.value}</span>
         )}
       </div>
-      {record.username?.value ? (
+
+      {/* ユーザー名フィールド */}
+      {!usernameState ? null : isEncrypted(usernameState) ? (
+        <MaskedField label="ユーザー名" />
+      ) : (
         <TextField
           label="ユーザー名"
-          value={record.username.value}
+          value={usernameState}
           onClick={
-            isModal && record.username?.value
-              ? () => handleUsernameClick(record.username.value)
+            isModal && usernameState
+              ? () => handleUsernameClick(usernameState)
               : undefined
           }
           className="copy-field"
         />
-      ) : null}
-      {record.password?.value ? (
+      )}
+
+      {/* パスワードフィールド */}
+      {!passwordState ? null : isEncrypted(passwordState) ? (
+        <MaskedField label="パスワード" />
+      ) : (
         <PasswordField
-          value={record.password.value}
+          value={passwordState}
           onClick={
-            isModal && record.password?.value
-              ? () => handlePasswordClick(record.password.value)
+            isModal && passwordState
+              ? () => handlePasswordClick(passwordState)
               : undefined
           }
           className="copy-field"
         />
-      ) : null}
-      {record.otpuri?.value ? (
+      )}
+
+      {/* OTPフィールド */}
+      {!otpuriState ? null : isEncrypted(otpuriState) ? (
+        <MaskedField label="ワンタイムパスワード" />
+      ) : (
         <OTPField
-          uri={record.otpuri.value}
+          uri={otpuriState}
           onClick={isModal ? handleOtpClick : undefined}
         />
-      ) : null}
+      )}
+
       <style jsx>{`
         li {
           display: block;

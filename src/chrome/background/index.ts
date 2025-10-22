@@ -1,6 +1,7 @@
 import { generateTOTP } from '@lib/gen-otp';
 import { decodeOTPAuthURI, isValidOTPAuthURI } from '@lib/otpauth-uri';
 
+import { startPasscodeTimeoutManager } from '../lib/passcode-timeout-manager';
 import { getSettings, isSettingsComplete } from '../lib/storage';
 import type {
   ExtensionSettings,
@@ -60,10 +61,12 @@ chrome.runtime.onInstalled.addListener(async (details) => {
   }
 
   await createContextMenus();
+  await startPasscodeTimeoutManager();
 });
 
 chrome.runtime.onStartup.addListener(async () => {
   await createContextMenus();
+  await startPasscodeTimeoutManager();
 });
 
 chrome.storage.onChanged.addListener(async (changes, area) => {
