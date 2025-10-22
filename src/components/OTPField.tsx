@@ -42,6 +42,10 @@ export default function OTPField({
   const ref = useRef<HTMLDivElement>(null);
 
   const { info, decodeError } = useMemo(() => {
+    if (!uri) {
+      return { info: null, decodeError: '未設定' };
+    }
+
     try {
       return {
         info: decodeOTPAuthURI(uri),
