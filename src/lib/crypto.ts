@@ -22,7 +22,7 @@ const generateKey = async (
     {
       name: 'PBKDF2',
       salt,
-      iterations: 10000,
+      iterations: 600000,
       hash: 'SHA-256',
     },
     keyMaterial,
