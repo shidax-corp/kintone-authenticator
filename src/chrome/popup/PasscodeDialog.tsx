@@ -34,13 +34,9 @@ const PasscodeDialog: PromptComponent = ({
   };
 
   const handleCancel = async () => {
-    try {
-      await callback(null);
-      setPasscode('');
-      setError(null);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
-    }
+    await callback(null);
+    setPasscode('');
+    setError(null);
   };
 
   if (!shown) return null;

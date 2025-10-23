@@ -23,10 +23,6 @@ const PasscodePrompt: PromptComponent = ({
         await callback(passcode);
         break;
       } catch (e) {
-        if (passcode === null) {
-          // ユーザーがキャンセルした場合は終了
-          break;
-        }
         alert(e instanceof Error ? e.message : String(e));
       }
     }
