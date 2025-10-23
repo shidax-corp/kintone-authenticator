@@ -39,6 +39,7 @@ export default function EncryptedFieldMask({
           padding: 0;
           width: 100%;
           text-align: left;
+          cursor: pointer;
         }
         span {
           flex: 1;
