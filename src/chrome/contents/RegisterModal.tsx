@@ -1,5 +1,12 @@
-import { type FormEvent, useCallback, useEffect, useState } from 'react';
+import {
+  type FormEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 
+import { encrypt } from '@lib/crypto';
 import {
   type OTPAuthRecord,
   decodeOTPAuthURI,
@@ -8,9 +15,13 @@ import {
 import { extractOriginURL } from '@lib/url';
 
 import InputField from '@components/InputField';
+import Keychain from '@components/Keychain';
 import OTPInputField from '@components/OTPInputField';
+import PasscodeInputField from '@components/PasscodeInputField';
 
 import ModalBase from '../components/ModalBase';
+import PasscodeDialog from '../components/PasscodeDialog';
+import { ChromeLocalStorage } from '../lib/keychain-storage';
 import type { NotificationType } from './notification';
 
 interface RegisterModalProps {
@@ -43,6 +54,12 @@ export const RegisterModal = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<{ [key: string]: string }>({});
+  const [encryptionPasscode, setEncryptionPasscode] = useState<string | null>(
+    null
+  );
+
+  // Chrome用のストレージを作成（メモ化して再生成を防ぐ）
+  const storage = useMemo(() => new ChromeLocalStorage(), []);
 
   useEffect(() => {
     // Get current tab information to pre-fill form (only in extension context)
@@ -129,14 +146,28 @@ export const RegisterModal = ({
     setError(null);
 
     try {
+      // Encrypt data if passcode is provided
+      const username = formData.username.trim();
+      const password = formData.password.trim();
+      const otpAuthUri = formData.otpAuthUri.trim() || undefined;
+
       const response = await chrome.runtime.sendMessage({
         type: 'REGISTER_OTP',
         data: {
           name: formData.name.trim(),
           url: formData.url.trim(),
-          username: formData.username.trim(),
-          password: formData.password.trim(),
-          otpAuthUri: formData.otpAuthUri.trim() || undefined,
+          username:
+            username && encryptionPasscode
+              ? await encrypt(username, encryptionPasscode)
+              : username,
+          password:
+            password && encryptionPasscode
+              ? await encrypt(password, encryptionPasscode)
+              : password,
+          otpAuthUri:
+            otpAuthUri && encryptionPasscode
+              ? await encrypt(otpAuthUri, encryptionPasscode)
+              : otpAuthUri,
         },
       });
 
@@ -188,188 +219,198 @@ export const RegisterModal = ({
   };
 
   return (
-    <ModalBase onClose={onClose}>
-      <div className="register-modal">
-        <style jsx>{`
-          .register-modal {
-            width: 400px;
-            max-height: 600px;
-            font-family:
-              -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            display: flex;
-            flex-direction: column;
-          }
+    <Keychain prompt={PasscodeDialog} storage={storage}>
+      <ModalBase onClose={onClose}>
+        <div className="register-modal">
+          <style jsx>{`
+            .register-modal {
+              width: 400px;
+              max-height: 600px;
+              font-family:
+                -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+                sans-serif;
+              display: flex;
+              flex-direction: column;
+            }
 
-          .header {
-            padding: 16px;
-            border-bottom: 1px solid var(--ka-bg-dark-color);
-            background: var(--ka-bg-tint-color);
-          }
+            .header {
+              padding: 16px;
+              border-bottom: 1px solid var(--ka-bg-dark-color);
+              background: var(--ka-bg-tint-color);
+            }
 
-          .header h1 {
-            margin: 0;
-            font-size: 18px;
-            color: var(--ka-fg-color);
-          }
+            .header h1 {
+              margin: 0;
+              font-size: 18px;
+              color: var(--ka-fg-color);
+            }
 
-          .form-container {
-            flex: 1;
-            overflow-y: auto;
-            padding: 16px;
-          }
+            .form-container {
+              flex: 1;
+              overflow-y: auto;
+              padding: 16px;
+            }
 
-          .form-group {
-            margin-bottom: 16px;
-          }
+            .form-group {
+              margin-bottom: 16px;
+            }
 
-          .help-text {
-            font-size: 12px;
-            color: var(--ka-fg-light-color);
-            margin-top: 4px;
-          }
+            .help-text {
+              font-size: 12px;
+              color: var(--ka-fg-light-color);
+              margin-top: 4px;
+            }
 
-          .error {
-            background: var(--ka-bg-error-color);
-            color: var(--ka-fg-error-color);
-            padding: 12px;
-            border-radius: 4px;
-            margin-bottom: 16px;
-            font-size: 14px;
-          }
+            .error {
+              background: var(--ka-bg-error-color);
+              color: var(--ka-fg-error-color);
+              padding: 12px;
+              border-radius: 4px;
+              margin-bottom: 16px;
+              font-size: 14px;
+            }
 
-          .field-error {
-            background-color: var(--ka-bg-error-color);
-            color: var(--ka-fg-error-color);
-            font-size: 0.8em;
-            padding: 4px 8px;
-            margin-top: 4px;
-            border-radius: 4px;
-          }
+            .field-error {
+              background-color: var(--ka-bg-error-color);
+              color: var(--ka-fg-error-color);
+              font-size: 0.8em;
+              padding: 4px 8px;
+              margin-top: 4px;
+              border-radius: 4px;
+            }
 
-          .footer {
-            padding: 16px;
-            border-top: 1px solid var(--ka-bg-dark-color);
-            background: var(--ka-bg-tint-color);
-            display: flex;
-            gap: 12px;
-          }
+            .footer {
+              padding: 16px;
+              border-top: 1px solid var(--ka-bg-dark-color);
+              background: var(--ka-bg-tint-color);
+              display: flex;
+              gap: 12px;
+            }
 
-          .button {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: 500;
-            font-size: 14px;
-          }
+            .button {
+              flex: 1;
+              padding: 12px;
+              border: none;
+              border-radius: 4px;
+              cursor: pointer;
+              font-weight: 500;
+              font-size: 14px;
+            }
 
-          .button:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-          }
+            .button:disabled {
+              opacity: 0.6;
+              cursor: not-allowed;
+            }
 
-          .button-secondary {
-            background: #6c757d;
-            color: white;
-          }
+            .button-secondary {
+              background: #6c757d;
+              color: white;
+            }
 
-          .button-secondary:hover:not(:disabled) {
-            background: #5a6268;
-          }
+            .button-secondary:hover:not(:disabled) {
+              background: #5a6268;
+            }
 
-          .button-primary {
-            background: var(--ka-primary-color);
-            color: white;
-          }
+            .button-primary {
+              background: var(--ka-primary-color);
+              color: white;
+            }
 
-          .button-primary:hover:not(:disabled) {
-            background: #2980b9;
-          }
-        `}</style>
+            .button-primary:hover:not(:disabled) {
+              background: #2980b9;
+            }
+          `}</style>
 
-        <div className="header">
-          <h1>ワンタイムパスワードを登録</h1>
+          <div className="header">
+            <h1>ワンタイムパスワードを登録</h1>
+          </div>
+
+          <form onSubmit={handleSubmit} className="form-container">
+            {error && <div className="error">{error}</div>}
+
+            <div className="form-group">
+              <InputField
+                type="text"
+                label="サイトの名前"
+                placeholder="例: Google"
+                value={formData.name}
+                onChange={(value) => handleInputChange('name', value)}
+                error={fieldErrors.name}
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <InputField
+                type="url"
+                label="URL"
+                placeholder="例: https://accounts.google.com/*"
+                value={formData.url}
+                onChange={(value) => handleInputChange('url', value)}
+                error={fieldErrors.url}
+              />
+              <div className="help-text">ワイルドカード（*）を使用できます</div>
+            </div>
+
+            <div className="form-group">
+              <InputField
+                type="text"
+                label="ユーザー名"
+                placeholder="ユーザー名またはメールアドレス"
+                value={formData.username}
+                onChange={(value) => handleInputChange('username', value)}
+                error={fieldErrors.username}
+              />
+            </div>
+
+            <div className="form-group">
+              <InputField
+                type="password"
+                label="パスワード"
+                placeholder="パスワード"
+                value={formData.password}
+                onChange={(value) => handleInputChange('password', value)}
+                error={fieldErrors.password}
+              />
+            </div>
+
+            <div className="form-group">
+              <OTPInputField
+                label="ワンタイムパスワード"
+                value={formData.otpAuthUri}
+                onChange={handleOTPChange}
+                disableCamera={true}
+              />
+            </div>
+
+            <div className="form-group">
+              <PasscodeInputField
+                value={encryptionPasscode}
+                onChange={setEncryptionPasscode}
+              />
+            </div>
+          </form>
+
+          <div className="footer">
+            <button
+              type="button"
+              className="button button-secondary"
+              onClick={onClose}
+            >
+              キャンセル
+            </button>
+            <button
+              type="submit"
+              className="button button-primary"
+              onClick={handleSubmit}
+              disabled={formData.name.trim() === '' || loading}
+            >
+              {loading ? '登録中...' : '登録'}
+            </button>
+          </div>
         </div>
-
-        <form onSubmit={handleSubmit} className="form-container">
-          {error && <div className="error">{error}</div>}
-
-          <div className="form-group">
-            <InputField
-              type="text"
-              label="サイトの名前"
-              placeholder="例: Google"
-              value={formData.name}
-              onChange={(value) => handleInputChange('name', value)}
-              error={fieldErrors.name}
-              required
-            />
-          </div>
-
-          <div className="form-group">
-            <InputField
-              type="url"
-              label="URL"
-              placeholder="例: https://accounts.google.com/*"
-              value={formData.url}
-              onChange={(value) => handleInputChange('url', value)}
-              error={fieldErrors.url}
-            />
-            <div className="help-text">ワイルドカード（*）を使用できます</div>
-          </div>
-
-          <div className="form-group">
-            <InputField
-              type="text"
-              label="ユーザー名"
-              placeholder="ユーザー名またはメールアドレス"
-              value={formData.username}
-              onChange={(value) => handleInputChange('username', value)}
-              error={fieldErrors.username}
-            />
-          </div>
-
-          <div className="form-group">
-            <InputField
-              type="password"
-              label="パスワード"
-              placeholder="パスワード"
-              value={formData.password}
-              onChange={(value) => handleInputChange('password', value)}
-              error={fieldErrors.password}
-            />
-          </div>
-
-          <div className="form-group">
-            <OTPInputField
-              label="ワンタイムパスワード"
-              value={formData.otpAuthUri}
-              onChange={handleOTPChange}
-              disableCamera={true}
-            />
-          </div>
-        </form>
-
-        <div className="footer">
-          <button
-            type="button"
-            className="button button-secondary"
-            onClick={onClose}
-          >
-            キャンセル
-          </button>
-          <button
-            type="submit"
-            className="button button-primary"
-            onClick={handleSubmit}
-            disabled={formData.name.trim() === '' || loading}
-          >
-            {loading ? '登録中...' : '登録'}
-          </button>
-        </div>
-      </div>
-    </ModalBase>
+      </ModalBase>
+    </Keychain>
   );
 };
 
