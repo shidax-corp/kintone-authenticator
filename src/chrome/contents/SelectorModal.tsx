@@ -7,11 +7,11 @@ import { filterRecords } from '@lib/search';
 import Keychain from '@components/Keychain';
 import SearchField from '@components/SearchField';
 
+import ModalBase from '../lib/ModalBase';
 import { RecordItem } from '../lib/RecordItem';
 import { ChromeLocalStorage } from '../lib/keychain-storage';
 import { isSettingsComplete } from '../lib/storage';
 import type { ExtensionSettings } from '../lib/types';
-import ModalBase from './ModalBase';
 import PasscodePrompt from './PasscodePrompt';
 
 interface SelectorModalProps {

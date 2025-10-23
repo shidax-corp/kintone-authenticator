@@ -6,6 +6,8 @@ import type {
   PromptComponentProps,
 } from '@components/Keychain';
 
+import ModalBase from '../lib/ModalBase';
+
 /**
  * Contents用のパスコード入力プロンプト（モーダル）
  */
@@ -33,7 +35,7 @@ const PasscodePrompt: PromptComponent = ({
     }
   };
 
-  const handleCancel = async () => {
+  const handleClose = async () => {
     await callback(null);
     setPasscode('');
     setError(null);
@@ -42,7 +44,7 @@ const PasscodePrompt: PromptComponent = ({
   if (!shown) return null;
 
   return (
-    <div className="passcode-prompt-overlay">
+    <ModalBase onClose={handleClose}>
       <div className="passcode-prompt">
         <h2>パスコードを入力してください</h2>
         <form onSubmit={handleSubmit}>
@@ -56,29 +58,15 @@ const PasscodePrompt: PromptComponent = ({
           {error && <div className="error">{error}</div>}
           <div className="buttons">
             <button type="submit">OK</button>
-            <button type="button" onClick={handleCancel}>
+            <button type="button" onClick={handleClose}>
               キャンセル
             </button>
           </div>
         </form>
       </div>
       <style jsx>{`
-        .passcode-prompt-overlay {
-          position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background: rgba(0, 0, 0, 0.5);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          z-index: 10000;
-        }
         .passcode-prompt {
-          background: var(--ka-bg-color);
           padding: 24px;
-          border-radius: 8px;
           min-width: 320px;
           max-width: 400px;
         }
@@ -112,7 +100,7 @@ const PasscodePrompt: PromptComponent = ({
           background: var(--ka-bg-tint-color);
         }
       `}</style>
-    </div>
+    </ModalBase>
   );
 };
 
