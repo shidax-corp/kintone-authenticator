@@ -172,7 +172,7 @@ export const OptionsForm = () => {
     }
   };
 
-  const isFormValid = isSettingsComplete(settings);
+  const isFormValid = isSettingsComplete(settings) && !timeoutError;
 
   if (loading) {
     return <div className="loading">設定を読み込み中...</div>;
