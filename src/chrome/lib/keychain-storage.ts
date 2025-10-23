@@ -15,8 +15,11 @@ export class ChromeLocalStorage implements KeychainStorage {
 
     // アクセスがあったので最終アクセス時刻を更新
     // 期限切れチェックは1分ごとのアラームで行うため、ここでは行わない
+    // 最終アクセス時刻の更新は副作用なので、失敗しても無視する
     if (result[key]) {
-      await this.updateLastAccess();
+      this.updateLastAccess().catch(() => {
+        // 最終アクセス時刻の更新に失敗しても、データの取得には影響しない
+      });
     }
 
     return result[key] || null;
@@ -24,7 +27,10 @@ export class ChromeLocalStorage implements KeychainStorage {
 
   async setItem(key: string, value: string): Promise<void> {
     await chrome.storage.local.set({ [key]: value });
-    await this.updateLastAccess();
+    // 最終アクセス時刻の更新は副作用なので、失敗しても無視する
+    this.updateLastAccess().catch(() => {
+      // 最終アクセス時刻の更新に失敗しても、データの保存には影響しない
+    });
   }
 
   async removeItem(key: string): Promise<void> {
