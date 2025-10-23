@@ -270,6 +270,29 @@ describe('PasscodeDialog', () => {
     expect(callback).toHaveBeenCalledWith(null);
   });
 
+  it('shows error when callback throws on cancel', async () => {
+    const callback = jest.fn().mockImplementation((passcode) => {
+      if (passcode === null) {
+        throw new Error('Cannot cancel');
+      }
+    });
+
+    render(<PasscodeDialog shown={true} callback={callback} />);
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    const result = await act(async () => {
+      return await beforeCloseHandler?.('CANCEL');
+    });
+
+    expect(result).toBe(false);
+    expect(callback).toHaveBeenCalledWith(null);
+    expect(closeMock).not.toHaveBeenCalled();
+    expect(screen.getByText('Cannot cancel')).toBeInTheDocument();
+  });
+
   it('submits form with Enter key and closes dialog on success', async () => {
     const callback = jest.fn();
 

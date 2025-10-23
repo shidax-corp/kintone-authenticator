@@ -55,8 +55,17 @@ const PasscodeDialog: PromptComponent = ({
   const beforeClose = useEffectEvent(
     async (action: 'OK' | 'CANCEL' | 'CLOSE') => {
       if (action === 'CANCEL' || action === 'CLOSE') {
-        await callback(null);
-        return true;
+        try {
+          await callback(null);
+          return true;
+        } catch (e) {
+          if (e instanceof Error) {
+            setError(e.message);
+          } else {
+            setError(String(e));
+          }
+        }
+        return false;
       }
 
       return handleClose();
