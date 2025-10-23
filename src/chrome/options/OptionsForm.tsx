@@ -28,6 +28,7 @@ export const OptionsForm = () => {
 
   const [kintoneAppUrl, setKintoneAppUrl] = useState('');
   const [urlError, setUrlError] = useState<string>('');
+  const [timeoutError, setTimeoutError] = useState<string>('');
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -363,11 +364,31 @@ export const OptionsForm = () => {
             placeholder="5"
             value={String(settings.passcodeCacheTimeout)}
             onChange={(value) => {
-              const numValue = parseInt(value, 10);
-              if (!isNaN(numValue) && numValue >= 1 && numValue <= 1440) {
-                handleInputChange('passcodeCacheTimeout', numValue);
+              // 空文字列の場合
+              if (value.trim() === '') {
+                setTimeoutError('タイムアウトを入力してください。');
+                return;
               }
+
+              const numValue = parseInt(value, 10);
+
+              // 数値でない場合
+              if (isNaN(numValue)) {
+                setTimeoutError('数値を入力してください。');
+                return;
+              }
+
+              // 範囲外の場合
+              if (numValue < 1 || numValue > 1440) {
+                setTimeoutError('1〜1440分の範囲で入力してください。');
+                return;
+              }
+
+              // 正常な場合
+              setTimeoutError('');
+              handleInputChange('passcodeCacheTimeout', numValue);
             }}
+            error={timeoutError}
             required
           />
           <div className="help-text">
