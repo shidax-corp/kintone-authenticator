@@ -186,35 +186,4 @@ describe('ChromeLocalStorage', () => {
       expect(cleared).toBe(false);
     });
   });
-
-  describe('integration with getItem', () => {
-    it('should auto-clear expired data on getItem', async () => {
-      // タイムアウトを1分に設定
-      mockGetSettings.mockResolvedValue({
-        kintoneBaseUrl: 'https://example.cybozu.com',
-        kintoneAppId: '123',
-        kintoneUsername: 'user',
-        kintonePassword: 'pass',
-        autoFillEnabled: true,
-        passcodeCacheTimeout: 1, // 1分
-      });
-
-      await chromeLocalStorage.setItem(
-        'kintone_authenticator_passcodes',
-        'test-passcodes'
-      );
-
-      // 最終アクセス時刻を2分前に変更
-      const twoMinutesAgo = Date.now() - 2 * 60 * 1000;
-      mockStorage['kintone_authenticator_passcode_last_access'] = twoMinutesAgo;
-
-      // getItemを呼ぶと自動的にクリアされる
-      const value = await chromeLocalStorage.getItem(
-        'kintone_authenticator_passcodes'
-      );
-
-      expect(value).toBeNull();
-      expect(mockStorage['kintone_authenticator_passcodes']).toBeUndefined();
-    });
-  });
 });

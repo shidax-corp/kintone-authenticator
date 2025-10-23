@@ -11,12 +11,10 @@ const LAST_ACCESS_KEY = 'kintone_authenticator_passcode_last_access';
  */
 export class ChromeLocalStorage implements KeychainStorage {
   async getItem(key: string): Promise<string | null> {
-    // 期限切れチェック
-    await this.clearIfExpired();
-
     const result = await chrome.storage.local.get(key);
 
     // アクセスがあったので最終アクセス時刻を更新
+    // 期限切れチェックは1分ごとのアラームで行うため、ここでは行わない
     if (result[key]) {
       await this.updateLastAccess();
     }
