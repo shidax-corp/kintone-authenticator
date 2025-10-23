@@ -18,12 +18,12 @@ const OBFUSCATION_KEY = isDev
   : generateRandomKey();
 
 const PASSCODE_STORAGE_KEY = isDev
-  ? 'dev-passcode-storage'
-  : generateRandomStorageKey();
+  ? 'ka_dev_passcode'
+  : 'ka_' + generateRandomStorageKey();
 
 const LAST_ACCESS_STORAGE_KEY = isDev
-  ? 'dev-last-access-storage'
-  : generateRandomStorageKey();
+  ? 'ka_dev_last_access'
+  : 'ka_' + generateRandomStorageKey();
 
 const options = {
   entryPoints: {

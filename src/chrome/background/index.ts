@@ -52,6 +52,22 @@ const removeContextMenus = async () => {
 };
 
 chrome.runtime.onInstalled.addListener(async (details) => {
+  // アップデート時に古いキャッシュデータをクリア
+  if (details.reason === 'update') {
+    try {
+      const allData = await chrome.storage.local.get(null);
+      const cacheKeys = Object.keys(allData).filter((key) =>
+        key.startsWith('ka_')
+      );
+
+      if (cacheKeys.length > 0) {
+        await chrome.storage.local.remove(cacheKeys);
+      }
+    } catch {
+      // キャッシュクリアに失敗しても拡張機能の動作には影響しない
+    }
+  }
+
   // インストールまたはアップデート時に設定をチェック
   if (details.reason === 'install' || details.reason === 'update') {
     const settings = await getSettings();
