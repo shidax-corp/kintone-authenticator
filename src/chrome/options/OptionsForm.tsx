@@ -367,6 +367,7 @@ export const OptionsForm = () => {
               // 空文字列の場合
               if (value.trim() === '') {
                 setTimeoutError('タイムアウトを入力してください。');
+                handleInputChange('passcodeCacheTimeout', 0);
                 return;
               }
 
@@ -375,12 +376,14 @@ export const OptionsForm = () => {
               // 数値でない場合
               if (isNaN(numValue)) {
                 setTimeoutError('数値を入力してください。');
+                handleInputChange('passcodeCacheTimeout', 0);
                 return;
               }
 
               // 範囲外の場合
               if (numValue < 1 || numValue > 1440) {
                 setTimeoutError('1〜1440分の範囲で入力してください。');
+                handleInputChange('passcodeCacheTimeout', numValue);
                 return;
               }
 
