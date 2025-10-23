@@ -76,7 +76,7 @@ describe('Keychain', () => {
 
       // useEffectの実行を待つ（loadingとinitialCallの両方）
       await act(async () => {
-        await new Promise((resolve) => setTimeout(resolve, 10));
+        await new Promise((resolve) => setTimeout(resolve, 50));
       });
 
       // ハンドラーが既存のパスコードで呼ばれることを確認
@@ -104,14 +104,14 @@ describe('Keychain', () => {
 
       // 初期化を待つ
       await act(async () => {
-        await new Promise((resolve) => setTimeout(resolve, 10));
+        await new Promise((resolve) => setTimeout(resolve, 50));
       });
 
       // パスコードを保存
       const button = screen.getByText('Save');
       await act(async () => {
         fireEvent.click(button);
-        await new Promise((resolve) => setTimeout(resolve, 10));
+        await new Promise((resolve) => setTimeout(resolve, 50));
       });
 
       // sessionStorageに保存されたことを確認
@@ -143,7 +143,7 @@ describe('Keychain', () => {
       }).not.toThrow();
 
       await act(async () => {
-        await new Promise((resolve) => setTimeout(resolve, 10));
+        await new Promise((resolve) => setTimeout(resolve, 50));
       });
 
       // ハンドラーが呼ばれないことを確認（パスコードがないため）
@@ -172,7 +172,7 @@ describe('Keychain', () => {
 
       // 初期化を待つ
       await act(async () => {
-        await new Promise((resolve) => setTimeout(resolve, 10));
+        await new Promise((resolve) => setTimeout(resolve, 50));
       });
 
       expect(screen.queryByText('Prompt shown')).not.toBeInTheDocument();
@@ -214,7 +214,7 @@ describe('Keychain', () => {
 
       // 初期化を待つ
       await act(async () => {
-        await new Promise((resolve) => setTimeout(resolve, 10));
+        await new Promise((resolve) => setTimeout(resolve, 50));
       });
 
       // MaskedFieldのボタンをクリック
@@ -229,7 +229,7 @@ describe('Keychain', () => {
       const submitButton = screen.getByText('Submit');
       await act(async () => {
         fireEvent.click(submitButton);
-        await new Promise((resolve) => setTimeout(resolve, 10));
+        await new Promise((resolve) => setTimeout(resolve, 50));
       });
 
       // Promptが閉じられたことを確認
@@ -276,7 +276,7 @@ describe('Keychain', () => {
 
       // 初期化を待つ
       await act(async () => {
-        await new Promise((resolve) => setTimeout(resolve, 10));
+        await new Promise((resolve) => setTimeout(resolve, 50));
       });
 
       // MaskedFieldのボタンをクリック
@@ -289,7 +289,7 @@ describe('Keychain', () => {
       const submitButton = screen.getByText('Submit');
       await act(async () => {
         fireEvent.click(submitButton);
-        await new Promise((resolve) => setTimeout(resolve, 10));
+        await new Promise((resolve) => setTimeout(resolve, 50));
       });
 
       // エラーが発生していることを確認
@@ -327,7 +327,7 @@ describe('Keychain', () => {
 
       // 初期化を待つ
       await act(async () => {
-        await new Promise((resolve) => setTimeout(resolve, 10));
+        await new Promise((resolve) => setTimeout(resolve, 50));
       });
 
       // MaskedFieldのボタンをクリック
@@ -342,7 +342,7 @@ describe('Keychain', () => {
       const cancelButton = screen.getByText('Cancel');
       await act(async () => {
         fireEvent.click(cancelButton);
-        await new Promise((resolve) => setTimeout(resolve, 10));
+        await new Promise((resolve) => setTimeout(resolve, 50));
       });
 
       // Promptが閉じられたことを確認
@@ -374,7 +374,7 @@ describe('Keychain', () => {
 
       // 初期化を待つ
       await act(async () => {
-        await new Promise((resolve) => setTimeout(resolve, 10));
+        await new Promise((resolve) => setTimeout(resolve, 50));
       });
 
       expect(handler).toHaveBeenCalledWith('existing-passcode');
@@ -402,20 +402,20 @@ describe('Keychain', () => {
 
       // 初期化を待つ
       await act(async () => {
-        await new Promise((resolve) => setTimeout(resolve, 10));
+        await new Promise((resolve) => setTimeout(resolve, 50));
       });
 
       // 同じパスコードを2回保存
       const button1 = screen.getByText('Save1');
       await act(async () => {
         fireEvent.click(button1);
-        await new Promise((resolve) => setTimeout(resolve, 10));
+        await new Promise((resolve) => setTimeout(resolve, 50));
       });
 
       const button2 = screen.getByText('Save2');
       await act(async () => {
         fireEvent.click(button2);
-        await new Promise((resolve) => setTimeout(resolve, 10));
+        await new Promise((resolve) => setTimeout(resolve, 50));
       });
 
       // sessionStorageに保存されたパスコードを確認
@@ -443,7 +443,7 @@ describe('Keychain', () => {
 
       // 初期化を待つ
       await act(async () => {
-        await new Promise((resolve) => setTimeout(resolve, 10));
+        await new Promise((resolve) => setTimeout(resolve, 50));
       });
 
       expect(screen.getByText('Masked Field Test')).toBeInTheDocument();
@@ -478,7 +478,7 @@ describe('Keychain', () => {
 
       // 初期化を待つ
       await act(async () => {
-        await new Promise((resolve) => setTimeout(resolve, 10));
+        await new Promise((resolve) => setTimeout(resolve, 50));
       });
 
       // MaskedFieldのボタンをクリック
@@ -491,7 +491,7 @@ describe('Keychain', () => {
       const submitButton = screen.getByText('Submit');
       await act(async () => {
         fireEvent.click(submitButton);
-        await new Promise((resolve) => setTimeout(resolve, 10));
+        await new Promise((resolve) => setTimeout(resolve, 50));
       });
 
       // パスコードが保存されたことを確認
@@ -540,7 +540,7 @@ describe('Keychain', () => {
 
       // 初期化を待つ
       await act(async () => {
-        await new Promise((resolve) => setTimeout(resolve, 10));
+        await new Promise((resolve) => setTimeout(resolve, 50));
       });
 
       // MaskedFieldのボタンをクリック
@@ -553,7 +553,7 @@ describe('Keychain', () => {
       const submitButton = screen.getByText('Submit');
       await act(async () => {
         fireEvent.click(submitButton);
-        await new Promise((resolve) => setTimeout(resolve, 10));
+        await new Promise((resolve) => setTimeout(resolve, 50));
       });
 
       // エラーが発生していることを確認
@@ -596,7 +596,7 @@ describe('Keychain', () => {
 
       // 初期化を待つ
       await act(async () => {
-        await new Promise((resolve) => setTimeout(resolve, 10));
+        await new Promise((resolve) => setTimeout(resolve, 50));
       });
 
       // MaskedFieldのボタンをクリック
@@ -609,7 +609,7 @@ describe('Keychain', () => {
       const submitButton = screen.getByText('Submit');
       await act(async () => {
         fireEvent.click(submitButton);
-        await new Promise((resolve) => setTimeout(resolve, 10));
+        await new Promise((resolve) => setTimeout(resolve, 50));
       });
 
       // すべてのハンドラーが呼ばれたことを確認
@@ -646,14 +646,14 @@ describe('Keychain', () => {
 
       // 初期化を待つ
       await act(async () => {
-        await new Promise((resolve) => setTimeout(resolve, 10));
+        await new Promise((resolve) => setTimeout(resolve, 50));
       });
 
       // パスコードを保存
       const button = screen.getByText('Save');
       await act(async () => {
         fireEvent.click(button);
-        await new Promise((resolve) => setTimeout(resolve, 10));
+        await new Promise((resolve) => setTimeout(resolve, 50));
       });
 
       // すべてのハンドラーが呼ばれたことを確認
@@ -690,7 +690,7 @@ describe('Keychain', () => {
 
       // 初期化を待つ
       await act(async () => {
-        await new Promise((resolve) => setTimeout(resolve, 10));
+        await new Promise((resolve) => setTimeout(resolve, 50));
       });
 
       // コンポーネントをアンマウント
