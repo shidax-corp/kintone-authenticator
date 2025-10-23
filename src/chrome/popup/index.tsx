@@ -4,8 +4,8 @@ import { createRoot } from 'react-dom/client';
 import GlobalStyle from '@components/GlobalStyle';
 import Keychain from '@components/Keychain';
 
+import PasscodeDialog from '../components/PasscodeDialog';
 import { ChromeLocalStorage } from '../lib/keychain-storage';
-import PasscodeDialog from './PasscodeDialog';
 import { RegisterForm } from './RegisterForm';
 import { SelectionView } from './SelectionView';
 

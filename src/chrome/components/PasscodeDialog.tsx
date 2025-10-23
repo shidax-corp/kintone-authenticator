@@ -9,9 +9,10 @@ import type {
 import ModalBase from '../lib/ModalBase';
 
 /**
- * Contents用のパスコード入力プロンプト（モーダル）
+ * Chrome拡張用のパスコード入力ダイアログ
+ * Popup、Contentsの両方で使用される
  */
-const PasscodePrompt: PromptComponent = ({
+const PasscodeDialog: PromptComponent = ({
   shown,
   callback,
 }: PromptComponentProps) => {
@@ -45,7 +46,7 @@ const PasscodePrompt: PromptComponent = ({
 
   return (
     <ModalBase onClose={handleClose}>
-      <div className="passcode-prompt">
+      <div className="passcode-dialog">
         <h2>パスコードを入力してください</h2>
         <form onSubmit={handleSubmit}>
           <InputField
@@ -65,9 +66,9 @@ const PasscodePrompt: PromptComponent = ({
         </form>
       </div>
       <style jsx>{`
-        .passcode-prompt {
+        .passcode-dialog {
           padding: 24px;
-          min-width: 320px;
+          min-width: 300px;
           max-width: 400px;
         }
         h2 {
@@ -104,4 +105,4 @@ const PasscodePrompt: PromptComponent = ({
   );
 };
 
-export default PasscodePrompt;
+export default PasscodeDialog;

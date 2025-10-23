@@ -7,12 +7,12 @@ import { filterRecords } from '@lib/search';
 import Keychain from '@components/Keychain';
 import SearchField from '@components/SearchField';
 
+import PasscodeDialog from '../components/PasscodeDialog';
 import ModalBase from '../lib/ModalBase';
 import { RecordItem } from '../lib/RecordItem';
 import { ChromeLocalStorage } from '../lib/keychain-storage';
 import { isSettingsComplete } from '../lib/storage';
 import type { ExtensionSettings } from '../lib/types';
-import PasscodePrompt from './PasscodePrompt';
 
 interface SelectorModalProps {
   onClose: () => void;
@@ -231,7 +231,7 @@ export const SelectorModal = ({
   }
 
   return (
-    <Keychain prompt={PasscodePrompt} storage={storage}>
+    <Keychain prompt={PasscodeDialog} storage={storage}>
       <ModalBase onClose={onClose}>
         <div className="selector-modal">
           <div className="header">
