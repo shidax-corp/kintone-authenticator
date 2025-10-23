@@ -9,10 +9,24 @@ const SETTINGS_KEY = 'kintone_authenticator_settings';
 const CACHE_KEY = 'kintone_authenticator_cache';
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
+// デフォルトのパスコードキャッシュタイムアウト（分単位）
+export const DEFAULT_PASSCODE_CACHE_TIMEOUT = 5;
+
 export const getSettings = async (): Promise<ExtensionSettings | null> => {
   try {
     const result = await chrome.storage.local.get(SETTINGS_KEY);
-    return result[SETTINGS_KEY] || null;
+    const settings = result[SETTINGS_KEY];
+
+    if (settings) {
+      // デフォルト値を適用
+      return {
+        ...settings,
+        passcodeCacheTimeout:
+          settings.passcodeCacheTimeout ?? DEFAULT_PASSCODE_CACHE_TIMEOUT,
+      };
+    }
+
+    return null;
   } catch {
     return null;
   }

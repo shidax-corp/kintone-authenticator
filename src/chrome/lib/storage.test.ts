@@ -38,6 +38,7 @@ describe('storage', () => {
         kintoneUsername: 'user',
         kintonePassword: 'pass',
         autoFillEnabled: true,
+        passcodeCacheTimeout: 5,
       };
 
       mockChrome.storage.local.get.mockResolvedValue({
@@ -76,6 +77,7 @@ describe('storage', () => {
         kintoneUsername: 'user',
         kintonePassword: 'pass',
         autoFillEnabled: true,
+        passcodeCacheTimeout: 5,
       };
 
       mockChrome.storage.local.set.mockResolvedValue(undefined);
@@ -93,6 +95,7 @@ describe('storage', () => {
         kintoneUsername: 'user',
         kintonePassword: 'pass',
         autoFillEnabled: true,
+        passcodeCacheTimeout: 5,
       };
 
       mockChrome.storage.local.set.mockRejectedValue(
@@ -113,6 +116,7 @@ describe('storage', () => {
         kintoneUsername: 'user',
         kintonePassword: 'pass',
         autoFillEnabled: true,
+        passcodeCacheTimeout: 5,
       };
 
       expect(isSettingsComplete(settings)).toBe(true);

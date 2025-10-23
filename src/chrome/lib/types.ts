@@ -6,6 +6,7 @@ export interface ExtensionSettings {
   kintoneUsername: string;
   kintonePassword: string;
   autoFillEnabled: boolean;
+  passcodeCacheTimeout: number; // パスコードキャッシュのタイムアウト（分単位）
 }
 
 export type MessageType =
