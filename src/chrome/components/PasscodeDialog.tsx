@@ -6,7 +6,7 @@ import type {
   PromptComponentProps,
 } from '@components/Keychain';
 
-import ModalBase from '../lib/ModalBase';
+import ModalBase from './ModalBase';
 
 /**
  * Chrome拡張用のパスコード入力ダイアログ

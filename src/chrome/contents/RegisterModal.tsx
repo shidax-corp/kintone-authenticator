@@ -10,7 +10,7 @@ import { extractOriginURL } from '@lib/url';
 import InputField from '@components/InputField';
 import OTPInputField from '@components/OTPInputField';
 
-import ModalBase from '../lib/ModalBase';
+import ModalBase from '../components/ModalBase';
 import type { NotificationType } from './notification';
 
 interface RegisterModalProps {

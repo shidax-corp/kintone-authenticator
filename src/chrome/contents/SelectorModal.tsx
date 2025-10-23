@@ -7,8 +7,8 @@ import { filterRecords } from '@lib/search';
 import Keychain from '@components/Keychain';
 import SearchField from '@components/SearchField';
 
+import ModalBase from '../components/ModalBase';
 import PasscodeDialog from '../components/PasscodeDialog';
-import ModalBase from '../lib/ModalBase';
 import { RecordItem } from '../lib/RecordItem';
 import { ChromeLocalStorage } from '../lib/keychain-storage';
 import { isSettingsComplete } from '../lib/storage';
