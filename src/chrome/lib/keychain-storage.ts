@@ -2,8 +2,13 @@ import type { KeychainStorage } from '@components/Keychain';
 
 import { getSettings } from './storage';
 
-const PASSCODE_STORAGE_KEY = 'kintone_authenticator_passcodes';
-const LAST_ACCESS_KEY = 'kintone_authenticator_passcode_last_access';
+// ビルド時にランダムな値が注入される
+const PASSCODE_STORAGE_KEY =
+  process.env.PASSCODE_STORAGE_KEY || 'kintone_authenticator_passcodes'; // フォールバック（テスト用）
+
+const LAST_ACCESS_KEY =
+  process.env.LAST_ACCESS_STORAGE_KEY ||
+  'kintone_authenticator_passcode_last_access'; // フォールバック（テスト用）
 
 /**
  * Chrome拡張機能用 chrome.storage.local実装

@@ -17,11 +17,15 @@ import { decrypt, encrypt } from '@lib/crypto';
 import MaskedFieldBase from '@components/MaskedField';
 
 // オブジェクトを難読化するときに使うキー。
+// ビルド時にランダムな値が注入される。
 // 完全なセキュリティを提供するわけではなく、あくまで難読化するだけ。
-const OBFUSCATION_KEY = 'kintone-authenticator-obfuscation-key';
+const OBFUSCATION_KEY =
+  process.env.OBFUSCATION_KEY || 'kintone-authenticator-obfuscation-key'; // フォールバック（テスト用）
 
 // セッションストレージに保存するパスコードのキー。
-const PASSCODE_STORAGE_KEY = 'kintone-authenticator-passcodes';
+// ビルド時にランダムな値が注入される。
+const PASSCODE_STORAGE_KEY =
+  process.env.PASSCODE_STORAGE_KEY || 'kintone-authenticator-passcodes'; // フォールバック（テスト用）
 
 /**
  * パスコードストレージの抽象インターフェース
