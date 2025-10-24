@@ -151,10 +151,10 @@ export default function FormApp({ record }: FormAppProps) {
             onScanned={(value: string, info: OTPAuthRecord) => {
               setOtpuri(value);
 
-              if (!name && info?.issuer) {
+              if (!name && info.issuer) {
                 setName(info.issuer);
               }
-              if (!username && info?.accountName) {
+              if (!username && info.accountName) {
                 setUsername(info.accountName);
               }
             }}

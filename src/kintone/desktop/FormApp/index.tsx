@@ -148,13 +148,13 @@ export default function FormApp({ record }: FormAppProps) {
           <OTPInputField
             label="ワンタイムパスワード"
             value={otpuri}
-            onChange={(value: string, info: OTPAuthRecord | null) => {
+            onChange={(value: string, info: OTPAuthRecord) => {
               setOtpuri(value);
 
-              if (!name && info?.issuer) {
+              if (!name && info.issuer) {
                 setName(info.issuer);
               }
-              if (!username && info?.accountName) {
+              if (!username && info.accountName) {
                 setUsername(info.accountName);
               }
             }}

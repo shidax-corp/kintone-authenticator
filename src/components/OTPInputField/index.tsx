@@ -12,7 +12,7 @@ import { isClipboardAvailable, readQRFromClipboard } from './clipboard';
 export interface OTPInputFieldProps {
   label: string;
   value: string;
-  onChange: (value: string, info: OTPAuthRecord | null) => void;
+  onChange: (value: string, info: OTPAuthRecord) => void;
   disableCamera?: boolean;
 }
 
