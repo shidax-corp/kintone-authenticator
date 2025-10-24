@@ -31,6 +31,13 @@ const PasscodeDialog: PromptComponent = ({
     return div;
   }, []);
 
+  const callbackAndResetForm = async (passcode: string | null) => {
+    await callback(passcode);
+    passcodeRef.current = '';
+    setPasscode('');
+    setError(null);
+  };
+
   const handleClose = async () => {
     if (passcodeRef.current.trim() === '') {
       setError('パスコードを入力してください。');
@@ -38,7 +45,7 @@ const PasscodeDialog: PromptComponent = ({
     }
 
     try {
-      await callback(passcodeRef.current);
+      await callbackAndResetForm(passcodeRef.current);
       return true;
     } catch (e) {
       if (e instanceof Error) {
@@ -54,9 +61,11 @@ const PasscodeDialog: PromptComponent = ({
 
   const beforeClose = useEffectEvent(
     async (action: 'OK' | 'CANCEL' | 'CLOSE') => {
-      if (action === 'CANCEL' || action === 'CLOSE') {
+      if (action === 'OK') {
+        return handleClose();
+      } else {
         try {
-          await callback(null);
+          await callbackAndResetForm(null);
           return true;
         } catch (e) {
           if (e instanceof Error) {
@@ -67,8 +76,6 @@ const PasscodeDialog: PromptComponent = ({
         }
         return false;
       }
-
-      return handleClose();
     }
   );
 
