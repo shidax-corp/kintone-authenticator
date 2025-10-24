@@ -113,26 +113,20 @@ export const RegisterForm = ({
     setFieldErrors((prev) => ({ ...prev, [field]: '' }));
   };
 
-  const handleOTPChange = useCallback(
-    (value: string, info: OTPAuthRecord | null) => {
-      setFormData((prev) => ({
-        ...prev,
-        otpAuthUri: value,
-      }));
-      setError(null);
-      setFieldErrors((prev) => ({ ...prev, otpAuthUri: '' }));
+  const handleOTPChange = useCallback((value: string, info: OTPAuthRecord) => {
+    setFormData((prev) => ({
+      ...prev,
+      otpAuthUri: value,
+    }));
+    setError(null);
+    setFieldErrors((prev) => ({ ...prev, otpAuthUri: '' }));
 
-      // If valid OTP info is provided, update related fields
-      if (info) {
-        setFormData((prev) => ({
-          ...prev,
-          name: prev.name || info.issuer || info.accountName || '',
-          username: prev.username || info.accountName || '',
-        }));
-      }
-    },
-    []
-  );
+    setFormData((prev) => ({
+      ...prev,
+      name: prev.name || info.issuer || info.accountName || '',
+      username: prev.username || info.accountName || '',
+    }));
+  }, []);
 
   const validateForm = (): boolean => {
     const errors: { [key: string]: string } = {};
