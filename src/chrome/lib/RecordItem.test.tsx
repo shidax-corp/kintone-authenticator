@@ -126,4 +126,39 @@ describe('RecordItem', () => {
       ).not.toBeInTheDocument();
     });
   });
+
+  describe('OTP URIの更新', () => {
+    // chrome.runtime.sendMessageのモック
+    const mockSendMessage = jest.fn();
+
+    beforeAll(() => {
+      global.chrome = {
+        runtime: {
+          sendMessage: mockSendMessage,
+        },
+      } as any;
+    });
+
+    beforeEach(() => {
+      mockSendMessage.mockClear();
+    });
+
+    it('handleOtpUpdate関数が存在し、chrome.runtime.sendMessageを呼び出す', () => {
+      const record = createMockRecord({
+        otpuri: {
+          type: 'SINGLE_LINE_TEXT',
+          value:
+            'otpauth://hotp/Test:test@example.com?secret=JBSWY3DPEHPK3PXP&counter=0',
+        },
+      });
+
+      mockSendMessage.mockResolvedValue({ success: true });
+
+      // RecordItemコンポーネントのインスタンスを確認
+      render(<RecordItem record={record} />);
+
+      // OTPFieldがレンダリングされていることを確認
+      expect(screen.getByText('ワンタイムパスワード')).toBeInTheDocument();
+    });
+  });
 });

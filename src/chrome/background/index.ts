@@ -9,6 +9,7 @@ import type {
   GetRecordsMessage,
   Message,
   RegisterOTPMessage,
+  UpdateOTPURIMessage,
 } from '../lib/types';
 import { KintoneClient } from './kintone-client';
 import { readQRFromImageInServiceWorker } from './qr-reader';
@@ -268,6 +269,14 @@ chrome.runtime.onMessage.addListener(
           case 'GET_SETTINGS': {
             const settings = await getSettings();
             sendResponse({ success: true, data: settings });
+            break;
+          }
+
+          case 'UPDATE_OTP_URI': {
+            const client = await getClient();
+            const { recordId, otpuri } = (message as UpdateOTPURIMessage).data;
+            await client.updateRecord(recordId, otpuri);
+            sendResponse({ success: true });
             break;
           }
 

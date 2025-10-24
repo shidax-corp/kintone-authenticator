@@ -91,6 +91,25 @@ export const RecordItem = ({
     }
   };
 
+  const handleOtpUpdate = async (newURI: string) => {
+    // HOTPカウンターが更新された場合、バックグラウンドスクリプトに通知してkintoneに保存
+    try {
+      const response = await chrome.runtime.sendMessage({
+        type: 'UPDATE_OTP_URI',
+        data: {
+          recordId: record.$id.value,
+          otpuri: newURI,
+        },
+      });
+
+      if (!response || !response.success) {
+        console.error('Failed to update OTP URI:', response?.error);
+      }
+    } catch (error) {
+      console.error('Failed to send UPDATE_OTP_URI message:', error);
+    }
+  };
+
   return (
     <li>
       <div>
@@ -147,6 +166,7 @@ export const RecordItem = ({
         <OTPField
           uri={otpuriState}
           onClick={isModal ? handleOtpClick : undefined}
+          onUpdate={handleOtpUpdate}
         />
       )}
 

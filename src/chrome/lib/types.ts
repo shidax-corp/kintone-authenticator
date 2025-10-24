@@ -15,6 +15,7 @@ export type MessageType =
   | 'GET_OTP'
   | 'GET_SETTINGS'
   | 'TEST_CONNECTION'
+  | 'UPDATE_OTP_URI'
   | 'SHOW_ERROR'
   | 'SHOW_FILL_OPTIONS'
   | 'OPEN_REGISTER_FORM'
@@ -91,6 +92,15 @@ export interface ReadQRFromImageMessage extends Message {
     imageUrl: string;
   };
 }
+
+export interface UpdateOTPURIMessage extends Message {
+  type: 'UPDATE_OTP_URI';
+  data: {
+    recordId: string;
+    otpuri: string;
+  };
+}
+
 // Response types
 export interface MessageResponse<T = unknown> {
   success: boolean;

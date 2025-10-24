@@ -11,6 +11,7 @@ const mockKintoneClient = {
   record: {
     getRecords: jest.fn(),
     addRecord: jest.fn(),
+    updateRecord: jest.fn(),
   },
   app: {
     getApp: jest.fn(),
@@ -203,6 +204,40 @@ describe('KintoneClient', () => {
       );
 
       await expect(client.createRecord(recordData)).rejects.toThrow(
+        KintoneClientError
+      );
+    });
+  });
+
+  describe('updateRecord', () => {
+    it('should update OTP URI for a record', async () => {
+      const recordId = '123';
+      const newOtpUri =
+        'otpauth://hotp/Example:user@example.com?secret=JBSWY3DPEHPK3PXP&counter=5';
+
+      mockKintoneClient.record.updateRecord.mockResolvedValue({});
+      mockKintoneClient.record.getRecords.mockResolvedValue({ records: [] });
+
+      await client.updateRecord(recordId, newOtpUri);
+
+      expect(mockKintoneClient.record.updateRecord).toHaveBeenCalledWith({
+        app: mockSettings.kintoneAppId,
+        id: recordId,
+        record: {
+          otpuri: { value: newOtpUri },
+        },
+      });
+
+      // Cache should be cleared
+      expect(mockKintoneClient.record.getRecords).toHaveBeenCalled();
+    });
+
+    it('should throw error on update failure', async () => {
+      mockKintoneClient.record.updateRecord.mockRejectedValue(
+        new Error('Update failed')
+      );
+
+      await expect(client.updateRecord('123', 'new-uri')).rejects.toThrow(
         KintoneClientError
       );
     });

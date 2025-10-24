@@ -100,6 +100,25 @@ export class KintoneClient {
     }
   }
 
+  async updateRecord(recordId: string, otpuri: string): Promise<void> {
+    try {
+      await this.client.record.updateRecord({
+        app: this.appId,
+        id: recordId,
+        record: {
+          otpuri: { value: otpuri },
+        },
+      });
+
+      // Clear cache to force refresh
+      await this.getRecords(false);
+    } catch (error) {
+      throw new KintoneClientError(
+        `Failed to update record: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
+    }
+  }
+
   async testConnection(): Promise<boolean> {
     try {
       await this.client.app.getApp({ id: this.appId });
