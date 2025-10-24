@@ -84,9 +84,6 @@ const options = {
   platform: 'browser',
   target: ['chrome130'],
   treeShaking: true,
-  loader: {
-    '.png': 'file',
-  },
   alias: {
     '@lib': path.resolve(import.meta.dirname, 'src', 'lib'),
     '@components': path.resolve(import.meta.dirname, 'src', 'components'),
