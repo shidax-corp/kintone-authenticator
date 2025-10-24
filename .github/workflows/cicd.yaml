@@ -20,6 +20,8 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
       - run: npm ci
       - run: touch .env .env.development
       - run: npm run build

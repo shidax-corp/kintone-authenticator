@@ -1,8 +1,10 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
+import { decrypt, isEncrypted } from '@lib/crypto';
 import { isValidURL } from '@lib/url';
 
 import Field from '@components/Field';
+import { useKeychain } from '@components/Keychain';
 import OTPField from '@components/OTPField';
 import PasswordField from '@components/PasswordField';
 import TextField from '@components/TextField';
@@ -14,7 +16,44 @@ export interface DetailAppProps {
 export default function DetailApp({
   record: { name, username, password, otpuri, url },
 }: DetailAppProps) {
+  // 暗号化されうる要素
+  const [usernameState, setUsername] = useState(username.value);
+  const [passwordState, setPassword] = useState(password.value);
+  const [otpuriState, setOtpuri] = useState(otpuri.value);
+
+  const isEncryptedRecord =
+    isEncrypted(usernameState) ||
+    isEncrypted(passwordState) ||
+    isEncrypted(otpuriState);
+
+  // パスコードが入力されたときの処理
+  // Keychainから読み取ったときにも、PasscodeDialogから入力されたときにも呼ばれる。
+  const { MaskedField } = useKeychain(async (passcode: string) => {
+    if (!isEncryptedRecord) {
+      return false;
+    }
+
+    try {
+      if (usernameState && isEncrypted(usernameState)) {
+        setUsername(await decrypt(usernameState, passcode));
+      }
+
+      if (passwordState && isEncrypted(passwordState)) {
+        setPassword(await decrypt(passwordState, passcode));
+      }
+
+      if (otpuriState && isEncrypted(otpuriState)) {
+        setOtpuri(await decrypt(otpuriState, passcode));
+      }
+
+      return true;
+    } catch {
+      return false;
+    }
+  });
+
   useEffect(() => {
+    // 標準のフィールドは使わないので非表示にする
     kintone.app.record.setFieldShown('name', false);
     kintone.app.record.setFieldShown('url', false);
     kintone.app.record.setFieldShown('username', false);
@@ -49,20 +88,28 @@ export default function DetailApp({
         <EmptyField label="URL" />
       )}
 
-      {username.value ? (
-        <TextField label="ユーザー名" value={username.value} />
-      ) : (
+      {!usernameState ? (
         <EmptyField label="ユーザー名" />
-      )}
-      {password.value ? (
-        <PasswordField value={password.value} />
+      ) : isEncrypted(usernameState) ? (
+        <MaskedField label="ユーザー名" />
       ) : (
+        <TextField label="ユーザー名" value={usernameState} />
+      )}
+
+      {!passwordState ? (
         <EmptyField label="パスワード" />
-      )}
-      {otpuri.value ? (
-        <OTPField uri={otpuri.value} />
+      ) : isEncrypted(passwordState) ? (
+        <MaskedField label="パスワード" />
       ) : (
+        <PasswordField value={passwordState} />
+      )}
+
+      {!otpuriState ? (
         <EmptyField label="ワンタイムパスワード" />
+      ) : isEncrypted(otpuriState) ? (
+        <MaskedField label="ワンタイムパスワード" />
+      ) : (
+        <OTPField uri={otpuriState} />
       )}
 
       <style jsx>{`

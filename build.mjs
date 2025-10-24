@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import * as esbuild from 'esbuild';
 import babel from 'esbuild-plugin-babel';
 import { copy } from 'esbuild-plugin-copy';
@@ -6,6 +7,23 @@ import * as path from 'path';
 const NODE_ENV = process.env.NODE_ENV || 'production';
 const isDev = NODE_ENV === 'development';
 const serve = process.argv.includes('--serve');
+
+// ビルドごとにランダムなキーを生成
+// 開発モードでは固定値を使用（デバッグしやすくするため）
+const generateRandomKey = () => crypto.randomBytes(32).toString('hex');
+const generateRandomStorageKey = () => crypto.randomBytes(16).toString('hex');
+
+const OBFUSCATION_KEY = isDev
+  ? 'dev-obfuscation-key-for-debugging'
+  : generateRandomKey();
+
+const PASSCODE_STORAGE_KEY = isDev
+  ? 'ka_dev_passcode'
+  : 'ka_' + generateRandomStorageKey();
+
+const LAST_ACCESS_STORAGE_KEY = isDev
+  ? 'ka_dev_last_access'
+  : 'ka_' + generateRandomStorageKey();
 
 const options = {
   entryPoints: {
@@ -66,6 +84,18 @@ const options = {
   platform: 'browser',
   target: ['chrome130'],
   treeShaking: true,
+  alias: {
+    '@lib': path.resolve(import.meta.dirname, 'src', 'lib'),
+    '@components': path.resolve(import.meta.dirname, 'src', 'components'),
+  },
+  define: {
+    'process.env.NODE_ENV': JSON.stringify(NODE_ENV),
+    'process.env.OBFUSCATION_KEY': JSON.stringify(OBFUSCATION_KEY),
+    'process.env.PASSCODE_STORAGE_KEY': JSON.stringify(PASSCODE_STORAGE_KEY),
+    'process.env.LAST_ACCESS_STORAGE_KEY': JSON.stringify(
+      LAST_ACCESS_STORAGE_KEY
+    ),
+  },
   plugins: [
     babel({
       filter: /\.(tsx?)$/,

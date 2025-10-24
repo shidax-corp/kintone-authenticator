@@ -137,3 +137,49 @@ componentsディレクトリは、kintoneアプリとChrome拡張の両方で使
 - `value: string` - 表示するテキストの値。
 - `onClick?: () => void` - テキストがクリックされたときのコールバック関数。デフォルトではテキストをコピーする。
 - `className?: string` - コンポーネントに適用する追加のCSSクラス。
+
+## MaskedField
+
+**インポート**: `import MaskedField from '@components/MaskedField'`
+
+**説明**: 暗号化されたフィールドの代わりに表示するコンポーネント。鍵アイコンとマスクされたテキストを表示し、クリックすると復号化のためのコールバックが呼ばれる。
+
+**Props**:
+
+- `label: ReactNode` - フィールドの上に表示するラベル。
+- `onClick?: () => void` - フィールドがクリックされたときに呼び出されるコールバック関数。
+
+## PasscodeInputField
+
+**インポート**: `import PasscodeInputField from '@components/PasscodeInputField'`
+
+**説明**: レコードを暗号化するかどうかのチェックボックスと、暗号化パスコードの入力フィールドを表示するコンポーネント。パスコードを入力すると暗号化が有効になり、クリアすると無効になる。
+
+**Props**:
+
+- `value: string | null` - 現在の暗号化パスコード。無効化されている場合は `null` になる。
+- `onChange: (value: string | null) => void` - パスコードが変更されたときに呼び出されるコールバック関数。文字列の場合は有効、`null` の場合は無効を示す。
+
+## Keychain
+
+**インポート**: `import Keychain, { useKeychain, type PasscodeHandler, type PromptComponent, type PromptComponentProps } from '@components/Keychain'`
+
+**説明**: 暗号化のためのパスコードを一括管理するためのコンポーネント。パスコードは難読化した上でセッションストレージに保存される。子コンポーネントは `useKeychain` フックを使用してパスコードにアクセスできる。
+
+**Props**:
+
+- `prompt: PromptComponent` - パスコードの入力を促すコンポーネント。
+- `children: ReactNode` - 子コンポーネント。
+
+**型定義**:
+
+- `PasscodeHandler = (passcode: string) => Promise<boolean>` - パスコードが追加・読み取りされたときのハンドラーの型。`true` を返すと正しいパスコードとして処理される。
+- `PromptComponentProps = { shown: boolean; callback: (passcode: string | null) => Promise<void> }` - パスコード入力コンポーネントのプロパティ。
+- `PromptComponent = FC<PromptComponentProps>` - パスコード入力コンポーネントの型。
+
+**フック**:
+
+- `useKeychain(onPasscode: PasscodeHandler)` - Keychainからパスコードを取得したり、新たなパスコードを追加したりするためのフック。戻り値は以下のプロパティを含むオブジェクト:
+  - `savePasscode: (passcode: string) => Promise<void>` - 新たなパスコードをKeychainに保存する関数。
+  - `passcodes: string[]` - 現在Keychainに保存されているパスコードの配列。
+  - `MaskedField: FC<{ label: string }>` - 暗号化されたフィールドの代わりに表示するダミーコンポーネント。クリックするとパスコード入力ダイアログが表示される。

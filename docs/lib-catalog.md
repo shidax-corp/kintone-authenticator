@@ -111,3 +111,17 @@ libディレクトリは、kintoneアプリとChrome拡張の両方で使用さ�
 - `isValidURL(url: string): boolean` - 文字列が有効なURLかどうかをチェックする。URL()コンストラクタを使用して検証。
 - `isValidURLPattern(url: string): boolean` - ワイルドカード（\*）を含むURLパターンの有効性をチェックする。httpsプロトコルが未指定の場合は自動で補完される。
 - `extractOriginURL(url: string | undefined): string` - URLからオリジン（プロトコル + ドメイン + 末尾のスラッシュ）を抽出する。無効なURLの場合は元のURLを返す。
+
+## crypto
+
+**インポート**: `import { encrypt, decrypt, isEncrypted } from '@lib/crypto'`
+
+**説明**: Web Crypto APIを使用したデータの暗号化・復号化機能を提供するライブラリ。PBKDF2とSHA-256による鍵導出と、AES-GCMによる暗号化・復号化をサポートする。
+
+**暗号化データ形式**: `encrypted:{iv}.{salt}.{ciphertext}` - IV、ソルト、暗号文はBase64エンコードされ、ピリオドで連結される。
+
+**関数**:
+
+- `encrypt(data: string, pin: string): Promise<string>` - データを暗号化する。指定されたPINを使用してPBKDF2で鍵を導出し、AES-GCMで暗号化する。戻り値は`encrypted:`プレフィックスが付いた暗号化データ。
+- `decrypt(data: string, pin: string): Promise<string>` - 暗号化されたデータを復号化する。データ形式が正しくない場合や、PINが間違っている場合はエラーをスローする。
+- `isEncrypted(data: string): boolean` - 文字列が暗号化されたデータかどうかを判定する。形式の検証のみを行い、復号化可能かどうかはチェックしない。

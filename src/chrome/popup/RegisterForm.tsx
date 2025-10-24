@@ -2,6 +2,7 @@ import { type FormEvent, useCallback, useEffect, useState } from 'react';
 
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
+import { encrypt } from '@lib/crypto';
 import {
   type OTPAuthRecord,
   decodeOTPAuthURI,
@@ -11,6 +12,7 @@ import { extractOriginURL } from '@lib/url';
 
 import InputField from '@components/InputField';
 import OTPInputField from '@components/OTPInputField';
+import PasscodeInputField from '@components/PasscodeInputField';
 
 import { getActiveTabSiteName } from './tab-utils';
 
@@ -40,6 +42,9 @@ export const RegisterForm = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<{ [key: string]: string }>({});
+  const [encryptionPasscode, setEncryptionPasscode] = useState<string | null>(
+    null
+  );
 
   useEffect(() => {
     // Get current tab information to pre-fill form (only in extension context)
@@ -108,26 +113,20 @@ export const RegisterForm = ({
     setFieldErrors((prev) => ({ ...prev, [field]: '' }));
   };
 
-  const handleOTPChange = useCallback(
-    (value: string, info: OTPAuthRecord | null) => {
-      setFormData((prev) => ({
-        ...prev,
-        otpAuthUri: value,
-      }));
-      setError(null);
-      setFieldErrors((prev) => ({ ...prev, otpAuthUri: '' }));
+  const handleOTPChange = useCallback((value: string, info: OTPAuthRecord) => {
+    setFormData((prev) => ({
+      ...prev,
+      otpAuthUri: value,
+    }));
+    setError(null);
+    setFieldErrors((prev) => ({ ...prev, otpAuthUri: '' }));
 
-      // If valid OTP info is provided, update related fields
-      if (info) {
-        setFormData((prev) => ({
-          ...prev,
-          name: prev.name || info.issuer || info.accountName || '',
-          username: prev.username || info.accountName || '',
-        }));
-      }
-    },
-    []
-  );
+    setFormData((prev) => ({
+      ...prev,
+      name: prev.name || info.issuer || info.accountName || '',
+      username: prev.username || info.accountName || '',
+    }));
+  }, []);
 
   const validateForm = (): boolean => {
     const errors: { [key: string]: string } = {};
@@ -151,14 +150,28 @@ export const RegisterForm = ({
     setError(null);
 
     try {
+      // Encrypt data if passcode is provided
+      const username = formData.username.trim();
+      const password = formData.password.trim();
+      const otpAuthUri = formData.otpAuthUri.trim() || undefined;
+
       const response = await chrome.runtime.sendMessage({
         type: 'REGISTER_OTP',
         data: {
           name: formData.name.trim(),
           url: formData.url.trim(),
-          username: formData.username.trim(),
-          password: formData.password.trim(),
-          otpAuthUri: formData.otpAuthUri.trim() || undefined,
+          username:
+            username && encryptionPasscode
+              ? await encrypt(username, encryptionPasscode)
+              : username,
+          password:
+            password && encryptionPasscode
+              ? await encrypt(password, encryptionPasscode)
+              : password,
+          otpAuthUri:
+            otpAuthUri && encryptionPasscode
+              ? await encrypt(otpAuthUri, encryptionPasscode)
+              : otpAuthUri,
         },
       });
 
@@ -357,6 +370,13 @@ export const RegisterForm = ({
             value={formData.otpAuthUri}
             onChange={handleOTPChange}
             disableCamera={true}
+          />
+        </div>
+
+        <div className="form-group">
+          <PasscodeInputField
+            value={encryptionPasscode}
+            onChange={setEncryptionPasscode}
           />
         </div>
       </form>

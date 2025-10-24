@@ -40,6 +40,7 @@ This is a kintone authenticator application similar to Google Authenticator, wit
    - QRコード読み取り機能 (`qr-reader.ts`)
    - レコード検索・フィルタリング機能 (`search.ts`)
    - URL検証ユーティリティ (`url.ts`)
+   - 暗号化・復号化ユーティリティ (`crypto.ts`)
    - See also docs/lib-catalog.md for details on available libraries.
 
 2. **Components** (`src/components/`) - Contains shared UI components between kintone and Chrome extension. See also docs/component-catalog.md for details on available components.

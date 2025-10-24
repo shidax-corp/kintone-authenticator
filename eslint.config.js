@@ -30,6 +30,8 @@ export default [
         requestAnimationFrame: 'readonly',
         Image: 'readonly',
         crypto: 'readonly',
+        btoa: 'readonly',
+        atob: 'readonly',
         navigator: 'readonly',
         fetch: 'readonly',
         URL: 'readonly',
@@ -108,7 +110,10 @@ export default [
       '@typescript-eslint/no-explicit-any': 'off',
 
       // Allow require in setup files
-      '@typescript-eslint/no-require-imports': ['error', { allow: ['crypto'] }],
+      '@typescript-eslint/no-require-imports': [
+        'error',
+        { allow: ['crypto', 'util'] },
+      ],
     },
   },
 

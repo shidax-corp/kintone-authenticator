@@ -3,7 +3,12 @@ import { type FormEvent, useEffect, useState } from 'react';
 import InputField from '@components/InputField';
 
 import { parseKintoneAppUrl } from '../lib/kintone-url';
-import { getSettings, isSettingsComplete, saveSettings } from '../lib/storage';
+import {
+  DEFAULT_PASSCODE_CACHE_TIMEOUT,
+  getSettings,
+  isSettingsComplete,
+  saveSettings,
+} from '../lib/storage';
 import type { ExtensionSettings } from '../lib/types';
 
 interface TestResult {
@@ -18,10 +23,12 @@ export const OptionsForm = () => {
     kintoneUsername: '',
     kintonePassword: '',
     autoFillEnabled: true,
+    passcodeCacheTimeout: DEFAULT_PASSCODE_CACHE_TIMEOUT,
   });
 
   const [kintoneAppUrl, setKintoneAppUrl] = useState('');
   const [urlError, setUrlError] = useState<string>('');
+  const [timeoutError, setTimeoutError] = useState<string>('');
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -52,7 +59,7 @@ export const OptionsForm = () => {
 
   const handleInputChange = (
     field: keyof ExtensionSettings,
-    value: string | boolean
+    value: string | boolean | number
   ) => {
     setSettings((prev) => ({
       ...prev,
@@ -165,7 +172,7 @@ export const OptionsForm = () => {
     }
   };
 
-  const isFormValid = isSettingsComplete(settings);
+  const isFormValid = isSettingsComplete(settings) && !timeoutError;
 
   if (loading) {
     return <div className="loading">設定を読み込み中...</div>;
@@ -347,6 +354,48 @@ export const OptionsForm = () => {
           </div>
           <div className="help-text">
             ページの読み込み時に自動的にユーザー名とパスワードを入力します
+          </div>
+        </div>
+
+        <div className="form-group">
+          <InputField
+            type="text"
+            label="パスコードキャッシュのタイムアウト (分)"
+            placeholder="5"
+            value={String(settings.passcodeCacheTimeout)}
+            onChange={(value) => {
+              // 空文字列の場合
+              if (value.trim() === '') {
+                setTimeoutError('タイムアウトを入力してください。');
+                handleInputChange('passcodeCacheTimeout', 0);
+                return;
+              }
+
+              const numValue = parseInt(value, 10);
+
+              // 数値でない場合
+              if (isNaN(numValue)) {
+                setTimeoutError('数値を入力してください。');
+                handleInputChange('passcodeCacheTimeout', 0);
+                return;
+              }
+
+              // 範囲外の場合
+              if (numValue < 1 || numValue > 1440) {
+                setTimeoutError('1〜1440分の範囲で入力してください。');
+                handleInputChange('passcodeCacheTimeout', numValue);
+                return;
+              }
+
+              // 正常な場合
+              setTimeoutError('');
+              handleInputChange('passcodeCacheTimeout', numValue);
+            }}
+            error={timeoutError}
+            required
+          />
+          <div className="help-text">
+            この時間内に拡張機能へのアクセスがない場合、パスコードが自動的に消去されます（1〜1440分）
           </div>
         </div>
 
