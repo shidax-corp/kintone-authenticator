@@ -1,9 +1,9 @@
 import { useCallback, useState } from 'react';
 
-import { generateHOTP, generateTOTP, prettifyOTP } from '@lib/gen-otp';
 import { type OTPAuthRecord, decodeOTPAuthURI } from '@lib/otpauth-uri';
 
 import Field from '@components/Field';
+import OTPField from '@components/OTPField';
 
 import QRFileReader from './QRFileReader';
 import Scanner from './Scanner';
@@ -34,7 +34,6 @@ export default function OTPInputField({
   onChange,
   disableCamera = false,
 }: OTPInputFieldProps) {
-  const [code, setCode] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
   const [scanning, setScanning] = useState<boolean>(false);
   const [reading, setReading] = useState<boolean>(false);
@@ -42,13 +41,7 @@ export default function OTPInputField({
   const readURI = async (uri: string) => {
     try {
       const record = decodeOTPAuthURI(uri);
-      if (record.type === 'TOTP') {
-        const otp = await generateTOTP(record);
-        setCode(otp.otp);
-      } else if (record.type === 'HOTP') {
-        const otp = await generateHOTP(record, record.counter);
-        setCode(otp.otp);
-      }
+      // OTPの生成はOTPFieldコンポーネントが自動で行うため、ここでは検証のみ行う
       setError(null);
       return record;
     } catch (err) {
@@ -90,7 +83,13 @@ export default function OTPInputField({
   return (
     <Field label={label}>
       <div>
-        <span className="preview">{code ? prettifyOTP(code) : '未設定'}</span>
+        <div className="preview">
+          {value ? (
+            <OTPField uri={value} className="otp-preview" fontSize="1.2em" />
+          ) : (
+            <span className="unset">未設定</span>
+          )}
+        </div>
         {!disableCamera && (
           <button type="button" onClick={() => setScanning(true)}>
             スキャン
@@ -137,8 +136,13 @@ export default function OTPInputField({
           margin-right: 4px;
           padding-right: 20px;
           border-right: 1px solid rgba(var(--ka-fg-rgb), 0.4);
-          font-size: calc(var(--ka-font-size) * 1.2);
           user-select: all;
+        }
+        .preview :global(.otp-preview) {
+          font-size: calc(var(--ka-font-size) * 1.2);
+        }
+        .unset {
+          font-size: calc(var(--ka-font-size) * 1.2);
         }
         button {
           background: none;
