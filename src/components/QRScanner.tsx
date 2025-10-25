@@ -23,6 +23,14 @@ export default function Scanner({ onRead, onError }: ScannerProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const scanIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const onReadRef = useRef(onRead);
+  const onErrorRef = useRef(onError);
+
+  // 最新のコールバックを参照するようにrefを更新
+  useEffect(() => {
+    onReadRef.current = onRead;
+    onErrorRef.current = onError;
+  });
 
   const stopScanning = useCallback(() => {
     if (scanIntervalRef.current) {
@@ -43,7 +51,7 @@ export default function Scanner({ onRead, onError }: ScannerProps) {
     const ctx = canvas.getContext('2d', { willReadFrequently: true });
 
     if (!ctx) {
-      onError(new QRReadError('カメラの初期化に失敗しました'));
+      onErrorRef.current(new QRReadError('カメラの初期化に失敗しました'));
       return;
     }
 
@@ -56,14 +64,14 @@ export default function Scanner({ onRead, onError }: ScannerProps) {
         try {
           const qrData = readQRFromCanvas(canvas);
           if (qrData) {
-            onRead(qrData);
+            onReadRef.current(qrData);
           }
         } catch {
           // QRコードが見つからない場合は継続してスキャン
         }
       }
     }, 200);
-  }, [onError, onRead]);
+  }, []);
 
   const startCamera = useCallback(async () => {
     try {
@@ -86,9 +94,9 @@ export default function Scanner({ onRead, onError }: ScannerProps) {
           errorMessage = 'カメラが見つかりません';
         }
       }
-      onError(new Error(errorMessage));
+      onErrorRef.current(new Error(errorMessage));
     }
-  }, [onError, startScanning]);
+  }, [startScanning]);
 
   useEffect(() => {
     startCamera();
