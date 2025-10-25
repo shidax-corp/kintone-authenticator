@@ -73,11 +73,36 @@ export default function Scanner({ onRead, onError }: ScannerProps) {
       streamRef.current = stream;
 
       if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        await videoRef.current.play();
+        const video = videoRef.current;
+        video.srcObject = stream;
+
+        // ビデオのメタデータがロードされるまで待つ
+        await new Promise<void>((resolve, reject) => {
+          const onLoadedMetadata = () => {
+            video.removeEventListener('loadedmetadata', onLoadedMetadata);
+            video.removeEventListener('error', onError);
+            resolve();
+          };
+          const onError = () => {
+            video.removeEventListener('loadedmetadata', onLoadedMetadata);
+            video.removeEventListener('error', onError);
+            reject(new Error('ビデオの読み込みに失敗しました'));
+          };
+
+          video.addEventListener('loadedmetadata', onLoadedMetadata);
+          video.addEventListener('error', onError);
+
+          // すでにメタデータがロードされている場合
+          if (video.readyState >= video.HAVE_METADATA) {
+            onLoadedMetadata();
+          }
+        });
+
+        await video.play();
         startScanning();
       }
     } catch (error) {
+      console.error(error);
       let errorMessage = 'カメラの起動に失敗しました';
       if (error instanceof DOMException) {
         if (error.name === 'NotAllowedError') {
