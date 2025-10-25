@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom';
-import { render, waitFor } from '@testing-library/react';
+import { act, render, waitFor } from '@testing-library/react';
 
 import QRScanner from './QRScanner';
 
@@ -80,10 +80,9 @@ describe('QRScanner', () => {
     });
 
     // onReadコールバックを変更して再レンダリング
-    rerender(<QRScanner onRead={onRead2} onError={onError} />);
-
-    // 少し待機
-    await new Promise((resolve) => setTimeout(resolve, 100));
+    act(() => {
+      rerender(<QRScanner onRead={onRead2} onError={onError} />);
+    });
 
     // カメラは依然として一度しか起動されていないことを確認
     expect(getUserMediaMock).toHaveBeenCalledTimes(1);
@@ -104,10 +103,9 @@ describe('QRScanner', () => {
     });
 
     // onErrorコールバックを変更して再レンダリング
-    rerender(<QRScanner onRead={onRead} onError={onError2} />);
-
-    // 少し待機
-    await new Promise((resolve) => setTimeout(resolve, 100));
+    act(() => {
+      rerender(<QRScanner onRead={onRead} onError={onError2} />);
+    });
 
     // カメラは依然として一度しか起動されていないことを確認
     expect(getUserMediaMock).toHaveBeenCalledTimes(1);
