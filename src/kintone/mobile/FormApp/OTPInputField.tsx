@@ -111,21 +111,21 @@ export default function OTPInputField({
  * @param onCancel - キャンセルボタンが押されたときのコールバック関数。
  */
 class ViewpanelConqueror {
-  private leftArea: HTMLDivElement;
-  private cancelButton: HTMLButtonElement;
-  private saveButton: HTMLButtonElement;
+  private leftArea: HTMLDivElement | null;
+  private cancelButton: HTMLButtonElement | null;
+  private saveButton: HTMLButtonElement | null;
   private createdCancelButton: HTMLButtonElement | null = null;
 
   constructor() {
     this.leftArea = document.querySelector(
       '.gaia-mobile-v2-app-record-edittoolbar-left'
-    )! as HTMLDivElement;
+    );
     this.cancelButton = document.querySelector(
       '.gaia-mobile-v2-app-record-edittoolbar-cancel'
-    )! as HTMLButtonElement;
+    );
     this.saveButton = document.querySelector(
       '.gaia-mobile-v2-app-record-edittoolbar-save'
-    )! as HTMLButtonElement;
+    );
   }
 
   conquer(onCancel: () => void) {
@@ -138,10 +138,19 @@ class ViewpanelConqueror {
   }
 
   hideSaveButton() {
-    this.saveButton.style.display = 'none';
+    if (this.saveButton instanceof HTMLButtonElement) {
+      this.saveButton.style.display = 'none';
+    }
   }
 
   overrideCancelButton(onClick: () => void) {
+    if (
+      !(this.cancelButton instanceof HTMLButtonElement) ||
+      !(this.leftArea instanceof HTMLDivElement)
+    ) {
+      return;
+    }
+
     this.cancelButton.style.display = 'none';
 
     const newCancelButton = document.createElement('button');
@@ -155,7 +164,11 @@ class ViewpanelConqueror {
   liberate() {
     this.createdCancelButton?.remove();
     this.createdCancelButton = null;
-    this.cancelButton.style.display = '';
-    this.saveButton.style.display = '';
+    if (this.cancelButton instanceof HTMLButtonElement) {
+      this.cancelButton.style.display = '';
+    }
+    if (this.saveButton instanceof HTMLButtonElement) {
+      this.saveButton.style.display = '';
+    }
   }
 }
