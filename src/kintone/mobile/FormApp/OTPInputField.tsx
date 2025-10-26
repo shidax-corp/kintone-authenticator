@@ -138,13 +138,16 @@ class ViewpanelConqueror {
   }
 
   hideSaveButton() {
-    if (this.saveButton) {
+    if (this.saveButton instanceof HTMLButtonElement) {
       this.saveButton.style.display = 'none';
     }
   }
 
   overrideCancelButton(onClick: () => void) {
-    if (!this.cancelButton || !this.leftArea) {
+    if (
+      !(this.cancelButton instanceof HTMLButtonElement) ||
+      !(this.leftArea instanceof HTMLDivElement)
+    ) {
       return;
     }
 
@@ -161,10 +164,10 @@ class ViewpanelConqueror {
   liberate() {
     this.createdCancelButton?.remove();
     this.createdCancelButton = null;
-    if (this.cancelButton) {
+    if (this.cancelButton instanceof HTMLButtonElement) {
       this.cancelButton.style.display = '';
     }
-    if (this.saveButton) {
+    if (this.saveButton instanceof HTMLButtonElement) {
       this.saveButton.style.display = '';
     }
   }
