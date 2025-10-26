@@ -44,10 +44,10 @@ describe('OTPInputField - ViewpanelConqueror resilience', () => {
     render(<OTPInputField uri="" onScanned={mockOnScanned} />);
 
     const scannerButton = screen.getByRole('button');
-    
+
     // ボタンクリック時にエラーが発生しないことを確認
     expect(() => fireEvent.click(scannerButton)).not.toThrow();
-    
+
     // スキャナーが表示されることを確認
     expect(screen.getByTestId('scanner')).toBeInTheDocument();
   });
