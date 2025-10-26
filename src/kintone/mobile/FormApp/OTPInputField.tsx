@@ -117,22 +117,15 @@ class ViewpanelConqueror {
   private createdCancelButton: HTMLButtonElement | null = null;
 
   constructor() {
-    const leftArea = document.querySelector(
+    this.leftArea = document.querySelector(
       '.gaia-mobile-v2-app-record-edittoolbar-left'
     );
-    this.leftArea = leftArea instanceof HTMLDivElement ? leftArea : null;
-
-    const cancelButton = document.querySelector(
+    this.cancelButton = document.querySelector(
       '.gaia-mobile-v2-app-record-edittoolbar-cancel'
     );
-    this.cancelButton =
-      cancelButton instanceof HTMLButtonElement ? cancelButton : null;
-
-    const saveButton = document.querySelector(
+    this.saveButton = document.querySelector(
       '.gaia-mobile-v2-app-record-edittoolbar-save'
     );
-    this.saveButton =
-      saveButton instanceof HTMLButtonElement ? saveButton : null;
   }
 
   conquer(onCancel: () => void) {

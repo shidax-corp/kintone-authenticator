@@ -44,10 +44,10 @@ describe('OTPInputField - ViewpanelConqueror resilience', () => {
     render(<OTPInputField uri="" onScanned={mockOnScanned} />);
 
     const scannerButton = screen.getByRole('button');
-
+    
     // ボタンクリック時にエラーが発生しないことを確認
     expect(() => fireEvent.click(scannerButton)).not.toThrow();
-
+    
     // スキャナーが表示されることを確認
     expect(screen.getByTestId('scanner')).toBeInTheDocument();
   });
@@ -84,32 +84,5 @@ describe('OTPInputField - ViewpanelConqueror resilience', () => {
 
     // コンポーネントが正常にレンダリングされ、エラーが発生しないことを確認
     expect(screen.getByTestId('scanner')).toBeInTheDocument();
-  });
-
-  it('should ignore elements with wrong types (instanceof check)', () => {
-    // 想定外の要素タイプをモック（例: divがbuttonのクラス名を持っている場合）
-    const wrongTypeLeftArea = document.createElement('span'); // HTMLDivElementではない
-    wrongTypeLeftArea.className = 'gaia-mobile-v2-app-record-edittoolbar-left';
-    document.body.appendChild(wrongTypeLeftArea);
-
-    const wrongTypeCancelButton = document.createElement('div'); // HTMLButtonElementではない
-    wrongTypeCancelButton.className =
-      'gaia-mobile-v2-app-record-edittoolbar-cancel';
-    document.body.appendChild(wrongTypeCancelButton);
-
-    const wrongTypeSaveButton = document.createElement('div'); // HTMLButtonElementではない
-    wrongTypeSaveButton.className =
-      'gaia-mobile-v2-app-record-edittoolbar-save';
-    document.body.appendChild(wrongTypeSaveButton);
-
-    // 要素が存在するが型が違う場合、エラーが発生しないことを確認
-    expect(() => {
-      render(
-        <OTPInputField uri="" onScanned={mockOnScanned} openScannerByDefault />
-      );
-    }).not.toThrow();
-
-    // 間違った型の要素は操作されないことを確認（displayは変更されていない）
-    expect(wrongTypeSaveButton.style.display).toBe('');
   });
 });
