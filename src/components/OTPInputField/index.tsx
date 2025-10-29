@@ -17,6 +17,9 @@ export interface OTPInputFieldProps {
   disableCamera?: boolean;
 }
 
+// TOTPの最小更新間隔（ミリ秒）
+const MIN_UPDATE_DELAY_MS = 100;
+
 /**
  * OTP Auth URIを入力するためのフィールドコンポーネント。
  *
@@ -39,9 +42,6 @@ export default function OTPInputField({
   const [error, setError] = useState<string | null>(null);
   const [scanning, setScanning] = useState<boolean>(false);
   const [reading, setReading] = useState<boolean>(false);
-
-  // TOTPの最小更新間隔（ミリ秒）
-  const MIN_UPDATE_DELAY_MS = 100;
 
   // URIをデコードしてOTPAuthRecordを取得
   const { info, decodeError } = useMemo(() => {
