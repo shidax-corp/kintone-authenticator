@@ -1,15 +1,60 @@
 import '@testing-library/jest-dom';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
+
+import { generateTOTP } from '@lib/gen-otp';
+import { decodeOTPAuthURI } from '@lib/otpauth-uri';
 
 import OTPInputField from './index';
 
+jest.mock('@lib/gen-otp', () => ({
+  generateHOTP: jest.fn(),
+  generateTOTP: jest.fn(),
+  prettifyOTP: jest.fn((otp: string) => otp),
+}));
+
+jest.mock('@lib/otpauth-uri', () => ({
+  decodeOTPAuthURI: jest.fn(),
+}));
+
+const mockGenerateTOTP = jest.mocked(generateTOTP);
+const mockDecodeOTPAuthURI = jest.mocked(decodeOTPAuthURI);
+
 describe('OTPInputField', () => {
-  it('displays OTPField when value is provided', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+    jest.clearAllMocks();
+  });
+
+  it('displays TOTP code when value is provided', async () => {
     const totpURI =
       'otpauth://totp/Example:user@example.com?secret=JBSWY3DPEHPK3PXP&issuer=Example';
     const mockOnChange = jest.fn();
+    const now = new Date();
+    const availableUntil = new Date(now.getTime() + 30000);
 
-    const { container } = render(
+    mockDecodeOTPAuthURI.mockReturnValue({
+      type: 'TOTP',
+      label: 'Test',
+      issuer: 'Issuer',
+      algorithm: 'SHA1',
+      digits: 6,
+      period: 30,
+      secret: 'secret',
+    } as any);
+
+    mockGenerateTOTP.mockResolvedValue({
+      type: 'TOTP' as const,
+      otp: '123456',
+      availableFrom: now,
+      availableUntil,
+      timestamp: now,
+    });
+
+    const view = render(
       <OTPInputField
         label="ワンタイムパスワード"
         value={totpURI}
@@ -17,8 +62,11 @@ describe('OTPInputField', () => {
       />
     );
 
-    // OTPFieldコンポーネントが表示されていることを確認
-    expect(container.querySelector('.otp-field')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText('123456')).toBeInTheDocument();
+    });
+
+    view.unmount();
   });
 
   it('displays "未設定" when no value is provided', () => {
