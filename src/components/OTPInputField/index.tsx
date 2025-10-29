@@ -1,5 +1,6 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
+import type { OTP } from '@lib/gen-otp';
 import { generateHOTP, generateTOTP, prettifyOTP } from '@lib/gen-otp';
 import { type OTPAuthRecord, decodeOTPAuthURI } from '@lib/otpauth-uri';
 
@@ -15,6 +16,9 @@ export interface OTPInputFieldProps {
   onChange: (value: string, info: OTPAuthRecord) => void;
   disableCamera?: boolean;
 }
+
+// TOTPの最小更新間隔（ミリ秒）
+const MIN_UPDATE_DELAY_MS = 100;
 
 /**
  * OTP Auth URIを入力するためのフィールドコンポーネント。
@@ -34,21 +38,96 @@ export default function OTPInputField({
   onChange,
   disableCamera = false,
 }: OTPInputFieldProps) {
-  const [code, setCode] = useState<string>('');
+  const [otp, setOtp] = useState<OTP | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [scanning, setScanning] = useState<boolean>(false);
   const [reading, setReading] = useState<boolean>(false);
 
+  // URIをデコードしてOTPAuthRecordを取得
+  const { info, decodeError } = useMemo(() => {
+    if (!value) {
+      return { info: null, decodeError: null };
+    }
+
+    try {
+      return {
+        info: decodeOTPAuthURI(value),
+        decodeError: null as string | null,
+      };
+    } catch {
+      return { info: null, decodeError: '読み込めませんでした' };
+    }
+  }, [value]);
+
+  // TOTPの自動更新ロジック
+  useEffect(() => {
+    if (!info || info.type !== 'TOTP') {
+      return undefined;
+    }
+
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+    let active = true;
+
+    const generate = () => {
+      generateTOTP(info)
+        .then((generatedOtp) => {
+          if (!active) return;
+          setError(null);
+          setOtp(generatedOtp);
+          const delay = Math.max(
+            MIN_UPDATE_DELAY_MS,
+            generatedOtp.availableUntil.getTime() - Date.now()
+          );
+          timeoutId = setTimeout(() => {
+            if (!active) return;
+            generate();
+          }, delay);
+        })
+        .catch(() => {
+          if (!active) return;
+          setError('計算に失敗しました');
+          setOtp(null);
+        });
+    };
+
+    generate();
+
+    return () => {
+      active = false;
+      if (timeoutId != null) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, [info]);
+
+  // HOTPの場合は初回に一度だけ生成
+  useEffect(() => {
+    if (!info || info.type !== 'HOTP') {
+      return;
+    }
+
+    generateHOTP(info, info.counter)
+      .then((generatedOtp) => {
+        setOtp(generatedOtp);
+        setError(null);
+      })
+      .catch(() => {
+        setError('計算に失敗しました');
+        setOtp(null);
+      });
+  }, [info]);
+
+  const displayError = decodeError ?? error;
+  const displayCode =
+    !displayError && otp && info && otp.type === info.type
+      ? prettifyOTP(otp.otp)
+      : displayError
+        ? displayError
+        : '未設定';
+
   const readURI = async (uri: string) => {
     try {
       const record = decodeOTPAuthURI(uri);
-      if (record.type === 'TOTP') {
-        const otp = await generateTOTP(record);
-        setCode(otp.otp);
-      } else if (record.type === 'HOTP') {
-        const otp = await generateHOTP(record, record.counter);
-        setCode(otp.otp);
-      }
       setError(null);
       return record;
     } catch (err) {
@@ -90,7 +169,7 @@ export default function OTPInputField({
   return (
     <Field label={label}>
       <div>
-        <span className="preview">{code ? prettifyOTP(code) : '未設定'}</span>
+        <span className="preview">{displayCode}</span>
         {!disableCamera && (
           <button type="button" onClick={() => setScanning(true)}>
             スキャン
@@ -107,7 +186,7 @@ export default function OTPInputField({
             貼り付け
           </button>
         )}
-        {error && <span className="err">{error}</span>}
+        {displayError && <span className="err">{displayError}</span>}
       </div>
 
       <Scanner
