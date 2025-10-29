@@ -135,7 +135,7 @@ const showFillOptionsModal = async (
       value: string,
       recordId?: string
     ) => {
-      if (type === 'otp' && value) {
+      if (type === 'otp' && value && value.trim()) {
         // OTPの値が渡されている場合（HOTPクリック時など）はそれを使用
         if (currentInputElement) {
           fillInputField(currentInputElement, value);
