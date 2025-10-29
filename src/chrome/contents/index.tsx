@@ -135,8 +135,15 @@ const showFillOptionsModal = async (
       value: string,
       recordId?: string
     ) => {
-      if (type === 'otp' && recordId) {
-        // OTPの場合は動的に生成
+      if (type === 'otp' && value?.trim()) {
+        // OTPの値が渡されている場合（HOTPクリック時など）はそれを使用
+        if (currentInputElement) {
+          fillInputField(currentInputElement, value);
+          showToast('success', 'OTPを入力しました');
+          closeModal();
+        }
+      } else if (type === 'otp' && recordId) {
+        // OTPの値がない場合は動的に生成（TOTPの場合など）
         try {
           const response = await chrome.runtime.sendMessage({
             type: 'GET_OTP',
