@@ -1,7 +1,7 @@
 import '@testing-library/jest-dom';
 import { render, screen, waitFor } from '@testing-library/react';
 
-import { generateTOTP } from '@lib/gen-otp';
+import { generateHOTP, generateTOTP } from '@lib/gen-otp';
 import { decodeOTPAuthURI } from '@lib/otpauth-uri';
 
 import OTPInputField from './index';
@@ -16,6 +16,8 @@ jest.mock('@lib/otpauth-uri', () => ({
   decodeOTPAuthURI: jest.fn(),
 }));
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const mockGenerateHOTP = jest.mocked(generateHOTP);
 const mockGenerateTOTP = jest.mocked(generateTOTP);
 const mockDecodeOTPAuthURI = jest.mocked(decodeOTPAuthURI);
 
