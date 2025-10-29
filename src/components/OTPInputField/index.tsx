@@ -40,6 +40,9 @@ export default function OTPInputField({
   const [scanning, setScanning] = useState<boolean>(false);
   const [reading, setReading] = useState<boolean>(false);
 
+  // TOTPの最小更新間隔（ミリ秒）
+  const MIN_UPDATE_DELAY_MS = 100;
+
   // URIをデコードしてOTPAuthRecordを取得
   const { info, decodeError } = useMemo(() => {
     if (!value) {
@@ -72,7 +75,7 @@ export default function OTPInputField({
           setError(null);
           setOtp(generatedOtp);
           const delay = Math.max(
-            100,
+            MIN_UPDATE_DELAY_MS,
             generatedOtp.availableUntil.getTime() - Date.now()
           );
           timeoutId = setTimeout(() => {
