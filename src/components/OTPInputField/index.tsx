@@ -62,7 +62,7 @@ export default function OTPInputField({
       return undefined;
     }
 
-    let timeoutId: number | null = null;
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
     let active = true;
 
     const generate = () => {
@@ -72,10 +72,10 @@ export default function OTPInputField({
           setError(null);
           setOtp(generatedOtp);
           const delay = Math.max(
-            0,
+            100,
             generatedOtp.availableUntil.getTime() - Date.now()
           );
-          timeoutId = window.setTimeout(() => {
+          timeoutId = setTimeout(() => {
             if (!active) return;
             generate();
           }, delay);
