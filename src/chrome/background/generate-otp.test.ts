@@ -1,7 +1,7 @@
 import { generateHOTP, generateTOTP } from '@lib/gen-otp';
 import { decodeOTPAuthURI, encodeOTPAuthURI } from '@lib/otpauth-uri';
 
-import { KintoneClient } from './kintone-client';
+import type { KintoneClient } from './kintone-client';
 
 jest.mock('@lib/gen-otp');
 jest.mock('@lib/otpauth-uri');
@@ -115,7 +115,9 @@ describe('generateOTPFromRecord', () => {
 
       const result = await generateOTPFromRecord(mockRecord, mockClient);
 
-      expect(mockDecodeOTPAuthURI).toHaveBeenCalledWith(mockRecord.otpuri.value);
+      expect(mockDecodeOTPAuthURI).toHaveBeenCalledWith(
+        mockRecord.otpuri.value
+      );
       expect(mockGenerateTOTP).toHaveBeenCalledWith({
         secret: mockOTPAuthRecord.secret,
         algorithm: mockOTPAuthRecord.algorithm,
@@ -174,7 +176,9 @@ describe('generateOTPFromRecord', () => {
       const result = await generateOTPFromRecord(mockRecord, mockClient);
 
       // Verify HOTP was generated with current counter
-      expect(mockDecodeOTPAuthURI).toHaveBeenCalledWith(mockRecord.otpuri.value);
+      expect(mockDecodeOTPAuthURI).toHaveBeenCalledWith(
+        mockRecord.otpuri.value
+      );
       expect(mockGenerateHOTP).toHaveBeenCalledWith(
         {
           secret: mockOTPAuthRecord.secret,
@@ -189,7 +193,10 @@ describe('generateOTPFromRecord', () => {
         ...mockOTPAuthRecord,
         counter: 6,
       });
-      expect(mockClient.updateRecord).toHaveBeenCalledWith('456', updatedOtpUri);
+      expect(mockClient.updateRecord).toHaveBeenCalledWith(
+        '456',
+        updatedOtpUri
+      );
 
       expect(result).toEqual(mockHOTP);
     });
@@ -252,7 +259,10 @@ describe('generateOTPFromRecord', () => {
         ...mockOTPAuthRecord,
         counter: 1,
       });
-      expect(mockClient.updateRecord).toHaveBeenCalledWith('789', updatedOtpUri);
+      expect(mockClient.updateRecord).toHaveBeenCalledWith(
+        '789',
+        updatedOtpUri
+      );
 
       expect(result).toEqual(mockHOTP);
     });
