@@ -32,8 +32,8 @@
     "@kintone/rest-api-client": "^6.0.0",
     "@mui/icons-material": "^7.3.4",
     "jsqr": "^1.4.0",
-    "react": "^19.2.1",
-    "react-dom": "^19.2.1",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
     "styled-jsx": "^5.1.7"
   },
   "devDependencies": {
