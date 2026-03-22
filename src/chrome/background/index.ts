@@ -1,5 +1,9 @@
-import { generateTOTP } from '@lib/gen-otp';
-import { decodeOTPAuthURI, isValidOTPAuthURI } from '@lib/otpauth-uri';
+import { generateHOTP, generateTOTP } from '@lib/gen-otp';
+import {
+  decodeOTPAuthURI,
+  encodeOTPAuthURI,
+  isValidOTPAuthURI,
+} from '@lib/otpauth-uri';
 
 import { startPasscodeTimeoutManager } from '../lib/passcode-timeout-manager';
 import { getSettings, isSettingsComplete } from '../lib/storage';
@@ -207,7 +211,10 @@ const handleFillFromKintone = async (
   }
 };
 
-const generateOTPFromRecord = async (record: kintone.types.SavedFields) => {
+const generateOTPFromRecord = async (
+  record: kintone.types.SavedFields,
+  client: KintoneClient
+) => {
   const otpAuthRecord = decodeOTPAuthURI(record.otpuri.value);
 
   if (otpAuthRecord.type === 'TOTP') {
@@ -219,7 +226,29 @@ const generateOTPFromRecord = async (record: kintone.types.SavedFields) => {
     });
   }
 
-  throw new Error('HOTP is not supported yet');
+  if (otpAuthRecord.type === 'HOTP') {
+    // Generate HOTP with current counter
+    const hotp = await generateHOTP(
+      {
+        secret: otpAuthRecord.secret,
+        algorithm: otpAuthRecord.algorithm,
+        digits: otpAuthRecord.digits,
+      },
+      otpAuthRecord.counter
+    );
+
+    // Increment counter and persist to kintone
+    const updatedRecord = {
+      ...otpAuthRecord,
+      counter: otpAuthRecord.counter + 1,
+    };
+    const updatedOtpUri = encodeOTPAuthURI(updatedRecord);
+    await client.updateRecord(record.$id.value, updatedOtpUri);
+
+    return hotp;
+  }
+
+  throw new Error('Unsupported OTP type');
 };
 
 chrome.runtime.onMessage.addListener(
@@ -261,7 +290,7 @@ chrome.runtime.onMessage.addListener(
               throw new Error('Record not found or no OTP configured');
             }
 
-            const otp = await generateOTPFromRecord(record);
+            const otp = await generateOTPFromRecord(record, client);
             sendResponse({ success: true, data: otp });
             break;
           }
